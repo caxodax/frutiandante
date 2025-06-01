@@ -1,31 +1,31 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getSiteSettings } from '@/lib/mock-data';
+import { obtenerConfiguracionSitio } from '@/lib/mock-data';
 
-interface LogoProps {
+interface LogotipoProps {
   className?: string;
 }
 
-const Logo = async ({ className }: LogoProps) => {
-  const settings = await getSiteSettings();
+const Logotipo = async ({ className }: LogotipoProps) => {
+  const configuracion = await obtenerConfiguracionSitio();
 
   return (
     <Link href="/" className={`flex items-center gap-2 ${className}`}>
-      {settings.logoUrl && (
+      {configuracion.urlLogo && (
         <Image 
-          src={settings.logoUrl} 
-          alt={`${settings.companyName} Logo`} 
+          src={configuracion.urlLogo} 
+          alt={`Logotipo de ${configuracion.nombreEmpresa}`} 
           width={150} 
           height={50} 
           className="h-10 w-auto object-contain"
-          data-ai-hint="logo design" 
+          data-ai-hint="diseño logotipo" 
         />
       )}
       <span className="text-2xl font-headline font-bold text-primary hover:text-primary/80 transition-colors">
-        {settings.companyName}
+        {configuracion.nombreEmpresa}
       </span>
     </Link>
   );
 };
 
-export default Logo;
+export default Logotipo;

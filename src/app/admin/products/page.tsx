@@ -5,24 +5,24 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { getProducts, getCategories } from '@/lib/mock-data';
+import { obtenerProductos, obtenerCategorias } from '@/lib/mock-data'; // Cambiado
 import Image from 'next/image';
 
-export default async function AdminProductsPage() {
-  const products = await getProducts();
-  const categories = await getCategories();
-  const categoryMap = new Map(categories.map(cat => [cat.id, cat.name]));
+export default async function PaginaAdminProductos() { // Renombrado
+  const productos = await obtenerProductos();
+  const categorias = await obtenerCategorias();
+  const mapaCategorias = new Map(categorias.map(cat => [cat.id, cat.nombre]));
 
   return (
     <Card className="shadow-lg">
       <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <CardTitle className="font-headline text-2xl">Products</CardTitle>
-          <CardDescription>Manage your products here. Add, edit, or delete items.</CardDescription>
+          <CardTitle className="font-headline text-2xl">Productos</CardTitle>
+          <CardDescription>Gestiona tus productos aquí. Añade, edita o elimina artículos.</CardDescription>
         </div>
         <Button asChild size="sm">
           <Link href="/admin/products/new" className="flex items-center gap-2">
-            <PlusCircle className="h-4 w-4" /> Add New Product
+            <PlusCircle className="h-4 w-4" /> Añadir Nuevo Producto
           </Link>
         </Button>
       </CardHeader>
@@ -30,50 +30,50 @@ export default async function AdminProductsPage() {
         <div className="mb-4">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Search products..." className="pl-8 w-full sm:w-1/3" />
+            <Input type="search" placeholder="Buscar productos..." className="pl-8 w-full sm:w-1/3" />
           </div>
         </div>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="hidden sm:table-cell">Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Retail Price</TableHead>
-                <TableHead>Wholesale Price</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="hidden sm:table-cell">Imagen</TableHead>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Categoría</TableHead>
+                <TableHead>Precio Detalle</TableHead>
+                <TableHead>Precio Mayorista</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
+              {productos.map((producto) => (
+                <TableRow key={producto.id}>
                   <TableCell className="hidden sm:table-cell">
                     <Image
-                      src={product.images[0]}
-                      alt={product.name}
+                      src={producto.imagenes[0]}
+                      alt={producto.nombre}
                       width={48}
                       height={48}
                       className="rounded-md object-cover aspect-square"
-                      data-ai-hint="product item"
+                      data-ai-hint="articulo producto"
                     />
                   </TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell className="font-medium">{producto.nombre}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{categoryMap.get(product.categoryId) || 'N/A'}</Badge>
+                    <Badge variant="outline">{mapaCategorias.get(producto.idCategoria) || 'N/A'}</Badge>
                   </TableCell>
-                  <TableCell>${product.retailPrice.toFixed(2)}</TableCell>
-                  <TableCell>${product.wholesalePrice.toFixed(2)}</TableCell>
+                  <TableCell>${producto.precioDetalle.toFixed(2)}</TableCell>
+                  <TableCell>${producto.precioMayorista.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" asChild className="hover:text-primary">
-                      <Link href={`/admin/products/edit/${product.slug}`}>
+                      <Link href={`/admin/products/edit/${producto.slug}`}>
                         <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
+                        <span className="sr-only">Editar</span>
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" className="hover:text-destructive">
                       <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
+                      <span className="sr-only">Eliminar</span>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -84,7 +84,7 @@ export default async function AdminProductsPage() {
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>1-{products.length}</strong> of <strong>{products.length}</strong> products
+          Mostrando <strong>1-{productos.length}</strong> de <strong>{productos.length}</strong> productos
         </div>
       </CardFooter>
     </Card>

@@ -1,115 +1,115 @@
-import type { Product, Category, SiteSettings, SocialMediaLink } from '@/types';
+import type { Producto, Categoria, ConfiguracionSitio, EnlaceRedSocial } from '@/tipos';
 
-export const mockCategories: Category[] = [
-  { id: '1', name: 'Electronics', slug: 'electronics' },
-  { id: '2', name: 'Apparel', slug: 'apparel' },
-  { id: '3', name: 'Home Goods', slug: 'home-goods' },
-  { id: '4', name: 'Books', slug: 'books' },
+export const categoriasSimuladas: Categoria[] = [
+  { id: '1', nombre: 'Electrónicos', slug: 'electronicos' },
+  { id: '2', nombre: 'Ropa', slug: 'ropa' },
+  { id: '3', nombre: 'Artículos para el Hogar', slug: 'articulos-hogar' },
+  { id: '4', nombre: 'Libros', slug: 'libros' },
 ];
 
-export const mockProducts: Product[] = [
+export const productosSimulados: Producto[] = [
   {
     id: '1',
-    name: 'Premium Wireless Headphones',
-    description: 'Experience immersive sound with these premium wireless headphones. Features noise cancellation and long battery life.',
-    retailPrice: 199.99,
-    wholesalePrice: 149.99,
-    images: ['https://placehold.co/600x600.png?text=Headphones+1', 'https://placehold.co/600x600.png?text=Headphones+2', 'https://placehold.co/600x600.png?text=Headphones+3'],
-    categoryId: '1',
-    slug: 'premium-wireless-headphones',
+    nombre: 'Auriculares Inalámbricos Premium',
+    descripcion: 'Experimenta un sonido inmersivo con estos auriculares inalámbricos premium. Cuentan con cancelación de ruido y batería de larga duración.',
+    precioDetalle: 199.99,
+    precioMayorista: 149.99,
+    imagenes: ['https://placehold.co/600x600.png?text=Auriculares+1', 'https://placehold.co/600x600.png?text=Auriculares+2', 'https://placehold.co/600x600.png?text=Auriculares+3'],
+    idCategoria: '1',
+    slug: 'auriculares-inalambricos-premium',
   },
   {
     id: '2',
-    name: 'Modern Smartwatch',
-    description: 'Stay connected and track your fitness goals with this sleek smartwatch. Compatible with iOS and Android.',
-    retailPrice: 249.50,
-    wholesalePrice: 199.50,
-    images: ['https://placehold.co/600x600.png?text=Smartwatch+1', 'https://placehold.co/600x600.png?text=Smartwatch+2'],
-    categoryId: '1',
-    slug: 'modern-smartwatch',
+    nombre: 'Smartwatch Moderno',
+    descripcion: 'Mantente conectado y sigue tus objetivos de fitness con este elegante smartwatch. Compatible con iOS y Android.',
+    precioDetalle: 249.50,
+    precioMayorista: 199.50,
+    imagenes: ['https://placehold.co/600x600.png?text=Smartwatch+1', 'https://placehold.co/600x600.png?text=Smartwatch+2'],
+    idCategoria: '1',
+    slug: 'smartwatch-moderno',
   },
   {
     id: '3',
-    name: 'Classic Cotton T-Shirt',
-    description: 'A comfortable and stylish t-shirt made from 100% premium cotton. Available in various colors.',
-    retailPrice: 29.99,
-    wholesalePrice: 19.99,
-    images: ['https://placehold.co/600x600.png?text=T-Shirt+1', 'https://placehold.co/600x600.png?text=T-Shirt+2'],
-    categoryId: '2',
-    slug: 'classic-cotton-t-shirt',
+    nombre: 'Camiseta Clásica de Algodón',
+    descripcion: 'Una camiseta cómoda y elegante hecha de 100% algodón premium. Disponible en varios colores.',
+    precioDetalle: 29.99,
+    precioMayorista: 19.99,
+    imagenes: ['https://placehold.co/600x600.png?text=Camiseta+1', 'https://placehold.co/600x600.png?text=Camiseta+2'],
+    idCategoria: '2',
+    slug: 'camiseta-clasica-algodon',
   },
   {
     id: '4',
-    name: 'Ergonomic Office Chair',
-    description: 'Improve your posture and comfort with this ergonomic office chair. Features adjustable height and lumbar support.',
-    retailPrice: 399.00,
-    wholesalePrice: 320.00,
-    images: ['https://placehold.co/600x600.png?text=Office+Chair+1'],
-    categoryId: '3',
-    slug: 'ergonomic-office-chair',
+    nombre: 'Silla de Oficina Ergonómica',
+    descripcion: 'Mejora tu postura y comodidad con esta silla de oficina ergonómica. Cuenta con altura ajustable y soporte lumbar.',
+    precioDetalle: 399.00,
+    precioMayorista: 320.00,
+    imagenes: ['https://placehold.co/600x600.png?text=Silla+Oficina+1'],
+    idCategoria: '3',
+    slug: 'silla-oficina-ergonomica',
   },
    {
     id: '5',
-    name: 'Designer Jeans',
-    description: 'Stylish and durable designer jeans for all occasions.',
-    retailPrice: 89.99,
-    wholesalePrice: 65.00,
-    images: ['https://placehold.co/600x600.png?text=Jeans+1', 'https://placehold.co/600x600.png?text=Jeans+2'],
-    categoryId: '2',
-    slug: 'designer-jeans',
+    nombre: 'Jeans de Diseñador',
+    descripcion: 'Jeans de diseñador elegantes y duraderos para todas las ocasiones.',
+    precioDetalle: 89.99,
+    precioMayorista: 65.00,
+    imagenes: ['https://placehold.co/600x600.png?text=Jeans+1', 'https://placehold.co/600x600.png?text=Jeans+2'],
+    idCategoria: '2',
+    slug: 'jeans-de-disenador',
   },
   {
     id: '6',
-    name: 'Advanced Laptop',
-    description: 'High-performance laptop for professionals and creatives. Powerful processor and stunning display.',
-    retailPrice: 1299.00,
-    wholesalePrice: 1050.00,
-    images: ['https://placehold.co/600x600.png?text=Laptop+1', 'https://placehold.co/600x600.png?text=Laptop+2', 'https://placehold.co/600x600.png?text=Laptop+3'],
-    categoryId: '1',
-    slug: 'advanced-laptop',
+    nombre: 'Laptop Avanzada',
+    descripcion: 'Laptop de alto rendimiento para profesionales y creativos. Potente procesador y pantalla impresionante.',
+    precioDetalle: 1299.00,
+    precioMayorista: 1050.00,
+    imagenes: ['https://placehold.co/600x600.png?text=Laptop+1', 'https://placehold.co/600x600.png?text=Laptop+2', 'https://placehold.co/600x600.png?text=Laptop+3'],
+    idCategoria: '1',
+    slug: 'laptop-avanzada',
   },
 ];
 
-export const mockSocialMediaLinks: SocialMediaLink[] = [
-  { id: '1', platform: 'Facebook', url: 'https://facebook.com/velozcommerce' },
-  { id: '2', platform: 'Instagram', url: 'https://instagram.com/velozcommerce' },
-  { id: '3', platform: 'Twitter', url: 'https://twitter.com/velozcommerce' },
+export const enlacesRedesSocialesSimulados: EnlaceRedSocial[] = [
+  { id: '1', plataforma: 'Facebook', url: 'https://facebook.com/velozcommerce' },
+  { id: '2', plataforma: 'Instagram', url: 'https://instagram.com/velozcommerce' },
+  { id: '3', plataforma: 'Twitter', url: 'https://twitter.com/velozcommerce' },
 ];
 
-export const mockSiteSettings: SiteSettings = {
-  logoUrl: 'https://placehold.co/150x50.png?text=VelozCommerce',
-  companyName: 'Veloz Commerce',
-  socialMediaLinks: mockSocialMediaLinks,
-  whatsappNumber: '1234567890', // Example number, ensure it's a valid format for wa.me
+export const configuracionSitioSimulada: ConfiguracionSitio = {
+  urlLogo: 'https://placehold.co/150x50.png?text=VelozCommerce',
+  nombreEmpresa: 'Veloz Commerce',
+  enlacesRedesSociales: enlacesRedesSocialesSimulados,
+  numeroWhatsapp: '1234567890', // Número de ejemplo, asegúrate de que sea un formato válido para wa.me
 };
 
-// Helper functions to simulate data fetching
-export const getProducts = async (): Promise<Product[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-  return mockProducts;
+// Funciones auxiliares para simular la obtención de datos
+export const obtenerProductos = async (): Promise<Producto[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simula retraso de red
+  return productosSimulados;
 };
 
-export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
+export const obtenerProductoPorSlug = async (slug: string): Promise<Producto | undefined> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return mockProducts.find(p => p.slug === slug);
+  return productosSimulados.find(p => p.slug === slug);
 };
 
-export const getCategories = async (): Promise<Category[]> => {
+export const obtenerCategorias = async (): Promise<Categoria[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return mockCategories;
+  return categoriasSimuladas;
 };
 
-export const getCategoryBySlug = async (slug: string): Promise<Category | undefined> => {
+export const obtenerCategoriaPorSlug = async (slug: string): Promise<Categoria | undefined> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return mockCategories.find(c => c.slug === slug);
+  return categoriasSimuladas.find(c => c.slug === slug);
 };
 
-export const getProductsByCategoryId = async (categoryId: string): Promise<Product[]> => {
+export const obtenerProductosPorIdCategoria = async (idCategoria: string): Promise<Producto[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return mockProducts.filter(p => p.categoryId === categoryId);
+  return productosSimulados.filter(p => p.idCategoria === idCategoria);
 }
 
-export const getSiteSettings = async (): Promise<SiteSettings> => {
+export const obtenerConfiguracionSitio = async (): Promise<ConfiguracionSitio> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return mockSiteSettings;
+  return configuracionSitioSimulada;
 };

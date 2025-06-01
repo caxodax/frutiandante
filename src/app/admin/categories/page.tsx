@@ -4,21 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { getCategories } from '@/lib/mock-data';
+import { obtenerCategorias } from '@/lib/mock-data'; // Cambiado
 
-export default async function AdminCategoriesPage() {
-  const categories = await getCategories();
+export default async function PaginaAdminCategorias() { // Renombrado
+  const categorias = await obtenerCategorias();
 
   return (
     <Card className="shadow-lg">
       <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <CardTitle className="font-headline text-2xl">Categories</CardTitle>
-          <CardDescription>Manage your product categories. Add, edit, or delete categories.</CardDescription>
+          <CardTitle className="font-headline text-2xl">Categorías</CardTitle>
+          <CardDescription>Gestiona las categorías de tus productos. Añade, edita o elimina categorías.</CardDescription>
         </div>
         <Button asChild size="sm">
           <Link href="/admin/categories/new" className="flex items-center gap-2">
-            <PlusCircle className="h-4 w-4" /> Add New Category
+            <PlusCircle className="h-4 w-4" /> Añadir Nueva Categoría
           </Link>
         </Button>
       </CardHeader>
@@ -26,35 +26,35 @@ export default async function AdminCategoriesPage() {
         <div className="mb-4">
            <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Search categories..." className="pl-8 w-full sm:w-1/3" />
+            <Input type="search" placeholder="Buscar categorías..." className="pl-8 w-full sm:w-1/3" />
           </div>
         </div>
          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Nombre</TableHead>
                 <TableHead>Slug</TableHead>
-                <TableHead>Product Count</TableHead> {/* Mocked for now */}
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Cantidad de Productos</TableHead> {/* Simulado por ahora */}
+                <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>{category.slug}</TableCell>
-                  <TableCell>{Math.floor(Math.random() * 20) + 5}</TableCell> {/* Mock product count */}
+              {categorias.map((categoria) => (
+                <TableRow key={categoria.id}>
+                  <TableCell className="font-medium">{categoria.nombre}</TableCell>
+                  <TableCell>{categoria.slug}</TableCell>
+                  <TableCell>{Math.floor(Math.random() * 20) + 5}</TableCell> {/* Conteo de productos simulado */}
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" asChild className="hover:text-primary">
-                      <Link href={`/admin/categories/edit/${category.slug}`}>
+                      <Link href={`/admin/categories/edit/${categoria.slug}`}>
                         <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
+                        <span className="sr-only">Editar</span>
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" className="hover:text-destructive">
                       <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
+                      <span className="sr-only">Eliminar</span>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -65,7 +65,7 @@ export default async function AdminCategoriesPage() {
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>1-{categories.length}</strong> of <strong>{categories.length}</strong> categories
+          Mostrando <strong>1-{categorias.length}</strong> de <strong>{categorias.length}</strong> categorías
         </div>
       </CardFooter>
     </Card>

@@ -10,7 +10,7 @@ import {
   ImageIcon,
   Link2
 } from "lucide-react";
-import Logo from "@/components/logo";
+import Logotipo from "@/components/logo"; // Cambiado de Logo a Logotipo
 import {
   SidebarProvider,
   Sidebar,
@@ -37,17 +37,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const adminNavItems = [
-  { href: "/admin", label: "Dashboard", icon: Home },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/categories", label: "Categories", icon: LayoutGrid },
-  { href: "/admin/orders", label: "Orders", icon: LineChart, disabled: true }, // Example of a disabled link
-  { href: "/admin/customers", label: "Customers", icon: Users, disabled: true },
-  { href: "/admin/settings", label: "Site Settings", icon: Settings },
+const elementosNavegacionAdmin = [
+  { href: "/admin", label: "Panel", icon: Home },
+  { href: "/admin/products", label: "Productos", icon: Package }, // Dejar ruta como /admin/products por ahora
+  { href: "/admin/categories", label: "Categorías", icon: LayoutGrid }, // Dejar ruta como /admin/categories
+  { href: "/admin/orders", label: "Pedidos", icon: LineChart, disabled: true }, // Ejemplo de enlace deshabilitado
+  { href: "/admin/customers", label: "Clientes", icon: Users, disabled: true },
+  { href: "/admin/settings", label: "Config. Sitio", icon: Settings }, // Dejar ruta como /admin/settings
 ];
 
 
-export default function AdminLayout({
+export default function DisposicionAdmin({ // Cambiado AdminLayout a DisposicionAdmin
   children,
 }: {
   children: React.ReactNode;
@@ -56,13 +56,13 @@ export default function AdminLayout({
     <SidebarProvider defaultOpen>
       <Sidebar>
         <SidebarHeader className="p-4">
-           <div className="hidden md:block"> {/* Hide logo on mobile inside sidebar header, show in top bar */}
-            <Logo />
+           <div className="hidden md:block"> {/* Ocultar logo en móvil dentro del encabezado del sidebar, mostrar en barra superior */}
+            <Logotipo />
           </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {adminNavItems.map((item) => (
+            {elementosNavegacionAdmin.map((item) => (
               <SidebarMenuItem key={item.label}>
                 <Link href={item.href} passHref legacyBehavior>
                   <SidebarMenuButton disabled={item.disabled} className="font-headline">
@@ -76,17 +76,17 @@ export default function AdminLayout({
         </SidebarContent>
         <SidebarFooter className="p-4">
           <Button variant="outline" className="w-full font-headline">
-            Logout
+            Cerrar Sesión
           </Button>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 shadow-sm sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 md:justify-end">
-          <div className="md:hidden"> {/* Show logo in top bar on mobile */}
-            <Logo/>
+          <div className="md:hidden"> {/* Mostrar logo en barra superior en móvil */}
+            <Logotipo/>
           </div>
           <div className="flex items-center gap-2">
-            <SidebarTrigger className="md:hidden" /> {/* Mobile sidebar toggle */}
+            <SidebarTrigger className="md:hidden" /> {/* Alternador de sidebar móvil */}
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
@@ -97,12 +97,12 @@ export default function AdminLayout({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Cuenta Admin</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Perfil</DropdownMenuItem>
+              <DropdownMenuItem>Configuración</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem>Cerrar Sesión</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           </div>

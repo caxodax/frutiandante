@@ -1,123 +1,111 @@
-'use client'; // For useState
+'use client'; // Para useState
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+import Encabezado from '@/components/layout/header';
+import PieDePagina from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { getProductBySlug, getSiteSettings } from '@/lib/mock-data';
-import type { Product, SiteSettings } from '@/types';
+import { obtenerProductoPorSlug, obtenerConfiguracionSitio } from '@/lib/mock-data';
+import type { Producto, ConfiguracionSitio } from '@/tipos';
 import { ShoppingCart, MessageSquare } from 'lucide-react';
 
-export default function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const [product, setProduct] = useState<Product | null>(null);
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function PaginaDetalleProducto({ params }: { params: { slug: string } }) {
+  const [producto, setProducto] = useState<Producto | null>(null);
+  const [configuracion, setConfiguracion] = useState<ConfiguracionSitio | null>(null);
+  const [imagenSeleccionada, setImagenSeleccionada] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const fetchedProduct = await getProductBySlug(params.slug);
-      const fetchedSettings = await getSiteSettings();
+    async function cargarDatos() {
+      setCargando(true);
+      const productoObtenido = await obtenerProductoPorSlug(params.slug);
+      const configuracionObtenida = await obtenerConfiguracionSitio();
       
-      if (!fetchedProduct) {
-        // Instead of calling notFound directly in useEffect, handle it by setting product to null or error state
-        // notFound(); // This would throw an error, handle differently
-        setProduct(null);
+      if (!productoObtenido) {
+        setProducto(null);
       } else {
-        setProduct(fetchedProduct);
-        setSelectedImage(fetchedProduct.images[0] || null);
+        setProducto(productoObtenido);
+        setImagenSeleccionada(productoObtenido.imagenes[0] || null);
       }
-      setSettings(fetchedSettings);
-      setLoading(false);
+      setConfiguracion(configuracionObtenida);
+      setCargando(false);
     }
-    fetchData();
+    cargarDatos();
   }, [params.slug]);
 
-  if (loading) {
+  if (cargando) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header />
+        <Encabezado />
         <main className="flex-grow container mx-auto px-4 py-8">
-          <p>Loading product details...</p>
+          <p>Cargando detalles del producto...</p>
         </main>
-        <Footer />
+        <PieDePagina />
       </div>
     );
   }
   
-  if (!product) {
-     // Call notFound on the client side after data fetching attempt fails.
-     // This requires ProductDetailPage to be a Client Component.
-     // Or, for a Server Component, this check would be done before rendering.
-     // Since useEffect is used, this is a client-side decision.
-     // For a more robust solution, consider error boundaries or redirecting.
-     // For now, to comply with Next.js patterns, we'll let the UI show a message.
-     // A proper `notFound()` call should be in a Server Component or `generateMetadata`.
-     // This is a known limitation when fetching data in `useEffect` for route handling.
-     // A better pattern is to fetch in a Server Component and pass data as props or use `generateStaticParams`.
-     // To make this example work simply, we'll just show a message here.
+  if (!producto) {
      return (
       <div className="flex min-h-screen flex-col">
-        <Header />
+        <Encabezado />
         <main className="flex-grow container mx-auto px-4 py-8">
-          <h1 className="font-headline text-3xl font-bold text-center">Product Not Found</h1>
-          <p className="text-center mt-4">The product you are looking for does not exist or may have been removed.</p>
+          <h1 className="font-headline text-3xl font-bold text-center">Producto No Encontrado</h1>
+          <p className="text-center mt-4">El producto que estás buscando no existe o ha sido eliminado.</p>
         </main>
-        <Footer />
+        <PieDePagina />
       </div>
     );
   }
 
-  const handleOrderViaWhatsApp = () => {
-    if (!settings || !product) return;
-    const message = `Hello ${settings.companyName}, I'm interested in ordering the product: ${product.name} (ID: ${product.id}). Retail Price: $${product.retailPrice.toFixed(2)}. Please provide more details.`;
-    const whatsappUrl = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  const gestionarPedidoWhatsApp = () => {
+    if (!configuracion || !producto) return;
+    const mensaje = `Hola ${configuracion.nombreEmpresa}, estoy interesado/a en pedir el producto: ${producto.nombre} (ID: ${producto.id}). Precio Detalle: $${producto.precioDetalle.toFixed(2)}. Por favor, bríndeme más detalles.`;
+    const urlWhatsapp = `https://wa.me/${configuracion.numeroWhatsapp}?text=${encodeURIComponent(mensaje)}`;
+    window.open(urlWhatsapp, '_blank');
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Encabezado />
       <main className="flex-grow bg-muted/50 py-8 md:py-12">
         <div className="container mx-auto px-4">
           <Card className="overflow-hidden shadow-xl">
             <CardContent className="p-0 md:p-6 lg:p-8">
               <div className="grid gap-8 md:grid-cols-2">
-                {/* Image Gallery */}
+                {/* Galería de Imágenes */}
                 <div className="flex flex-col items-center">
                   <div className="aspect-square w-full max-w-md overflow-hidden rounded-lg border bg-card">
-                    {selectedImage && (
+                    {imagenSeleccionada && (
                        <Image
-                        src={selectedImage}
-                        alt={product.name}
+                        src={imagenSeleccionada}
+                        alt={producto.nombre}
                         width={600}
                         height={600}
                         className="h-full w-full object-cover transition-opacity duration-300"
-                        data-ai-hint="product main"
+                        data-ai-hint="producto principal"
                       />
                     )}
                   </div>
-                  {product.images.length > 1 && (
+                  {producto.imagenes.length > 1 && (
                     <div className="mt-4 flex w-full max-w-md space-x-2 overflow-x-auto p-1">
-                      {product.images.map((img, index) => (
+                      {producto.imagenes.map((img, indice) => (
                         <button
-                          key={index}
-                          onClick={() => setSelectedImage(img)}
-                          className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border-2 transition-all ${selectedImage === img ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-primary/50'}`}
+                          key={indice}
+                          onClick={() => setImagenSeleccionada(img)}
+                          className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border-2 transition-all ${imagenSeleccionada === img ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-primary/50'}`}
                         >
                           <Image
                             src={img}
-                            alt={`${product.name} thumbnail ${index + 1}`}
+                            alt={`Miniatura de ${producto.nombre} ${indice + 1}`}
                             width={80}
                             height={80}
                             className="h-full w-full object-cover"
-                            data-ai-hint="product thumbnail"
+                            data-ai-hint="miniatura producto"
                           />
                         </button>
                       ))}
@@ -125,31 +113,31 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                   )}
                 </div>
 
-                {/* Product Details */}
+                {/* Detalles del Producto */}
                 <div className="py-4 md:py-0">
-                  <h1 className="font-headline text-3xl font-bold text-foreground md:text-4xl">{product.name}</h1>
+                  <h1 className="font-headline text-3xl font-bold text-foreground md:text-4xl">{producto.nombre}</h1>
                   <Separator className="my-4" />
-                  <p className="text-muted-foreground">{product.description}</p>
+                  <p className="text-muted-foreground">{producto.descripcion}</p>
                   <Separator className="my-4" />
                   <div className="space-y-3">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-semibold text-muted-foreground">Retail Price:</span>
-                      <span className="font-headline text-3xl font-bold text-primary">${product.retailPrice.toFixed(2)}</span>
+                      <span className="text-lg font-semibold text-muted-foreground">Precio Detalle:</span>
+                      <span className="font-headline text-3xl font-bold text-primary">${producto.precioDetalle.toFixed(2)}</span>
                     </div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-semibold text-muted-foreground">Wholesale Price:</span>
+                      <span className="text-lg font-semibold text-muted-foreground">Precio Mayorista:</span>
                        <Badge variant="outline" className="border-primary bg-primary/10 px-3 py-1 font-headline text-2xl font-bold text-primary">
-                        ${product.wholesalePrice.toFixed(2)}
+                        ${producto.precioMayorista.toFixed(2)}
                       </Badge>
                     </div>
                   </div>
                   <Separator className="my-6" />
                   <div className="flex flex-col gap-3 sm:flex-row">
                     <Button size="lg" className="w-full sm:w-auto flex-grow bg-primary text-primary-foreground hover:bg-primary/90">
-                      <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
+                      <ShoppingCart className="mr-2 h-5 w-5" /> Añadir al Carrito
                     </Button>
-                    <Button size="lg" variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground sm:w-auto flex-grow" onClick={handleOrderViaWhatsApp}>
-                      <MessageSquare className="mr-2 h-5 w-5" /> Order via WhatsApp
+                    <Button size="lg" variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground sm:w-auto flex-grow" onClick={gestionarPedidoWhatsApp}>
+                      <MessageSquare className="mr-2 h-5 w-5" /> Pedir por WhatsApp
                     </Button>
                   </div>
                 </div>
@@ -158,7 +146,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           </Card>
         </div>
       </main>
-      <Footer />
+      <PieDePagina />
     </div>
   );
 }
