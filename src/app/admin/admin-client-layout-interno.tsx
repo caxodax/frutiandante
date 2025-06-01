@@ -13,7 +13,8 @@ import {
   LineChart,
   LayoutGrid,
   Store,
-  LogOut
+  LogOut,
+  Loader2 // Importar Loader2 para el indicador de carga
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -46,7 +47,7 @@ const elementosNavegacionAdmin = [
   { href: "/admin/orders", label: "Pedidos", icon: LineChart, disabled: true },
   { href: "/admin/customers", label: "Clientes", icon: Users, disabled: true },
   { href: "/admin/settings", label: "Config. Sitio", icon: Settings },
-  { href: "/", label: "Ver Tienda", icon: Store, isExternal: true }, // Marcar como externo para que Link lo trate adecuadamente
+  { href: "/", label: "Ver Tienda", icon: Store }, 
 ];
 
 interface AdminClientLayoutInternoProps {
@@ -83,7 +84,6 @@ export default function AdminClientLayoutInterno({
   if (cargandoAutenticacion) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        {/* Puedes usar un Skeleton más elaborado o un spinner aquí */}
         <div className="space-y-4 p-8 rounded-lg shadow-lg bg-card">
           <Skeleton className="h-12 w-12 rounded-full" />
           <Skeleton className="h-4 w-[250px]" />
@@ -94,9 +94,13 @@ export default function AdminClientLayoutInterno({
   }
 
   if (!autenticado) {
-    // Aunque el useEffect redirige, este es un fallback por si el render ocurre antes de la redirección completa.
-    // No se debería mostrar nada significativo aquí, ya que la redirección es inminente.
-    return null; 
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-lg font-medium">Redirigiendo al inicio de sesión...</p>
+        <p className="text-sm text-muted-foreground">Por favor, espera un momento.</p>
+      </div>
+    );
   }
 
   return (
@@ -111,7 +115,7 @@ export default function AdminClientLayoutInterno({
           <SidebarMenu>
             {elementosNavegacionAdmin.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} passHref={item.isExternal} legacyBehavior={false}>
+                <Link href={item.href}>
                   <SidebarMenuButton disabled={item.disabled} className="font-headline">
                     <item.icon className="h-5 w-5" />
                     {item.label}
