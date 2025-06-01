@@ -9,7 +9,7 @@ import {
   LayoutGrid,
   ImageIcon,
   Link2,
-  Store // Añadido Store
+  Store
 } from "lucide-react";
 import Logotipo from "@/components/logo";
 import {
@@ -45,7 +45,7 @@ const elementosNavegacionAdmin = [
   { href: "/admin/orders", label: "Pedidos", icon: LineChart, disabled: true },
   { href: "/admin/customers", label: "Clientes", icon: Users, disabled: true },
   { href: "/admin/settings", label: "Config. Sitio", icon: Settings },
-  { href: "/", label: "Ver Tienda", icon: Store }, // Nuevo enlace a la tienda pública
+  { href: "/", label: "Ver Tienda", icon: Store },
 ];
 
 
@@ -66,7 +66,7 @@ export default function DisposicionAdmin({
           <SidebarMenu>
             {elementosNavegacionAdmin.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} passHref legacyBehavior>
+                <Link href={item.href}>
                   <SidebarMenuButton disabled={item.disabled} className="font-headline">
                     <item.icon className="h-5 w-5" />
                     {item.label}
