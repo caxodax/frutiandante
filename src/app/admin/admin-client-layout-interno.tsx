@@ -4,7 +4,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation"; // Importar usePathname
 import {
   Home,
   Package,
@@ -14,7 +14,7 @@ import {
   LayoutGrid,
   Store,
   LogOut,
-  Loader2 // Importar Loader2 para el indicador de carga
+  Loader2
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -62,18 +62,28 @@ export default function AdminClientLayoutInterno({
   logotipoCabeceraMovil,
 }: AdminClientLayoutInternoProps) {
   const router = useRouter();
+  const pathname = usePathname(); // Obtener la ruta actual
   const [autenticado, setAutenticado] = useState(false);
   const [cargandoAutenticacion, setCargandoAutenticacion] = useState(true);
 
   useEffect(() => {
-    const adminAutenticado = localStorage.getItem('adminAutenticado');
-    if (adminAutenticado === 'true') {
+    // Si la ruta actual es la página de login, no aplicar la lógica de autenticación de este layout.
+    // La página de login manejará su propia lógica (ej. redirigir si YA está autenticado).
+    if (pathname === '/admin/login') {
+      setAutenticado(false); // Asumir no autenticado para la lógica de este layout
+      setCargandoAutenticacion(false);
+      return; // Salir temprano, no intentar redirigir
+    }
+
+    // Para todas las demás rutas /admin/*, verificar autenticación
+    const adminAutenticadoStorage = localStorage.getItem('adminAutenticado');
+    if (adminAutenticadoStorage === 'true') {
       setAutenticado(true);
     } else {
-      router.replace('/admin/login');
+      router.replace('/admin/login'); // Redirigir a login si no está autenticado
     }
     setCargandoAutenticacion(false);
-  }, [router]);
+  }, [pathname, router]); // Añadir pathname al array de dependencias
 
   const manejarCerrarSesion = () => {
     localStorage.removeItem('adminAutenticado');
@@ -81,6 +91,21 @@ export default function AdminClientLayoutInterno({
     router.push('/admin/login');
   };
 
+  // Si estamos en la página de login, renderizar sus hijos directamente (el contenido de la página de login)
+  // Esto ocurre después de que el useEffect inicial para /admin/login haya puesto cargandoAutenticacion a false.
+  if (pathname === '/admin/login') {
+    if (cargandoAutenticacion) { // Debería ser breve
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      );
+    }
+    return <>{children}</>; // Renderiza el contenido de PaginaLoginAdmin
+  }
+
+  // Para otras páginas /admin/* (no login):
+  // 1. Estado de carga inicial
   if (cargandoAutenticacion) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -93,7 +118,8 @@ export default function AdminClientLayoutInterno({
     );
   }
 
-  if (!autenticado) {
+  // 2. Mensaje de redirección si no está autenticado (y la carga ha terminado)
+  if (!autenticado) { // Implica que cargandoAutenticacion es false
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -103,6 +129,7 @@ export default function AdminClientLayoutInterno({
     );
   }
 
+  // 3. Si está autenticado y no estamos en la página de login, renderizar el layout completo del admin
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
