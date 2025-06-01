@@ -1,6 +1,10 @@
-'use client'; // Este es el componente de cliente
+// src/app/admin/admin-client-layout-interno.tsx
+'use client'; 
+
 import type React from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Home,
   Package,
@@ -8,7 +12,8 @@ import {
   Users,
   LineChart,
   LayoutGrid,
-  Store
+  Store,
+  LogOut
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -32,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const elementosNavegacionAdmin = [
   { href: "/admin", label: "Panel", icon: Home },
@@ -40,7 +46,7 @@ const elementosNavegacionAdmin = [
   { href: "/admin/orders", label: "Pedidos", icon: LineChart, disabled: true },
   { href: "/admin/customers", label: "Clientes", icon: Users, disabled: true },
   { href: "/admin/settings", label: "Config. Sitio", icon: Settings },
-  { href: "/", label: "Ver Tienda", icon: Store },
+  { href: "/", label: "Ver Tienda", icon: Store, isExternal: true }, // Marcar como externo para que Link lo trate adecuadamente
 ];
 
 interface AdminClientLayoutInternoProps {
@@ -54,6 +60,45 @@ export default function AdminClientLayoutInterno({
   logotipoPrincipal,
   logotipoCabeceraMovil,
 }: AdminClientLayoutInternoProps) {
+  const router = useRouter();
+  const [autenticado, setAutenticado] = useState(false);
+  const [cargandoAutenticacion, setCargandoAutenticacion] = useState(true);
+
+  useEffect(() => {
+    const adminAutenticado = localStorage.getItem('adminAutenticado');
+    if (adminAutenticado === 'true') {
+      setAutenticado(true);
+    } else {
+      router.replace('/admin/login');
+    }
+    setCargandoAutenticacion(false);
+  }, [router]);
+
+  const manejarCerrarSesion = () => {
+    localStorage.removeItem('adminAutenticado');
+    setAutenticado(false);
+    router.push('/admin/login');
+  };
+
+  if (cargandoAutenticacion) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        {/* Puedes usar un Skeleton más elaborado o un spinner aquí */}
+        <div className="space-y-4 p-8 rounded-lg shadow-lg bg-card">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="h-4 w-[250px]" />
+          <Skeleton className="h-4 w-[200px]" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!autenticado) {
+    // Aunque el useEffect redirige, este es un fallback por si el render ocurre antes de la redirección completa.
+    // No se debería mostrar nada significativo aquí, ya que la redirección es inminente.
+    return null; 
+  }
+
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -66,7 +111,7 @@ export default function AdminClientLayoutInterno({
           <SidebarMenu>
             {elementosNavegacionAdmin.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} legacyBehavior={false} passHref={false}>
+                <Link href={item.href} passHref={item.isExternal} legacyBehavior={false}>
                   <SidebarMenuButton disabled={item.disabled} className="font-headline">
                     <item.icon className="h-5 w-5" />
                     {item.label}
@@ -77,7 +122,8 @@ export default function AdminClientLayoutInterno({
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-4">
-          <Button variant="outline" className="w-full font-headline">
+          <Button variant="outline" className="w-full font-headline" onClick={manejarCerrarSesion}>
+            <LogOut className="mr-2 h-4 w-4" />
             Cerrar Sesión
           </Button>
         </SidebarFooter>
@@ -93,7 +139,7 @@ export default function AdminClientLayoutInterno({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" />
+                  <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" data-ai-hint="avatar administrador" />
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
               </Button>
@@ -101,10 +147,13 @@ export default function AdminClientLayoutInterno({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Cuenta Admin</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Perfil</DropdownMenuItem>
-              <DropdownMenuItem>Configuración</DropdownMenuItem>
+              <DropdownMenuItem disabled>Perfil</DropdownMenuItem>
+              <DropdownMenuItem disabled>Configuración de Cuenta</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Cerrar Sesión</DropdownMenuItem>
+              <DropdownMenuItem onClick={manejarCerrarSesion} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                 <LogOut className="mr-2 h-4 w-4" />
+                Cerrar Sesión
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           </div>
