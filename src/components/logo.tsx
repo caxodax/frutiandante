@@ -1,28 +1,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { obtenerConfiguracionSitio } from '@/lib/mock-data';
+import type { ConfiguracionSitio } from '@/tipos';
 
 interface LogotipoProps {
   className?: string;
+  configuracion: ConfiguracionSitio; // Hacer configuracion una prop requerida
 }
 
-const Logotipo = async ({ className }: LogotipoProps) => {
-  const configuracion = await obtenerConfiguracionSitio();
-
+// Ya no es async
+const Logotipo = ({ className, configuracion }: LogotipoProps) => {
   return (
     <Link href="/" className={`flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm ${className}`}>
       {configuracion.urlLogo ? (
         <Image 
           src={configuracion.urlLogo} 
           alt={`Logotipo de ${configuracion.nombreEmpresa}`} 
-          width={150} // Mantener un ancho base
-          height={40} // Ajustar altura para proporción
-          className="h-10 w-auto object-contain" // Ajustar altura aquí y usar w-auto
-          priority // Marcar como prioritaria si es LCP
+          width={150} 
+          height={40} 
+          className="h-10 w-auto object-contain"
+          priority 
           data-ai-hint="diseño logotipo moderno" 
         />
       ) : (
-        <span className="text-2xl font-headline font-bold text-primary hover:text-primary/80 transition-colors">
+        <span className="font-headline text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
          {configuracion.nombreEmpresa}
         </span>
       )}

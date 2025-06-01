@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { ShoppingCart, UserCircle, Menu, Search } from 'lucide-react';
 import Logotipo from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { obtenerCategorias } from '@/lib/mock-data'; // No necesitamos configuracionSitio aquí
+import { obtenerCategorias, obtenerConfiguracionSitio } from '@/lib/mock-data';
+import type { ConfiguracionSitio } from '@/tipos';
 import {
   Sheet,
   SheetContent,
@@ -22,18 +23,17 @@ import { Input } from '@/components/ui/input';
 
 const Encabezado = async () => {
   const categorias = await obtenerCategorias();
+  const configuracion = await obtenerConfiguracionSitio();
 
   const enlacesNavegacion = [
     { href: '/', label: 'Inicio' },
     ...categorias.map(categoria => ({ href: `/category/${categoria.slug}`, label: categoria.nombre })),
-    // { href: '/ofertas', label: 'Ofertas' }, // Ejemplo de enlace adicional
-    // { href: '/blog', label: 'Blog' }, // Ejemplo de enlace adicional
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur-md shadow-sm">
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
-        <Logotipo />
+        <Logotipo configuracion={configuracion} />
         
         <nav className="hidden items-center gap-x-6 lg:flex">
           {enlacesNavegacion.map((enlace) => (
@@ -93,7 +93,7 @@ const Encabezado = async () => {
             <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm">
               <SheetHeader className="mb-6 border-b pb-4">
                  <SheetTitle>
-                    <Logotipo/>
+                    <Logotipo configuracion={configuracion} />
                  </SheetTitle>
               </SheetHeader>
               <div className="relative mb-6">

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Twitter, Linkedin, Youtube, Send, Mail, Phone, MapPin } from 'lucide-react';
 import { obtenerConfiguracionSitio } from '@/lib/mock-data';
-import type { EnlaceRedSocial } from '@/tipos';
+import type { EnlaceRedSocial, ConfiguracionSitio } from '@/tipos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Logotipo from '@/components/logo';
@@ -25,7 +25,7 @@ const PieDePagina = async () => {
         <div className="grid gap-10 md:grid-cols-12 lg:gap-16">
           {/* Columna de Logo y Descripción */}
           <div className="md:col-span-4">
-            <Logotipo className="mb-4" />
+            <Logotipo className="mb-4" configuracion={configuracion} />
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
               {configuracion.nombreEmpresa} es tu destino para productos de calidad superior, 
               precios competitivos y una experiencia de compra excepcional.
