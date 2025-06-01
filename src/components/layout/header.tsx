@@ -11,14 +11,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// DropdownMenu imports ya no son necesarios para el icono de usuario
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu"; // Aún usado en el menú móvil si hay más items
 import { Input } from '@/components/ui/input';
 
 const Encabezado = async () => {
@@ -53,26 +47,13 @@ const Encabezado = async () => {
             <Input type="search" placeholder="Buscar productos..." className="h-auto border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 w-32 lg:w-48" />
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-accent/10">
-                <UserCircle className="h-6 w-6 text-foreground/80" />
-                <span className="sr-only">Cuenta de Usuario</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/admin">Panel de Admin</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>Mis Pedidos</DropdownMenuItem>
-              <DropdownMenuItem>Lista de Deseos</DropdownMenuItem>
-              <DropdownMenuItem>Configuración</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Cerrar Sesión</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Icono de usuario ahora es un enlace directo a /admin */}
+          <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-accent/10">
+            <Link href="/admin" aria-label="Panel de Administración">
+              <UserCircle className="h-6 w-6 text-foreground/80" />
+              <span className="sr-only">Panel de Administración</span>
+            </Link>
+          </Button>
           
           <Button variant="ghost" size="icon" className="relative rounded-full hover:bg-accent/10">
             <ShoppingCart className="h-6 w-6 text-foreground/80" />
