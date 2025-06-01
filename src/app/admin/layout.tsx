@@ -8,9 +8,10 @@ import {
   LineChart,
   LayoutGrid,
   ImageIcon,
-  Link2
+  Link2,
+  Store // Añadido Store
 } from "lucide-react";
-import Logotipo from "@/components/logo"; // Cambiado de Logo a Logotipo
+import Logotipo from "@/components/logo";
 import {
   SidebarProvider,
   Sidebar,
@@ -39,15 +40,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const elementosNavegacionAdmin = [
   { href: "/admin", label: "Panel", icon: Home },
-  { href: "/admin/products", label: "Productos", icon: Package }, // Dejar ruta como /admin/products por ahora
-  { href: "/admin/categories", label: "Categorías", icon: LayoutGrid }, // Dejar ruta como /admin/categories
-  { href: "/admin/orders", label: "Pedidos", icon: LineChart, disabled: true }, // Ejemplo de enlace deshabilitado
+  { href: "/admin/products", label: "Productos", icon: Package },
+  { href: "/admin/categories", label: "Categorías", icon: LayoutGrid },
+  { href: "/admin/orders", label: "Pedidos", icon: LineChart, disabled: true },
   { href: "/admin/customers", label: "Clientes", icon: Users, disabled: true },
-  { href: "/admin/settings", label: "Config. Sitio", icon: Settings }, // Dejar ruta como /admin/settings
+  { href: "/admin/settings", label: "Config. Sitio", icon: Settings },
+  { href: "/", label: "Ver Tienda", icon: Store }, // Nuevo enlace a la tienda pública
 ];
 
 
-export default function DisposicionAdmin({ // Cambiado AdminLayout a DisposicionAdmin
+export default function DisposicionAdmin({
   children,
 }: {
   children: React.ReactNode;
@@ -56,7 +58,7 @@ export default function DisposicionAdmin({ // Cambiado AdminLayout a Disposicion
     <SidebarProvider defaultOpen>
       <Sidebar>
         <SidebarHeader className="p-4">
-           <div className="hidden md:block"> {/* Ocultar logo en móvil dentro del encabezado del sidebar, mostrar en barra superior */}
+           <div className="hidden md:block">
             <Logotipo />
           </div>
         </SidebarHeader>
@@ -82,11 +84,11 @@ export default function DisposicionAdmin({ // Cambiado AdminLayout a Disposicion
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 shadow-sm sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 md:justify-end">
-          <div className="md:hidden"> {/* Mostrar logo en barra superior en móvil */}
+          <div className="md:hidden">
             <Logotipo/>
           </div>
           <div className="flex items-center gap-2">
-            <SidebarTrigger className="md:hidden" /> {/* Alternador de sidebar móvil */}
+            <SidebarTrigger className="md:hidden" />
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
