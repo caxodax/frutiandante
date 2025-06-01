@@ -3,80 +3,83 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'PT Sans', 'sans-serif'; /* Manteniendo la fuente base del body */
 }
 
 @layer base {
   :root {
-    --background: 0 0% 88%; /* Light Gray #E0E0E0 */
-    --foreground: 0 0% 10%; /* Darker gray for text on light gray */
+    --background: 210 40% 98%; /* Very Light Cool Gray */
+    --foreground: 215 25% 27%; /* Dark Desaturated Blue */
     --card: 0 0% 100%; /* White */
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 215 25% 27%; /* Dark Desaturated Blue for text on card */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 0 100% 27%; /* Deep Red #8B0000 */
-    --primary-foreground: 0 0% 98%; /* White for text on deep red */
-    --secondary: 0 0% 80%; /* A slightly darker gray for secondary elements */
-    --secondary-foreground: 0 0% 5%;
-    --muted: 0 0% 94%; /* Lighter gray for muted */
-    --muted-foreground: 0 0% 40%;
-    --accent: 0 0% 0%; /* Black #000000 */
-    --accent-foreground: 0 0% 98%; /* White for text on black */
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 215 25% 27%;
+    --primary: 217 91% 60%; /* Vibrant Blue */
+    --primary-foreground: 210 40% 98%; /* Very Light Cool Gray for text on primary */
+    --secondary: 216 34% 90%; /* Light Blue-Gray */
+    --secondary-foreground: 215 25% 27%; /* Dark Desaturated Blue for text on secondary */
+    --muted: 220 14% 96%; /* Lighter Gray */
+    --muted-foreground: 220 9% 46%; /* Grayish Blue */
+    --accent: 262 82% 63%; /* Vibrant Purple */
+    --accent-foreground: 0 0% 98%; /* White for text on accent */
+    --destructive: 0 72% 51%; /* Adjusted destructive red for better harmony */
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 75%; /* Border color */
-    --input: 0 0% 75%; /* Input border */
-    --ring: 0 100% 27%; /* Primary red for ring */
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
+    --border: 214 20% 85%; /* Slightly darker light gray for borders */
+    --input: 214 20% 85%;
+    --ring: 217 91% 60%; /* Primary blue for rings */
+    --chart-1: 217 91% 60%;
+    --chart-2: 262 82% 63%;
+    --chart-3: 197 37% 44%; /* Tealish blue */
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* Slightly larger radius for a more modern feel */
 
-    --sidebar-background: 0 0% 95%; /* Lighter gray for sidebar */
-    --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 0 100% 27%; /* Deep Red */
+    /* Sidebar colors aligned with the new theme */
+    --sidebar-background: 220 20% 96%; /* Light Gray, slightly different from main bg */
+    --sidebar-foreground: 215 25% 20%; /* Darker blue for sidebar text */
+    --sidebar-primary: 217 91% 55%; /* Slightly darker primary for sidebar accents */
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 88%; /* Main background color as accent for sidebar */
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 80%;
-    --sidebar-ring: 0 100% 27%;
+    --sidebar-accent: 216 34% 88%; /* Lighter blue-gray for sidebar accent */
+    --sidebar-accent-foreground: 215 25% 27%;
+    --sidebar-border: 214 20% 80%;
+    --sidebar-ring: 217 91% 55%;
   }
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 100% 37%; /* Lighter Deep Red for dark mode */
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 0 0% 80%; /* Lighter Black/Gray for dark mode accent */
-    --accent-foreground: 0 0% 5%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 0 100% 37%; /* Lighter primary red for ring in dark mode */
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 100% 37%; /* Lighter Deep Red */
+  .dark {
+    --background: 222 47% 11%; /* Very Dark Blue */
+    --foreground: 210 40% 98%; /* Light Gray for text */
+    --card: 222 40% 15%; /* Dark Blue, slightly lighter than background */
+    --card-foreground: 210 40% 98%; /* Light Gray for text on card */
+    --popover: 222 40% 15%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 65%; /* Slightly Lighter Vibrant Blue */
+    --primary-foreground: 222 47% 11%; /* Dark Blue for text on primary */
+    --secondary: 215 28% 20%; /* Darker Blue-Gray */
+    --secondary-foreground: 210 40% 98%; /* Light Gray for text on secondary */
+    --muted: 215 28% 18%; /* Darker Muted Blue-Gray */
+    --muted-foreground: 215 14% 70%; /* Lighter Grayish Blue */
+    --accent: 262 82% 70%; /* Lighter Vibrant Purple */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 63% 40%; /* Adjusted destructive red for dark mode */
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 33% 25%; /* Darker border color */
+    --input: 217 33% 25%;
+    --ring: 217 91% 65%;
+    --chart-1: 217 91% 65%;
+    --chart-2: 262 82% 70%;
+    --chart-3: 197 37% 54%;
+    --chart-4: 43 74% 76%;
+    --chart-5: 27 87% 77%;
+
+    /* Sidebar colors for dark mode */
+    --sidebar-background: 222 40% 13%; /* Darker blue for sidebar */
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 0 100% 37%;
+    --sidebar-accent: 215 28% 22%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 217 33% 23%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -86,5 +89,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
