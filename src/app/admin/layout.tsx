@@ -54,7 +54,7 @@ export default function AdminLayout({
 }) {
   return (
     <SidebarProvider defaultOpen>
-      <Sidebar연구원>
+      <Sidebar>
         <SidebarHeader className="p-4">
            <div className="hidden md:block"> {/* Hide logo on mobile inside sidebar header, show in top bar */}
             <Logo />
@@ -79,7 +79,7 @@ export default function AdminLayout({
             Logout
           </Button>
         </SidebarFooter>
-      </Sidebar연구원>
+      </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 shadow-sm sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 md:justify-end">
           <div className="md:hidden"> {/* Show logo in top bar on mobile */}
