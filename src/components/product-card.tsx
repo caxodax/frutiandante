@@ -39,9 +39,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <p className="text-sm text-muted-foreground">
             Retail: <span className="font-semibold text-foreground">${product.retailPrice.toFixed(2)}</span>
           </p>
-          <p className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground">
             Wholesale: <Badge variant="secondary" className="text-primary">${product.wholesalePrice.toFixed(2)}</Badge>
-          </p>
+          </div>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
