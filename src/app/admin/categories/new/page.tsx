@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/lib/supabase-client'; // Importar cliente de Supabase
+import type { Categoria } from '@/tipos';
 
 export default function PaginaAnadirCategoria() {
   const router = useRouter();
@@ -18,14 +20,15 @@ export default function PaginaAnadirCategoria() {
   const [nombre, setNombre] = useState('');
   const [slug, setSlug] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const generarSlug = (valorNombre: string) => {
     return valorNombre
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-') // Reemplaza espacios con -
-      .replace(/[^\w-]+/g, '') // Elimina caracteres no alfanuméricos excepto -
-      .replace(/--+/g, '-'); // Reemplaza múltiples - con uno solo
+      .replace(/\s+/g, '-') 
+      .replace(/[^\w-]+/g, '') 
+      .replace(/--+/g, '-'); 
   };
 
   const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,26 +40,49 @@ export default function PaginaAnadirCategoria() {
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setGuardando(true);
+    setError(null);
 
-    // Lógica de guardado simulada
-    // En una aplicación real, aquí llamarías a una Server Action o API
-    // para guardar la categoría en la base de datos.
-    console.log('Categoría a guardar:', { nombre, slug });
-    
-    // Simular una pequeña demora de red
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (!nombre.trim() || !slug.trim()) {
+      setError("El nombre y el slug de la categoría son obligatorios.");
+      setGuardando(false);
+      toast({
+        title: "Error de Validación",
+        description: "Por favor, completa los campos de nombre y slug.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    toast({
-      title: "Categoría Guardada (Simulado)",
-      description: `La categoría "${nombre}" ha sido creada exitosamente (simulación).`,
-      variant: "default", // 'default' es un color neutro, puedes usar 'success' si lo tienes definido
-    });
-    
-    // Redirigir al listado de categorías después de un breve instante para que el toast sea visible
-    setTimeout(() => {
-      router.push('/admin/categories');
-      // No es necesario poner setGuardando(false) aquí si ya estamos redirigiendo
-    }, 1500); 
+    const nuevaCategoria: Pick<Categoria, 'nombre' | 'slug'> = { nombre, slug };
+
+    const { data, error: supabaseError } = await supabase
+      .from('categorias')
+      .insert([nuevaCategoria])
+      .select()
+      .single(); // .single() es útil si esperas un solo registro de vuelta
+
+    setGuardando(false);
+
+    if (supabaseError) {
+      console.error('Error al guardar categoría en Supabase:', supabaseError);
+      setError(supabaseError.message);
+      toast({
+        title: "Error al Guardar",
+        description: `No se pudo guardar la categoría: ${supabaseError.message}`,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Categoría Guardada",
+        description: `La categoría "${data?.nombre || nombre}" ha sido creada exitosamente.`,
+        variant: "default", 
+      });
+      
+      setTimeout(() => {
+        router.push('/admin/categories');
+        router.refresh(); // Para asegurar que la lista se actualice
+      }, 1500); 
+    }
   };
 
   return (
@@ -72,7 +98,7 @@ export default function PaginaAnadirCategoria() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Añadir Nueva Categoría</CardTitle>
-          <CardDescription>Completa los detalles para crear una nueva categoría de productos.</CardDescription>
+          <CardDescription>Completa los detalles para crear una nueva categoría de productos en Supabase.</CardDescription>
         </CardHeader>
         <form onSubmit={manejarEnvio}>
           <CardContent className="space-y-6 pt-6">
@@ -98,16 +124,19 @@ export default function PaginaAnadirCategoria() {
                 disabled={guardando}
               />
               <p className="text-xs text-muted-foreground">
-                El slug es la versión amigable para URL del nombre. Se genera automáticamente al escribir el nombre, pero puedes ajustarlo.
+                El slug es la versión amigable para URL del nombre. Se genera automáticamente.
               </p>
             </div>
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => router.push('/admin/categories')} disabled={guardando}>
               Cancelar
             </Button>
             <Button type="submit" disabled={guardando}>
-              {guardando ? 'Guardando...' : 'Guardar Categoría'}
+              {guardando ? 'Guardando en Supabase...' : 'Guardar Categoría'}
             </Button>
           </CardFooter>
         </form>

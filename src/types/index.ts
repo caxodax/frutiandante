@@ -1,29 +1,37 @@
 export interface Producto {
-  id: string;
+  id: string; // Se mantiene como string, pero en Supabase podría ser number o UUID
   nombre: string;
   descripcion: string;
   precioDetalle: number;
   precioMayorista: number;
   imagenes: string[]; // URLs
-  idCategoria: string;
-  slug: string; // Se mantiene 'slug' por ser un término común en desarrollo web para URLs amigables
+  idCategoria: string; // o number si el ID de categoría en Supabase es number
+  slug: string;
+  created_at?: string; // Añadido para Supabase
 }
 
 export interface Categoria {
-  id: string;
+  id?: string | number; // Hacer el ID opcional para la creación, Supabase lo genera
   nombre: string;
   slug: string;
+  created_at?: string; // Añadido para Supabase
+  // Puedes añadir cualquier otro campo que tengas en tu tabla de Supabase, ej:
+  // cantidad_productos?: number; 
 }
 
 export interface EnlaceRedSocial {
   id: string;
   plataforma: 'Facebook' | 'Instagram' | 'Twitter' | 'LinkedIn' | 'YouTube' | 'TikTok';
   url: string;
+  created_at?: string; // Añadido para Supabase
 }
 
 export interface ConfiguracionSitio {
+  // Si esta configuración también se guarda en Supabase, considera añadir IDs y created_at
+  id?: string | number;
   urlLogo: string;
   nombreEmpresa: string;
   enlacesRedesSociales: EnlaceRedSocial[];
   numeroWhatsapp: string;
+  created_at?: string; // Añadido para Supabase
 }
