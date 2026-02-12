@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, ArrowLeft, CheckCircle2, ShoppingBag, Truck, Banknote, CreditCard, Wallet } from 'lucide-react';
+import { MessageSquare, ArrowLeft, CheckCircle2, ShoppingBag, Truck, Banknote, Wallet, Copy, Landmark } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { obtenerConfiguracionSitio } from '@/lib/mock-data';
@@ -24,7 +24,8 @@ export default function CheckoutClient() {
     email: '',
     telefono: '',
     direccion: '',
-    notas: ''
+    notas: '',
+    referencia: ''
   });
   
   const [metodoPago, setMetodoPago] = useState<string>('transferencia');
@@ -53,6 +54,14 @@ export default function CheckoutClient() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
+  const copiarAlPortapapeles = (texto: string, label: string) => {
+    navigator.clipboard.writeText(texto);
+    toast({
+      title: "Copiado",
+      description: `${label} copiado al portapapeles.`,
+    });
+  };
+
   const manejarFinalizarPedido = async (e: React.FormEvent) => {
     e.preventDefault();
     setEnviando(true);
@@ -63,6 +72,7 @@ export default function CheckoutClient() {
       const mensajeItems = items.map(item => `• ${item.nombre} (x${item.quantity}) - $${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}`).join('\n');
       
       const textoMetodoPago = metodoPago === 'transferencia' ? '🏦 Transferencia Bancaria' : '💵 Efectivo al recibir';
+      const infoReferencia = (metodoPago === 'transferencia' && formData.referencia) ? `\n🔢 *Referencia:* ${formData.referencia}` : '';
 
       const mensajeFinal = `🚀 *NUEVO PEDIDO - FRUTIANDANTE*\n\n` +
         `👤 *Cliente:*\n` +
@@ -70,7 +80,7 @@ export default function CheckoutClient() {
         `• Teléfono: ${formData.telefono}\n` +
         `• Dirección: ${formData.direccion}\n\n` +
         `💳 *Método de Pago:*\n` +
-        `• ${textoMetodoPago}\n\n` +
+        `• ${textoMetodoPago}${infoReferencia}\n\n` +
         `📦 *Detalle del Pedido:*\n` +
         `${mensajeItems}\n\n` +
         `💰 *TOTAL A PAGAR: $${totalPrice.toLocaleString('es-CL')}*\n\n` +
@@ -168,23 +178,33 @@ export default function CheckoutClient() {
                 <Separator className="my-8" />
 
                 {/* Método de Pago */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <Label className="font-bold text-lg text-slate-900 font-headline">Método de Pago</Label>
-                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className={`relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-emerald-50/30' : 'border-slate-100 hover:border-slate-200'}`} onClick={() => setMetodoPago('transferencia')}>
+                  <RadioGroup 
+                    value={metodoPago} 
+                    onValueChange={(val) => setMetodoPago(val)} 
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  >
+                    <div 
+                      className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`} 
+                      onClick={() => setMetodoPago('transferencia')}
+                    >
                       <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-xl ${metodoPago === 'transferencia' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
                           <Wallet className="h-5 w-5" />
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 leading-none">Transferencia</p>
-                          <p className="text-xs text-slate-500 mt-1">Datos al finalizar</p>
+                          <p className="text-xs text-slate-500 mt-1">Datos bancarios</p>
                         </div>
                       </div>
                       <RadioGroupItem value="transferencia" id="transferencia" className="sr-only" />
                     </div>
 
-                    <div className={`relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-emerald-50/30' : 'border-slate-100 hover:border-slate-200'}`} onClick={() => setMetodoPago('efectivo')}>
+                    <div 
+                      className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`} 
+                      onClick={() => setMetodoPago('efectivo')}
+                    >
                       <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-xl ${metodoPago === 'efectivo' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
                           <Banknote className="h-5 w-5" />
@@ -197,6 +217,68 @@ export default function CheckoutClient() {
                       <RadioGroupItem value="efectivo" id="efectivo" className="sr-only" />
                     </div>
                   </RadioGroup>
+
+                  {/* Datos Bancarios Condicionales */}
+                  {metodoPago === 'transferencia' && (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                      <div className="bg-slate-900 text-white rounded-[2rem] p-8 space-y-6 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-8 opacity-10">
+                          <Landmark className="h-24 w-24" />
+                        </div>
+                        <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+                          <Landmark className="h-6 w-6 text-primary" />
+                          <h4 className="font-headline text-xl font-bold">Datos de Transferencia</h4>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("ARTURO JOSE GUTIERREZ ALVAREZ", "Nombre")}>
+                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Titular</p>
+                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
+                              ARTURO JOSE GUTIERREZ ALVAREZ <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
+                            </p>
+                          </div>
+                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("26.170.812-4", "RUT")}>
+                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">RUT</p>
+                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
+                              26.170.812-4 <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
+                            </p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Banco</p>
+                            <p className="font-medium">Banco Santander</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Tipo de Cuenta</p>
+                            <p className="font-medium">Cuenta Corriente</p>
+                          </div>
+                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("0-000-73-86729-0", "Número de Cuenta")}>
+                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Nº Cuenta</p>
+                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
+                              0-000-73-86729-0 <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
+                            </p>
+                          </div>
+                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("ARTUROJGUTIERREZ95@GMAIL.COM", "Email")}>
+                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Email</p>
+                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
+                              ARTUROJGUTIERREZ95@GMAIL.COM <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 space-y-3">
+                          <Label htmlFor="referencia" className="font-bold text-slate-300">Nº de Referencia / Comprobante (Opcional)</Label>
+                          <Input 
+                            id="referencia" 
+                            className="h-12 rounded-xl bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:ring-primary/20" 
+                            placeholder="Ej: 12345678" 
+                            value={formData.referencia} 
+                            onChange={manejarInputChange} 
+                          />
+                          <p className="text-[10px] text-slate-500 italic">Puedes completar el pago ahora e ingresar la referencia, o coordinarlo luego por WhatsApp.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2 pt-4">
