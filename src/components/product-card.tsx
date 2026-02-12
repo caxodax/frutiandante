@@ -6,7 +6,7 @@ import type { Producto } from '@/tipos';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Eye, Plus, Leaf } from 'lucide-react';
+import { ShoppingCart, Eye, Leaf } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,7 +30,7 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
 
   return (
     <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 rounded-[2.5rem]">
-      <CardHeader className="p-0">
+      <CardHeader className="p-0 relative">
         <div className="aspect-square relative overflow-hidden bg-slate-50">
           <Link href={`/product/${producto.slug}`} className="block h-full w-full">
             <Image
@@ -41,19 +41,18 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
             />
           </Link>
           
-          {/* Natural Overlay */}
-          <div className="absolute inset-0 bg-emerald-950/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-          
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 transform translate-y-12 group-hover:translate-y-0 transition-transform duration-300 ease-out px-4">
-            <Button size="icon" variant="secondary" className="h-12 w-12 rounded-2xl shadow-xl bg-white/90 backdrop-blur-sm border-none hover:bg-primary hover:text-white transition-colors" asChild>
+          {/* Overlay con botón de Ver Detalles */}
+          <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="h-14 w-14 rounded-full shadow-2xl bg-white text-primary hover:bg-primary hover:text-white transition-all transform scale-75 group-hover:scale-100 duration-300"
+              asChild
+            >
               <Link href={`/product/${producto.slug}`}>
-                <Eye className="h-5 w-5" />
+                <Eye className="h-6 w-6" />
                 <span className="sr-only">Ver detalles</span>
               </Link>
-            </Button>
-            <Button size="lg" className="flex-1 h-12 rounded-2xl shadow-xl bg-primary text-white font-bold border-none hover:bg-primary/90" onClick={manejarAnadirAlCarrito}>
-              <Plus className="h-5 w-5 mr-2" />
-              Al canasto
             </Button>
           </div>
           
@@ -67,7 +66,7 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
         </div>
       </CardHeader>
       
-      <CardContent className="flex flex-1 flex-col p-8 bg-gradient-to-b from-white to-slate-50/30">
+      <CardContent className="flex flex-1 flex-col p-8 pb-4">
         <div className="mb-4">
            <Link href={`/product/${producto.slug}`} className="block">
             <h3 className="font-headline text-xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-primary line-clamp-2 min-h-[3rem]">
@@ -91,11 +90,10 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
         </div>
       </CardContent>
       
-      <CardFooter className="p-8 pt-0 bg-slate-50/30">
+      <CardFooter className="p-8 pt-2">
         <Button 
           onClick={manejarAnadirAlCarrito} 
-          variant="outline"
-          className="w-full h-14 rounded-2xl border-2 border-primary/20 bg-white text-primary font-black hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm active:scale-95"
+          className="w-full h-14 rounded-2xl bg-primary text-white font-black hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95"
         >
           <ShoppingCart className="mr-2 h-5 w-5" />
           Añadir al Pedido
