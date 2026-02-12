@@ -23,8 +23,8 @@ const PieDePagina = async () => {
     <footer className="border-t bg-card text-card-foreground">
       <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
         <div className="grid gap-10 md:grid-cols-12 lg:gap-16">
-          {/* Columna de Logo y Descripción */}
-          <div className="md:col-span-5 lg:col-span-6">
+          {/* Columna de Logo y Descripción - Aumentado span para evitar cortes */}
+          <div className="md:col-span-6 lg:col-span-6">
             <div className="inline-block">
               <Logotipo className="mb-4" configuracion={configuracion} />
             </div>
@@ -51,7 +51,7 @@ const PieDePagina = async () => {
           </div>
 
           {/* Columna de Enlaces Rápidos */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-3 lg:col-span-2">
             <h3 className="font-headline text-base font-bold text-foreground">Navegación</h3>
             <ul className="mt-4 space-y-2 text-sm">
               <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">Sobre Nosotros</Link></li>
@@ -60,19 +60,9 @@ const PieDePagina = async () => {
               <li><Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors">Preguntas Frecuentes</Link></li>
             </ul>
           </div>
-
-          {/* Columna de Soporte */}
-          <div className="md:col-span-2">
-            <h3 className="font-headline text-base font-bold text-foreground">Soporte</h3>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li><Link href="/shipping" className="text-muted-foreground hover:text-primary transition-colors">Envíos y Devoluciones</Link></li>
-              <li><Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">Términos de Servicio</Link></li>
-              <li><Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Política de Privacidad</Link></li>
-            </ul>
-          </div>
           
           {/* Columna de Contacto */}
-          <div className="md:col-span-3 lg:col-span-2">
+          <div className="md:col-span-3 lg:col-span-4">
             <h3 className="font-headline text-base font-bold text-foreground">Contacto</h3>
             <ul className="mt-4 space-y-3 text-sm">
                 <li className="flex items-center gap-2 text-muted-foreground">

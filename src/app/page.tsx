@@ -147,7 +147,8 @@ export default async function PaginaInicio() {
                   <Button size="lg" className="h-14 px-10 text-lg font-bold bg-white text-emerald-950 hover:bg-emerald-50 rounded-xl">
                     Quiero Suscribirme
                   </Button>
-                  <Button size="lg" variant="outline" className="h-14 px-10 text-lg border-2 border-white text-white hover:bg-white/20 rounded-xl transition-all">
+                  {/* Corregido: Quitado variant="outline" para evitar fondo blanco y texto blanco */}
+                  <Button size="lg" className="h-14 px-10 text-lg border-2 border-white text-white bg-transparent hover:bg-white/10 rounded-xl transition-all font-bold">
                     Más Información
                   </Button>
                 </div>
