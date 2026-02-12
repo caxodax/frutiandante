@@ -182,39 +182,45 @@ export default function CheckoutClient() {
                   <Label className="font-bold text-lg text-slate-900 font-headline">Método de Pago</Label>
                   <RadioGroup 
                     value={metodoPago} 
-                    onValueChange={(val) => setMetodoPago(val)} 
+                    onValueChange={setMetodoPago} 
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                   >
-                    <div 
-                      className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`} 
-                      onClick={() => setMetodoPago('transferencia')}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-xl ${metodoPago === 'transferencia' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
-                          <Wallet className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 leading-none">Transferencia</p>
-                          <p className="text-xs text-slate-500 mt-1">Datos bancarios</p>
-                        </div>
-                      </div>
+                    <div>
                       <RadioGroupItem value="transferencia" id="transferencia" className="sr-only" />
+                      <Label 
+                        htmlFor="transferencia"
+                        className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-xl ${metodoPago === 'transferencia' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <Wallet className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900 leading-none">Transferencia</p>
+                            <p className="text-xs text-slate-500 mt-1">Datos bancarios</p>
+                          </div>
+                        </div>
+                        <div className={`h-4 w-4 rounded-full border ${metodoPago === 'transferencia' ? 'bg-primary border-primary' : 'border-slate-300'}`} />
+                      </Label>
                     </div>
 
-                    <div 
-                      className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`} 
-                      onClick={() => setMetodoPago('efectivo')}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-xl ${metodoPago === 'efectivo' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
-                          <Banknote className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 leading-none">Efectivo</p>
-                          <p className="text-xs text-slate-500 mt-1">Al recibir el pedido</p>
-                        </div>
-                      </div>
+                    <div>
                       <RadioGroupItem value="efectivo" id="efectivo" className="sr-only" />
+                      <Label 
+                        htmlFor="efectivo"
+                        className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-xl ${metodoPago === 'efectivo' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <Banknote className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900 leading-none">Efectivo</p>
+                            <p className="text-xs text-slate-500 mt-1">Al recibir el pedido</p>
+                          </div>
+                        </div>
+                        <div className={`h-4 w-4 rounded-full border ${metodoPago === 'efectivo' ? 'bg-primary border-primary' : 'border-slate-300'}`} />
+                      </Label>
                     </div>
                   </RadioGroup>
 
