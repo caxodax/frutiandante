@@ -11,34 +11,35 @@ Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despac
 
 ## Cómo subir a GitHub
 
-Para subir este proyecto a un nuevo repositorio de GitHub, abre tu terminal y ejecuta:
+Para subir este proyecto a un nuevo repositorio de GitHub desde este entorno, sigue estos pasos:
 
-1. **Inicializar Git:**
-   ```bash
-   git init
-   ```
+### 1. Autenticación (Recomendado)
+Para vincular tu cuenta de forma segura y sencilla, usa la GitHub CLI:
+```bash
+gh auth login
+```
+Sigue las instrucciones: elige `GitHub.com`, `HTTPS`, y `Login with a web browser`. Copia el código que te den en la página que se abrirá.
 
-2. **Añadir archivos:**
-   ```bash
-   git add .
-   ```
+### 2. Inicializar Git y Subir Código
+Una vez autenticado, ejecuta:
+```bash
+# Inicializar el repositorio local
+git init
 
-3. **Primer commit:**
-   ```bash
-   git commit -m "Primer commit: Frutiandante MVP"
-   ```
+# Añadir los archivos
+git add .
 
-4. **Vincular con GitHub:**
-   (Crea un repo vacío en GitHub y copia la URL)
-   ```bash
-   git remote add origin https://github.com/TU_USUARIO/NOMBRE_REPOSITORIO.git
-   ```
+# Hacer el primer commit
+git commit -m "Primer commit: Frutiandante MVP"
 
-5. **Subir el código:**
-   ```bash
-   git branch -M main
-   git push -u origin main
-   ```
+# Crear el repositorio en GitHub (opcional si ya lo creaste manualmente)
+# gh repo create nombre-de-tu-repo --public --source=. --remote=origin --push
+
+# O vincular con un repo ya existente en GitHub:
+# git remote add origin https://github.com/TU_USUARIO/NOMBRE_REPOSITORIO.git
+# git branch -M main
+# git push -u origin main
+```
 
 ## Desarrollo
 Para correr el proyecto localmente:
