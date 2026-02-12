@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -18,6 +18,7 @@ import { obtenerConfiguracionSitio } from '@/lib/mock-data';
 export default function CheckoutClient() {
   const { items, totalPrice, clearCart, isLoaded } = useCart();
   const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
   
   const [formData, setFormData] = useState({
     nombre: '',
@@ -32,11 +33,24 @@ export default function CheckoutClient() {
   const [enviando, setEnviando] = useState(false);
   const [completado, setCompletado] = useState(false);
 
-  if (!isLoaded) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !isLoaded) {
+    return (
+      <div className="container mx-auto px-4 py-24 text-center">
+        <div className="animate-pulse space-y-4">
+          <div className="mx-auto h-24 w-24 rounded-full bg-slate-100"></div>
+          <div className="h-8 w-64 mx-auto bg-slate-100 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0 && !completado) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
+      <div className="container mx-auto px-4 py-24 text-center" suppressHydrationWarning>
         <div className="mx-auto h-24 w-24 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
           <ShoppingBag className="h-12 w-12 text-primary/30" />
         </div>
@@ -113,7 +127,7 @@ export default function CheckoutClient() {
 
   if (completado) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
+      <div className="container mx-auto px-4 py-24 text-center" suppressHydrationWarning>
         <div className="max-w-xl mx-auto bg-white p-12 rounded-[2.5rem] shadow-xl border border-emerald-50">
           <div className="mx-auto h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center mb-8">
             <CheckCircle2 className="h-12 w-12 text-primary" />
@@ -136,7 +150,7 @@ export default function CheckoutClient() {
   }
 
   return (
-    <div className="container mx-auto px-4 pb-20">
+    <div className="container mx-auto px-4 pb-20" suppressHydrationWarning>
       <div className="mb-12 flex flex-col gap-2">
         <Link href="/" className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
           <ArrowLeft className="h-4 w-4" /> Volver a la feria

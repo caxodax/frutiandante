@@ -23,7 +23,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
         <CartProvider>
-          {children}
+          <div suppressHydrationWarning>
+            {children}
+          </div>
           <Toaster />
         </CartProvider>
       </body>
