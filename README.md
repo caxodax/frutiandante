@@ -4,50 +4,45 @@ Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despac
 
 ## Cómo subir a GitHub desde aquí
 
-Como la herramienta `gh` no está instalada, seguiremos el método estándar:
+Si al hacer el commit te sale `nothing to commit, working tree clean`, significa que tus archivos ya están listos. **Sigue con estos pasos para subirlo a tu cuenta:**
 
 ### 1. Crea el repositorio en la web
 1. Ve a [github.com/new](https://github.com/new).
 2. Ponle de nombre `frutiandante`.
 3. Haz clic en **"Create repository"** (no marques ninguna otra casilla).
 
-### 2. Inicializa y sube el código
-Copia y pega estos comandos uno por uno en la terminal:
+### 2. Enlaza y sube tu código
+Copia y pega estos comandos en la terminal (si ya hiciste `git init` y `git commit`, empieza desde el paso de la rama):
 
 ```bash
-# Inicializar el repositorio local
-git init
-
-# Añadir todos los archivos
-git add .
-
-# Hacer el primer commit
-git commit -m "Primer commit: Frutiandante MVP"
-
-# Crear la rama principal
+# 1. Asegurarte de que estás en la rama principal correcta
 git branch -M main
 
-# Enlazar con tu repositorio de GitHub
-# REEMPLAZA "TU_USUARIO" con tu nombre de usuario real de GitHub
+# 2. Enlazar con tu repositorio de GitHub
+# IMPORTANTE: Reemplaza "TU_USUARIO" con tu nombre real de GitHub en el link de abajo
 git remote add origin https://github.com/TU_USUARIO/frutiandante.git
 
-# Subir los cambios
-# Al ejecutar esto, se te pedirá que inicies sesión en tu cuenta
+# 3. Subir los cambios
+# Se te pedirá que inicies sesión. Sigue las instrucciones que aparezcan.
 git push -u origin main
 ```
 
+> **Nota sobre el error "remote origin already exists":**
+> Si te sale este error al ejecutar el paso 2, usa este comando primero:
+> `git remote remove origin`
+> Y luego vuelve a intentar el paso 2.
+
 ## Comandos Útiles de Git
 
-Si quieres revisar tu progreso antes de subir cambios:
+Si quieres revisar tu progreso:
 
-- **Ver estado de los archivos:** `git status` (Muestra qué archivos han cambiado).
-- **Ver cambios detallados:** `git diff` (Muestra las líneas exactas que modificaste).
-- **Ver cambios preparados:** `git diff --staged` (Muestra lo que se incluirá en el siguiente commit).
+- **Ver estado de los archivos:** `git status`
+- **Ver qué se va a subir:** `git log --oneline`
+- **Ver cambios actuales:** `git diff`
 - **Bajar cambios de GitHub:** `git pull origin main`
-- **Subir nuevos cambios:** `git push origin main` (Después de hacer `add` y `commit`).
 
 ## Desarrollo
-Para correr el proyecto localmente si lo descargas en otro lugar:
+Para correr el proyecto localmente:
 ```bash
 npm install
 npm run dev
