@@ -1,121 +1,115 @@
 import type { Producto, Categoria, ConfiguracionSitio, EnlaceRedSocial } from '@/tipos';
 
-// Los datos de categorías simuladas ya no se usan directamente en la página de listado de categorías del admin,
-// pero podrían ser útiles para otras partes del sitio o para pruebas.
 export const categoriasSimuladas: Categoria[] = [
-  { id: '1', nombre: 'Tecnología Avanzada', slug: 'tecnologia-avanzada' },
-  { id: '2', nombre: 'Moda Urbana Premium', slug: 'moda-urbana-premium' },
-  { id: '3', nombre: 'Hogar Inteligente Plus', slug: 'hogar-inteligente-plus' },
-  { id: '4', nombre: 'Libros y Cultura Selecta', slug: 'libros-cultura-selecta' },
-  { id: '5', nombre: 'Deportes Outdoor Extremo', slug: 'deportes-outdoor-extremo'},
+  { id: '1', nombre: 'Frutas de Estación', slug: 'frutas-estacion' },
+  { id: '2', nombre: 'Verduras Frescas', slug: 'verduras-frescas' },
+  { id: '3', nombre: 'Despensa y Granos', slug: 'despensa-granos' },
+  { id: '4', nombre: 'Lácteos y Huevos', slug: 'lacteos-huevos' },
+  { id: '5', nombre: 'Carnes y Aves', slug: 'carnes-aves'},
 ];
 
 export const productosSimulados: Producto[] = [
   {
     id: '1',
-    nombre: 'Auriculares Inalámbricos ProSound X',
-    descripcion: 'Sumérgete en un sonido cristalino con cancelación activa de ruido. Diseño ergonómico y hasta 30 horas de batería. Ideales para música y llamadas.',
-    precioDetalle: 179990,
-    precioMayorista: 139990,
-    imagenes: ['https://picsum.photos/seed/1/600/600', 'https://picsum.photos/seed/11/600/600', 'https://picsum.photos/seed/111/600/600'],
+    nombre: 'Pack Manzanas Royal Gala (1kg)',
+    descripcion: 'Manzanas dulces y crujientes, seleccionadas directamente de huertos locales. Ideales para colaciones y jugos naturales.',
+    precioDetalle: 2490,
+    precioMayorista: 1890,
+    imagenes: ['https://picsum.photos/seed/apple1/600/600', 'https://picsum.photos/seed/apple2/600/600'],
     idCategoria: '1',
-    slug: 'auriculares-inalambricos-prosound-x',
+    slug: 'pack-manzanas-royal-gala-1kg',
   },
   {
     id: '2',
-    nombre: 'Smartwatch Chronos V5 Deluxe',
-    descripcion: 'Tu asistente personal en la muñeca. Monitorea tu salud, recibe notificaciones y personaliza tus esferas. Resistente al agua y compatible con iOS/Android.',
-    precioDetalle: 229000,
-    precioMayorista: 189000,
-    imagenes: ['https://picsum.photos/seed/2/600/600', 'https://picsum.photos/seed/22/600/600'],
-    idCategoria: '1',
-    slug: 'smartwatch-chronos-v5-deluxe',
+    nombre: 'Paltas Hass Premium (1kg)',
+    descripcion: 'Paltas de textura cremosa y sabor intenso. En su punto justo de madurez para tus ensaladas o el desayuno perfecto.',
+    precioDetalle: 5990,
+    precioMayorista: 4500,
+    imagenes: ['https://picsum.photos/seed/avocado1/600/600', 'https://picsum.photos/seed/avocado2/600/600'],
+    idCategoria: '2',
+    slug: 'paltas-hass-premium-1kg',
   },
   {
     id: '3',
-    nombre: 'Chaqueta Bomber "Urban Explorer Pro"',
-    descripcion: 'Estilo y funcionalidad se unen en esta chaqueta bomber. Tejido resistente al viento y múltiples bolsillos. Perfecta para el día a día.',
-    precioDetalle: 89990,
-    precioMayorista: 69990,
-    imagenes: ['https://picsum.photos/seed/3/600/600', 'https://picsum.photos/seed/33/600/600'],
-    idCategoria: '2',
-    slug: 'chaqueta-bomber-urban-explorer-pro',
+    nombre: 'Arroz Grado 1 Extra Largo (1kg)',
+    descripcion: 'Arroz de grano seleccionado que no se pega. El acompañamiento esencial para todas tus comidas chilenas.',
+    precioDetalle: 1850,
+    precioMayorista: 1450,
+    imagenes: ['https://picsum.photos/seed/rice1/600/600'],
+    idCategoria: '3',
+    slug: 'arroz-grado-1-extra-largo-1kg',
   },
   {
     id: '4',
-    nombre: 'Lámpara de Escritorio LED Inteligente "NovaLum"',
-    descripcion: 'Ilumina tu espacio de trabajo con estilo. Control por voz, múltiples temperaturas de color y temporizador. Diseño minimalista y moderno.',
-    precioDetalle: 59500,
-    precioMayorista: 45000,
-    imagenes: ['https://picsum.photos/seed/4/600/600'],
-    idCategoria: '3',
-    slug: 'lampara-escritorio-led-inteligente-novalum',
+    nombre: 'Huevos de Gallina Feliz - 12 unidades',
+    descripcion: 'Huevos frescos de campo, producidos de forma ética. Ricos en nutrientes y con el mejor sabor natural.',
+    precioDetalle: 3200,
+    precioMayorista: 2600,
+    imagenes: ['https://picsum.photos/seed/eggs1/600/600'],
+    idCategoria: '4',
+    slug: 'huevos-gallina-feliz-12un',
   },
    {
     id: '5',
-    nombre: 'Zapatillas "Street Runner Max Elite"',
-    descripcion: 'Comodidad y diseño vanguardista para tus pies. Amortiguación reactiva y materiales transpirables. Ideales para un look casual y deportivo.',
-    precioDetalle: 119900,
-    precioMayorista: 89900,
-    imagenes: ['https://picsum.photos/seed/5/600/600', 'https://picsum.photos/seed/55/600/600'],
-    idCategoria: '2',
-    slug: 'zapatillas-street-runner-max-elite',
+    nombre: 'Frutillas Frescas de San Pedro (500g)',
+    descripcion: 'Frutillas grandes, rojas y jugosas. Recién cosechadas para mantener todo su aroma y dulzor.',
+    precioDetalle: 3500,
+    precioMayorista: 2800,
+    imagenes: ['https://picsum.photos/seed/strawberry1/600/600'],
+    idCategoria: '1',
+    slug: 'frutillas-frescas-san-pedro-500g',
   },
   {
     id: '6',
-    nombre: 'Tablet Gráfica "CreatorPad 10 Pro"',
-    descripcion: 'Desata tu creatividad con esta tablet gráfica profesional. Alta sensibilidad a la presión, pantalla HD y compatibilidad universal. Incluye lápiz óptico.',
-    precioDetalle: 349000,
-    precioMayorista: 299000,
-    imagenes: ['https://picsum.photos/seed/6/600/600', 'https://picsum.photos/seed/66/600/600', 'https://picsum.photos/seed/666/600/600'],
-    idCategoria: '1',
-    slug: 'tablet-grafica-creatorpad-10-pro',
+    nombre: 'Aceite de Oliva Extra Virgen (1L)',
+    descripcion: 'Aceite de oliva prensado en frío de valles centrales de Chile. Aroma frutado y acidez mínima.',
+    precioDetalle: 8990,
+    precioMayorista: 7200,
+    imagenes: ['https://picsum.photos/seed/oliveoil1/600/600'],
+    idCategoria: '3',
+    slug: 'aceite-oliva-extra-virgen-1l',
   },
   {
     id: '7',
-    nombre: 'Set de Altavoces Inteligentes "HomeSound Duo Max"',
-    descripcion: 'Sonido envolvente para tu hogar. Control por voz, multi-room y conexión Bluetooth/Wi-Fi. Diseño elegante que se adapta a cualquier decoración.',
-    precioDetalle: 299000,
-    precioMayorista: 249000,
-    imagenes: ['https://picsum.photos/seed/7/600/600', 'https://picsum.photos/seed/77/600/600'],
-    idCategoria: '3',
-    slug: 'set-altavoces-inteligentes-homesound-duo-max',
+    nombre: 'Mix Ensalada Orgánica Lista (300g)',
+    descripcion: 'Selección de lechugas, espinaca baby y rúcula. Lavada y lista para disfrutar. Sin pesticidas.',
+    precioDetalle: 2200,
+    precioMayorista: 1750,
+    imagenes: ['https://picsum.photos/seed/salad1/600/600'],
+    idCategoria: '2',
+    slug: 'mix-ensalada-organica-lista',
   },
   {
     id: '8',
-    nombre: 'Mochila Antirrobo "Guardian X Secure"',
-    descripcion: 'Viaja con seguridad y estilo. Materiales resistentes a cortes, compartimentos ocultos y puerto de carga USB. Espaciosa y ergonómica.',
-    precioDetalle: 75000,
-    precioMayorista: 55000,
-    imagenes: ['https://picsum.photos/seed/8/600/600'],
-    idCategoria: '2', 
-    slug: 'mochila-antirrobo-guardian-x-secure',
+    nombre: 'Leche Entera Natural (1L)',
+    descripcion: 'Leche fresca de vacas alimentadas con pasto. Sin aditivos, directo del productor a tu mesa.',
+    precioDetalle: 1400,
+    precioMayorista: 1100,
+    imagenes: ['https://picsum.photos/seed/milk1/600/600'],
+    idCategoria: '4', 
+    slug: 'leche-entera-natural-1l',
   }
 ];
 
 export const enlacesRedesSocialesSimulados: EnlaceRedSocial[] = [
-  { id: '1', plataforma: 'Facebook', url: 'https://facebook.com/velozcommerce' },
-  { id: '2', plataforma: 'Instagram', url: 'https://instagram.com/velozcommerce' },
-  { id: '3', plataforma: 'Twitter', url: 'https://twitter.com/velozcommerce' },
-  { id: '4', plataforma: 'LinkedIn', url: 'https://linkedin.com/company/velozcommerce' },
+  { id: '1', plataforma: 'Facebook', url: 'https://facebook.com/frutiandante' },
+  { id: '2', plataforma: 'Instagram', url: 'https://instagram.com/frutiandante' },
 ];
 
 export const configuracionSitioSimulada: ConfiguracionSitio = {
-  urlLogo: 'https://placehold.co/200x60.png?text=Veloz&font=poppins&bg=217_91_60&fc=ffffff',
-  nombreEmpresa: 'Veloz Commerce',
+  urlLogo: '',
+  nombreEmpresa: 'Frutiandante',
   enlacesRedesSociales: enlacesRedesSocialesSimulados,
   numeroWhatsapp: '56912345678',
-  tituloAbout: 'Innovación y Tecnología para todo Chile',
-  subtituloAbout: 'Llevamos la vanguardia tecnológica directamente a tu puerta.',
-  historiaAbout: 'Veloz Commerce nació con la visión de simplificar el acceso a productos tecnológicos de alta gama en Chile. Desde nuestros inicios, nos hemos enfocado en seleccionar cuidadosamente cada artículo de nuestro catálogo para asegurar que nuestros clientes reciban solo lo mejor del mercado global.',
-  misionAbout: 'Proveer soluciones tecnológicas innovadoras y de alta calidad a precios competitivos, garantizando una experiencia de compra rápida, segura y confiable para todos los chilenos.',
-  visionAbout: 'Convertirnos en el referente número uno de comercio electrónico en Chile, destacando por nuestra velocidad logística, atención personalizada y catálogo de vanguardia.',
-  urlImagenAbout: 'https://picsum.photos/seed/about/1200/800',
+  tituloAbout: 'Frescura que camina hacia tu hogar',
+  subtituloAbout: 'Conectamos el campo chileno con tu cocina de forma directa y honesta.',
+  historiaAbout: 'Frutiandante nació de la necesidad de llevar alimentos reales y frescos a las familias chilenas sin intermediarios innecesarios. Creemos que la buena alimentación debe ser accesible y transparente, por eso recorremos los mejores huertos para seleccionar personalmente cada fruta y verdura que llega a tu puerta.',
+  misionAbout: 'Brindar a nuestros clientes los víveres más frescos y de mejor calidad en Chile, promoviendo el comercio justo con productores locales y facilitando una vida saludable.',
+  visionAbout: 'Ser la feria online favorita de Chile, reconocida por nuestra calidad insuperable y el compromiso con la salud de nuestra comunidad.',
+  urlImagenAbout: 'https://picsum.photos/seed/farm/1200/800',
 };
 
-// Funciones para obtener datos simulados (pueden coexistir con las de Supabase)
 export const obtenerProductos = async (): Promise<Producto[]> => {
-  // Simulación de carga de red
   await new Promise(resolve => setTimeout(resolve, 200)); 
   return productosSimulados;
 };
@@ -125,8 +119,6 @@ export const obtenerProductoPorSlug = async (slug: string): Promise<Producto | u
   return productosSimulados.find(p => p.slug === slug);
 };
 
-// Esta función se puede mantener para mock data si es necesario en otras partes.
-// La página de admin/categories ahora usa su propia función para Supabase.
 export const obtenerCategorias = async (): Promise<Categoria[]> => {
   await new Promise(resolve => setTimeout(resolve, 200));
   return categoriasSimuladas;
@@ -134,7 +126,6 @@ export const obtenerCategorias = async (): Promise<Categoria[]> => {
 
 export const obtenerCategoriaPorSlug = async (slug: string): Promise<Categoria | undefined> => {
   await new Promise(resolve => setTimeout(resolve, 200));
-  // Primero intenta encontrar en las simuladas. En un futuro podría consultar Supabase aquí también.
   return categoriasSimuladas.find(c => c.slug === slug);
 };
 

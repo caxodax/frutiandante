@@ -1,29 +1,34 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ConfiguracionSitio } from '@/tipos';
+import { Salad } from 'lucide-react';
 
 interface LogotipoProps {
   className?: string;
-  configuracion: ConfiguracionSitio; // Hacer configuracion una prop requerida
+  configuracion: ConfiguracionSitio;
 }
 
-// Ya no es async
 const Logotipo = ({ className, configuracion }: LogotipoProps) => {
+  const nombreDisplay = configuracion?.nombreEmpresa || 'Frutiandante';
+  
   return (
-    <Link href="/" className={`flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm ${className}`}>
-      {configuracion.urlLogo ? (
+    <Link href="/" className={`flex items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl p-1 transition-all ${className}`}>
+      <div className="bg-primary/10 p-2 rounded-2xl group-hover:bg-primary transition-colors">
+        <Salad className="h-7 w-7 text-primary group-hover:text-white transition-colors" />
+      </div>
+      {configuracion?.urlLogo ? (
         <Image 
           src={configuracion.urlLogo} 
-          alt={`Logotipo de ${configuracion.nombreEmpresa}`} 
+          alt={`Logotipo de ${nombreDisplay}`} 
           width={150} 
           height={40} 
           className="h-10 w-auto object-contain"
           priority 
-          data-ai-hint="diseño logotipo moderno" 
+          data-ai-hint="logotipo comida fresca" 
         />
       ) : (
-        <span className="font-headline text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
-         {configuracion.nombreEmpresa}
+        <span className="font-headline text-2xl font-black text-slate-900 tracking-tighter group-hover:text-primary transition-colors">
+         {nombreDisplay}
         </span>
       )}
     </Link>
