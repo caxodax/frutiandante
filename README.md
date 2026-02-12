@@ -37,6 +37,16 @@ git commit -m "Primer commit: Frutiandante MVP"
 gh repo create frutiandante --public --source=. --remote=origin --push
 ```
 
+## Comandos Útiles de Git
+
+Si quieres revisar tu progreso antes de subir cambios:
+
+- **Ver estado de los archivos:** `git status` (Muestra qué archivos han cambiado).
+- **Ver cambios detallados:** `git diff` (Muestra las líneas exactas que modificaste).
+- **Ver cambios preparados:** `git diff --staged` (Muestra lo que se incluirá en el siguiente commit).
+- **Bajar cambios de GitHub:** `git pull origin main`
+- **Subir nuevos cambios:** `git push origin main` (Después de hacer `add` y `commit`).
+
 ## Desarrollo
 Para correr el proyecto localmente si lo descargas en otro lugar:
 ```bash
