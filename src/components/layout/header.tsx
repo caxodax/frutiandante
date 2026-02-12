@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { UserCircle, Menu, Search, ChevronDown } from 'lucide-react';
 import Logotipo from '@/components/logo';
@@ -26,62 +27,65 @@ const Encabezado = async () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-xl transition-all">
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
-        {/* Logo */}
-        <Logotipo configuracion={configuracion} className="shrink-0" />
-        
-        {/* Main Nav - Desktop */}
-        <nav className="hidden items-center gap-x-8 lg:flex">
-          <Link
-            href="/"
-            className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
-          >
-            Inicio
-          </Link>
+        {/* Logo y Nav Principal */}
+        <div className="flex items-center gap-8">
+          <Logotipo configuracion={configuracion} className="shrink-0" />
+          
+          <nav className="hidden items-center gap-x-6 lg:flex">
+            <Link
+              href="/"
+              className="text-sm font-bold text-slate-600 transition-colors hover:text-primary"
+            >
+              Inicio
+            </Link>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center text-sm font-semibold text-slate-600 transition-colors hover:text-primary outline-none">
-                Categorías
-                <ChevronDown className="ml-1 h-4 w-4 opacity-50" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-64 p-2 rounded-2xl shadow-2xl border-none">
-              {categorias.map((categoria) => (
-                <DropdownMenuItem key={categoria.id} asChild>
-                  <Link
-                    href={`/category/${categoria.slug}`}
-                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary transition-all cursor-pointer"
-                  >
-                    <div className="h-2 w-2 rounded-full bg-primary/20 group-hover:bg-primary"></div>
-                    {categoria.nombre}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center text-sm font-bold text-slate-600 transition-colors hover:text-primary outline-none">
+                  Categorías
+                  <ChevronDown className="ml-1 h-4 w-4 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 p-2 rounded-2xl shadow-2xl border-none">
+                {categorias.map((categoria) => (
+                  <DropdownMenuItem key={categoria.id} asChild>
+                    <Link
+                      href={`/category/${categoria.slug}`}
+                      className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary transition-all cursor-pointer"
+                    >
+                      <div className="h-2 w-2 rounded-full bg-primary/20"></div>
+                      {categoria.nombre}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <Link
-            href="/products"
-            className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
-          >
-            Productos
-          </Link>
-        </nav>
+            <Link
+              href="/products"
+              className="text-sm font-bold text-slate-600 transition-colors hover:text-primary"
+            >
+              Productos
+            </Link>
+          </nav>
+        </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
-          {/* Search Bar - Desktop */}
-          <form action="/products" method="GET" className="hidden xl:flex items-center gap-2 rounded-full border bg-slate-50 px-4 py-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-            <Search className="h-4 w-4 text-slate-400" />
+        {/* Buscador Central - Desktop (Visible desde md) */}
+        <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <form action="/products" method="GET" className="relative w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input 
               name="q"
               type="search" 
-              placeholder="Buscar productos..." 
-              className="h-auto border-0 bg-transparent p-0 text-sm focus-visible:ring-0 w-48 placeholder:text-slate-400" 
+              placeholder="¿Qué estás buscando?" 
+              className="w-full rounded-full border-slate-200 bg-slate-50 pl-10 h-11 focus-visible:ring-primary/20 focus-visible:bg-white transition-all" 
             />
           </form>
+        </div>
 
-          <div className="flex items-center gap-1 sm:gap-2">
+        {/* Acciones Derecha */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
               <Link href="/admin">
                 <UserCircle className="h-6 w-6 text-slate-600" />
@@ -106,7 +110,7 @@ const Encabezado = async () => {
                    </SheetTitle>
                 </SheetHeader>
                 
-                {/* Search Bar - Mobile */}
+                {/* Search Bar - Mobile (Dentro del menú) */}
                 <form action="/products" method="GET" className="mb-6 flex items-center gap-2 rounded-xl border bg-slate-50 px-4 py-3 focus-within:ring-2 focus-within:ring-primary/20 transition-all shrink-0">
                   <Search className="h-5 w-5 text-slate-400" />
                   <Input 
@@ -133,7 +137,7 @@ const Encabezado = async () => {
                 
                 <div className="mt-auto border-t pt-6 shrink-0">
                   <Button asChild className="w-full h-12 rounded-xl font-bold">
-                    <Link href="/checkout">Ir al Carrito</Link>
+                    <Link href="/checkout">Ir al Checkout</Link>
                   </Button>
                 </div>
               </SheetContent>
