@@ -6,7 +6,7 @@ import type { Producto } from '@/tipos';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Eye, Leaf } from 'lucide-react';
+import { ShoppingCart, Leaf } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,32 +29,20 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
   };
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 rounded-[2.5rem]">
-      <CardHeader className="p-0 relative">
+    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 rounded-[2.5rem] relative">
+      {/* Enlace invisible que cubre toda la tarjeta excepto el footer */}
+      <Link href={`/product/${producto.slug}`} className="absolute inset-0 z-0">
+        <span className="sr-only">Ver {producto.nombre}</span>
+      </Link>
+
+      <CardHeader className="p-0 relative z-10 pointer-events-none">
         <div className="aspect-square relative overflow-hidden bg-slate-50">
-          <Link href={`/product/${producto.slug}`} className="block h-full w-full">
-            <Image
-              src={producto.imagenes[0]}
-              alt={producto.nombre}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-          </Link>
-          
-          {/* Overlay con botón de Ver Detalles */}
-          <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
-            <Button 
-              size="icon" 
-              variant="secondary" 
-              className="h-14 w-14 rounded-full shadow-2xl bg-white text-primary hover:bg-primary hover:text-white transition-all transform scale-75 group-hover:scale-100 duration-300"
-              asChild
-            >
-              <Link href={`/product/${producto.slug}`}>
-                <Eye className="h-6 w-6" />
-                <span className="sr-only">Ver detalles</span>
-              </Link>
-            </Button>
-          </div>
+          <Image
+            src={producto.imagenes[0]}
+            alt={producto.nombre}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
+          />
           
           <Badge className="absolute left-6 top-6 bg-secondary text-white font-bold px-4 py-1.5 rounded-full border-2 border-white shadow-lg text-xs uppercase tracking-widest">
             Fresco
@@ -66,13 +54,11 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
         </div>
       </CardHeader>
       
-      <CardContent className="flex flex-1 flex-col p-8 pb-4">
+      <CardContent className="flex flex-1 flex-col p-8 pb-4 relative z-10 pointer-events-none">
         <div className="mb-4">
-           <Link href={`/product/${producto.slug}`} className="block">
-            <h3 className="font-headline text-xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-primary line-clamp-2 min-h-[3rem]">
-              {producto.nombre}
-            </h3>
-          </Link>
+          <h3 className="font-headline text-xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-primary line-clamp-2 min-h-[3rem]">
+            {producto.nombre}
+          </h3>
         </div>
         
         <div className="mt-auto space-y-4">
@@ -90,7 +76,7 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
         </div>
       </CardContent>
       
-      <CardFooter className="p-8 pt-2">
+      <CardFooter className="p-8 pt-2 relative z-20">
         <Button 
           onClick={manejarAnadirAlCarrito} 
           className="w-full h-14 rounded-2xl bg-primary text-white font-black hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95"
