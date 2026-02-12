@@ -41,10 +41,10 @@ export default async function PaginaInicio() {
                 Llevamos lo mejor de la tierra chilena directo a tu mesa. Frutas, verduras y víveres seleccionados con amor y conciencia.
               </p>
               <div className="mt-10 flex flex-wrap gap-4">
-                <Button asChild size="lg" className="h-14 px-8 text-lg shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90">
+                <Button asChild size="lg" className="h-14 px-8 text-lg shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white font-bold border-none">
                   <Link href="/products">Comprar Ahora</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg border-white/20 text-white hover:bg-white/10 backdrop-blur-sm">
+                <Button asChild size="lg" className="h-14 px-8 text-lg border-2 border-white text-white hover:bg-white hover:text-emerald-900 bg-transparent backdrop-blur-sm transition-all font-bold">
                   <Link href="#categorias">Ver Categorías</Link>
                 </Button>
               </div>
@@ -156,10 +156,10 @@ export default async function PaginaInicio() {
                   Recibe ofertas exclusivas de temporada y consejos de salud directamente en tu WhatsApp. ¡Vive fresco!
                 </p>
                 <div className="mt-12 flex flex-col justify-center gap-4 sm:flex-row">
-                  <Button size="lg" variant="secondary" className="h-16 px-12 text-xl font-bold bg-white text-secondary hover:bg-emerald-50 border-none rounded-2xl">
+                  <Button size="lg" className="h-16 px-12 text-xl font-bold bg-white text-emerald-900 hover:bg-emerald-50 border-none rounded-2xl">
                     Quiero Suscribirme
                   </Button>
-                  <Button size="lg" variant="outline" className="h-16 px-12 text-xl border-white/40 text-white hover:bg-white/10 rounded-2xl">
+                  <Button size="lg" className="h-16 px-12 text-xl border-2 border-white/40 text-white hover:bg-white/10 bg-transparent rounded-2xl font-bold">
                     Más Información
                   </Button>
                 </div>
