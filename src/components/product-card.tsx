@@ -30,33 +30,37 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
 
   return (
     <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <Link href={`/product/${producto.slug}`} className="relative block overflow-hidden">
-        <CardHeader className="p-0">
-          <div className="aspect-square relative">
+      <CardHeader className="p-0">
+        <div className="aspect-square relative overflow-hidden">
+          {/* Enlace principal solo a la imagen */}
+          <Link href={`/product/${producto.slug}`} className="block h-full w-full">
             <Image
               src={producto.imagenes[0]}
               alt={producto.nombre}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
-            {/* Quick Actions Overlay */}
-            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-              <Button size="icon" variant="secondary" className="rounded-full shadow-lg" asChild>
-                <Link href={`/product/${producto.slug}`}>
-                  <Eye className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button size="icon" className="rounded-full shadow-lg" onClick={manejarAnadirAlCarrito}>
-                <Plus className="h-5 w-5" />
-              </Button>
-            </div>
-            {/* Discount or Badge */}
-            <Badge className="absolute left-4 top-4 bg-primary text-white font-bold px-3 py-1">
-              Nuevo
-            </Badge>
+          </Link>
+          
+          {/* Quick Actions Overlay - Ahora fuera del Link principal */}
+          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 pointer-events-none group-hover:pointer-events-auto">
+            <Button size="icon" variant="secondary" className="rounded-full shadow-lg" asChild>
+              <Link href={`/product/${producto.slug}`}>
+                <Eye className="h-5 w-5" />
+                <span className="sr-only">Ver producto</span>
+              </Link>
+            </Button>
+            <Button size="icon" className="rounded-full shadow-lg" onClick={manejarAnadirAlCarrito}>
+              <Plus className="h-5 w-5" />
+              <span className="sr-only">Añadir al carrito</span>
+            </Button>
           </div>
-        </CardHeader>
-      </Link>
+          
+          <Badge className="absolute left-4 top-4 bg-primary text-white font-bold px-3 py-1">
+            Nuevo
+          </Badge>
+        </div>
+      </CardHeader>
       
       <CardContent className="flex flex-1 flex-col p-5">
         <div className="mb-2">
