@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShoppingCart, UserCircle, Menu, Search } from 'lucide-react';
+import { ShoppingCart, UserCircle, Menu, Search, ChevronDown, LayoutGrid } from 'lucide-react';
 import Logotipo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { obtenerCategorias, obtenerConfiguracionSitio } from '@/lib/mock-data';
@@ -11,18 +11,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-// DropdownMenu imports ya no son necesarios para el icono de usuario
-import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu"; // Aún usado en el menú móvil si hay más items
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 import { Input } from '@/components/ui/input';
 
 const Encabezado = async () => {
   const categorias = await obtenerCategorias();
   const configuracion = await obtenerConfiguracionSitio();
-
-  const enlacesNavegacion = [
-    { href: '/', label: 'Inicio' },
-    ...categorias.map(categoria => ({ href: `/category/${categoria.slug}`, label: categoria.nombre })),
-  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur-md shadow-sm">
@@ -30,15 +30,41 @@ const Encabezado = async () => {
         <Logotipo configuracion={configuracion} />
         
         <nav className="hidden items-center gap-x-6 lg:flex">
-          {enlacesNavegacion.map((enlace) => (
-            <Link
-              key={enlace.href}
-              href={enlace.href}
-              className="font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary"
-            >
-              {enlace.label}
-            </Link>
-          ))}
+          <Link
+            href="/"
+            className="font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary"
+          >
+            Inicio
+          </Link>
+
+          {/* Menú Desplegable de Categorías */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary focus:outline-none">
+                Categorías
+                <ChevronDown className="ml-1 h-4 w-4 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 p-2">
+              {categorias.map((categoria) => (
+                <DropdownMenuItem key={categoria.id} asChild>
+                  <Link
+                    href={`/category/${categoria.slug}`}
+                    className="cursor-pointer w-full font-headline text-sm"
+                  >
+                    {categoria.nombre}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Link
+            href="/products"
+            className="font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary"
+          >
+            Productos
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3 md:gap-4">
@@ -47,7 +73,6 @@ const Encabezado = async () => {
             <Input type="search" placeholder="Buscar productos..." className="h-auto border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 w-32 lg:w-48" />
           </div>
 
-          {/* Icono de usuario ahora es un enlace directo a /admin */}
           <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-accent/10">
             <Link href="/admin" aria-label="Panel de Administración">
               <UserCircle className="h-6 w-6 text-foreground/80" />
@@ -82,17 +107,32 @@ const Encabezado = async () => {
                 <Input type="search" placeholder="Buscar productos..." className="pl-9" />
               </div>
               <nav className="flex flex-col gap-y-3">
-                {enlacesNavegacion.map((enlace) => (
-                  <Link
-                    key={enlace.href}
-                    href={enlace.href}
-                    className="font-headline text-lg font-medium text-foreground transition-colors hover:text-primary hover:bg-muted/50 p-2 rounded-md"
-                  >
-                    {enlace.label}
-                  </Link>
-                ))}
-                 <DropdownMenuSeparator className="my-2"/>
-                 <Link href="/admin" className="font-headline text-lg font-medium text-foreground transition-colors hover:text-primary hover:bg-muted/50 p-2 rounded-md">Panel de Admin</Link>
+                <Link
+                  href="/"
+                  className="font-headline text-lg font-medium text-foreground transition-colors hover:text-primary hover:bg-muted/50 p-2 rounded-md"
+                >
+                  Inicio
+                </Link>
+                
+                <div className="px-2 py-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                    <LayoutGrid className="h-3 w-3" /> Categorías
+                  </p>
+                  <div className="flex flex-col gap-y-1 pl-2">
+                    {categorias.map((categoria) => (
+                      <Link
+                        key={categoria.id}
+                        href={`/category/${categoria.slug}`}
+                        className="font-headline text-base font-medium text-foreground/80 transition-colors hover:text-primary py-2"
+                      >
+                        {categoria.nombre}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <DropdownMenuSeparator className="my-2"/>
+                <Link href="/admin" className="font-headline text-lg font-medium text-foreground transition-colors hover:text-primary hover:bg-muted/50 p-2 rounded-md">Panel de Admin</Link>
               </nav>
             </SheetContent>
           </Sheet>
