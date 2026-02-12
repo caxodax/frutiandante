@@ -1,6 +1,5 @@
-
 import Link from 'next/link';
-import { UserCircle, Menu, Search, ChevronDown, LayoutGrid } from 'lucide-react';
+import { UserCircle, Menu, Search, ChevronDown, ShoppingBag } from 'lucide-react';
 import Logotipo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { obtenerCategorias, obtenerConfiguracionSitio } from '@/lib/mock-data';
@@ -17,7 +16,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { Input } from '@/components/ui/input';
 
@@ -26,32 +24,35 @@ const Encabezado = async () => {
   const configuracion = await obtenerConfiguracionSitio();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur-md shadow-sm">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
-        <Logotipo configuracion={configuracion} />
+    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-xl transition-all">
+      <div className="container mx-auto flex h-20 items-center justify-between px-4">
+        {/* Logo */}
+        <Logotipo configuracion={configuracion} className="shrink-0" />
         
-        <nav className="hidden items-center gap-x-6 lg:flex">
+        {/* Main Nav - Desktop */}
+        <nav className="hidden items-center gap-x-8 lg:flex">
           <Link
             href="/"
-            className="font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary"
+            className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
           >
             Inicio
           </Link>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary focus:outline-none">
+              <button className="flex items-center text-sm font-semibold text-slate-600 transition-colors hover:text-primary outline-none">
                 Categorías
-                <ChevronDown className="ml-1 h-4 w-4 opacity-70" />
+                <ChevronDown className="ml-1 h-4 w-4 opacity-50" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56 p-2">
+            <DropdownMenuContent align="start" className="w-64 p-2 rounded-2xl shadow-2xl border-none">
               {categorias.map((categoria) => (
                 <DropdownMenuItem key={categoria.id} asChild>
                   <Link
                     href={`/category/${categoria.slug}`}
-                    className="cursor-pointer w-full font-headline text-sm"
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary transition-all cursor-pointer"
                   >
+                    <div className="h-2 w-2 rounded-full bg-primary/20 group-hover:bg-primary"></div>
                     {categoria.nombre}
                   </Link>
                 </DropdownMenuItem>
@@ -61,78 +62,82 @@ const Encabezado = async () => {
 
           <Link
             href="/products"
-            className="font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary"
+            className="text-sm font-semibold text-slate-600 transition-colors hover:text-primary"
           >
             Productos
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3 md:gap-4">
-          <div className="hidden md:flex items-center gap-2 rounded-md border bg-background px-2 py-1">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Buscar productos..." className="h-auto border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 w-32 lg:w-48" />
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          {/* Search Bar - Desktop */}
+          <div className="hidden xl:flex items-center gap-2 rounded-full border bg-slate-50 px-4 py-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <Search className="h-4 w-4 text-slate-400" />
+            <Input 
+              type="search" 
+              placeholder="¿Qué estás buscando?" 
+              className="h-auto border-0 bg-transparent p-0 text-sm focus-visible:ring-0 w-48 placeholder:text-slate-400" 
+            />
           </div>
 
-          <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-accent/10">
-            <Link href="/admin" aria-label="Panel de Administración">
-              <UserCircle className="h-6 w-6 text-foreground/80" />
-              <span className="sr-only">Panel de Administración</span>
-            </Link>
-          </Button>
-          
-          <CartDrawer />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
+              <Link href="/admin">
+                <UserCircle className="h-6 w-6 text-slate-600" />
+                <span className="sr-only">Cuenta</span>
+              </Link>
+            </Button>
+            
+            <CartDrawer />
 
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-accent/10">
-                <Menu className="h-6 w-6 text-foreground/80" />
-                <span className="sr-only">Alternar menú de navegación</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm">
-              <SheetHeader className="mb-6 border-b pb-4">
-                 <SheetTitle>
-                    <Logotipo configuracion={configuracion} />
-                 </SheetTitle>
-              </SheetHeader>
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input type="search" placeholder="Buscar productos..." className="pl-9" />
-              </div>
-              <nav className="flex flex-col gap-y-3">
-                <Link
-                  href="/"
-                  className="font-headline text-lg font-medium text-foreground transition-colors hover:text-primary hover:bg-muted/50 p-2 rounded-md"
-                >
-                  Inicio
-                </Link>
-                
-                <div className="px-2 py-2">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                    <LayoutGrid className="h-3 w-3" /> Categorías
-                  </p>
-                  <div className="flex flex-col gap-y-1 pl-2">
-                    {categorias.map((categoria) => (
-                      <Link
-                        key={categoria.id}
-                        href={`/category/${categoria.slug}`}
-                        className="font-headline text-base font-medium text-foreground/80 transition-colors hover:text-primary py-2"
-                      >
-                        {categoria.nombre}
-                      </Link>
-                    ))}
+            {/* Mobile Menu Toggle */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-slate-100">
+                  <Menu className="h-6 w-6 text-slate-600" />
+                  <span className="sr-only">Menú</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] border-none">
+                <SheetHeader className="mb-8 border-b pb-6">
+                   <SheetTitle>
+                      <Logotipo configuracion={configuracion} />
+                   </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-y-2">
+                  <MobileNavLink href="/">Inicio</MobileNavLink>
+                  <div className="mt-4 mb-2 px-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+                    Categorías
                   </div>
-                </div>
-
-                <DropdownMenuSeparator className="my-2"/>
-                <Link href="/admin" className="font-headline text-lg font-medium text-foreground transition-colors hover:text-primary hover:bg-muted/50 p-2 rounded-md">Panel de Admin</Link>
-              </nav>
-            </SheetContent>
-          </Sheet>
+                  {categorias.map((categoria) => (
+                    <MobileNavLink key={categoria.id} href={`/category/${categoria.slug}`}>
+                      {categoria.nombre}
+                    </MobileNavLink>
+                  ))}
+                  <div className="mt-6 border-t pt-6">
+                    <Button asChild className="w-full h-12 rounded-xl font-bold">
+                      <Link href="/products">Ver Todos los Productos</Link>
+                    </Button>
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
   );
 };
+
+function MobileNavLink({ href, children }: { href: string, children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center rounded-xl px-4 py-3 text-lg font-bold text-slate-900 transition-colors hover:bg-slate-50 active:bg-slate-100"
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default Encabezado;

@@ -1,13 +1,12 @@
-
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Producto } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Eye } from 'lucide-react';
+import { ShoppingCart, Eye, Plus } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,43 +29,61 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
   };
 
   return (
-    <Card className="group flex h-full transform flex-col overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1">
-      <Link href={`/product/${producto.slug}`} className="block relative">
+    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      <Link href={`/product/${producto.slug}`} className="relative block overflow-hidden">
         <CardHeader className="p-0">
-          <div className="aspect-[4/3] overflow-hidden bg-muted">
+          <div className="aspect-square relative">
             <Image
               src={producto.imagenes[0]}
               alt={producto.nombre}
-              width={400}
-              height={300}
-              className="h-full w-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
+            {/* Quick Actions Overlay */}
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+              <Button size="icon" variant="secondary" className="rounded-full shadow-lg" asChild>
+                <Link href={`/product/${producto.slug}`}>
+                  <Eye className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button size="icon" className="rounded-full shadow-lg" onClick={manejarAnadirAlCarrito}>
+                <Plus className="h-5 w-5" />
+              </Button>
+            </div>
+            {/* Discount or Badge */}
+            <Badge className="absolute left-4 top-4 bg-primary text-white font-bold px-3 py-1">
+              Nuevo
+            </Badge>
           </div>
         </CardHeader>
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-           <Button size="icon" variant="secondary" className="rounded-full">
-             <Eye className="h-5 w-5" />
-           </Button>
-        </div>
       </Link>
+      
       <CardContent className="flex flex-1 flex-col p-5">
-        <Link href={`/product/${producto.slug}`} className="block">
-          <CardTitle className="font-headline text-xl leading-tight text-foreground transition-colors group-hover:text-primary">
-            {producto.nombre}
-          </CardTitle>
-        </Link>
-        <CardDescription className="mt-2 line-clamp-3 flex-grow text-sm text-muted-foreground">
-          {producto.descripcion}
-        </CardDescription>
-        <div className="mt-4 space-y-1">
-          <div className="flex items-center justify-between">
-            <p className="font-headline text-xl font-bold text-primary">${producto.precioDetalle.toFixed(2)}</p>
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-none">Mayorista: ${producto.precioMayorista.toFixed(2)}</Badge>
+        <div className="mb-2">
+           <Link href={`/product/${producto.slug}`} className="block">
+            <h3 className="font-headline text-lg font-bold leading-tight text-slate-900 transition-colors group-hover:text-primary line-clamp-2 h-12">
+              {producto.nombre}
+            </h3>
+          </Link>
+        </div>
+        
+        <div className="mt-auto space-y-3">
+          <div className="flex flex-col">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Precio Detalle</span>
+            <span className="text-2xl font-black text-slate-900">${producto.precioDetalle.toLocaleString('es-CL')}</span>
+          </div>
+          <div className="flex items-center justify-between rounded-lg bg-slate-50 p-2 border border-slate-100">
+            <span className="text-[10px] font-bold text-slate-500 uppercase">Mayorista</span>
+            <span className="text-sm font-bold text-primary">${producto.precioMayorista.toLocaleString('es-CL')}</span>
           </div>
         </div>
       </CardContent>
+      
       <CardFooter className="p-5 pt-0">
-        <Button onClick={manejarAnadirAlCarrito} className="w-full bg-primary text-primary-foreground shadow-md transition-all hover:bg-primary/90">
+        <Button 
+          onClick={manejarAnadirAlCarrito} 
+          className="w-full h-12 rounded-xl bg-slate-900 text-white font-bold hover:bg-primary transition-all group-hover:shadow-lg group-hover:shadow-primary/20"
+        >
           <ShoppingCart className="mr-2 h-4 w-4" />
           Añadir al Carrito
         </Button>
