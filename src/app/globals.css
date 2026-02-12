@@ -69,42 +69,10 @@
   * {
     @apply border-border;
   }
-  html {
-    scroll-behavior: smooth;
-  }
   body {
     @apply bg-background text-foreground font-body;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;
   }
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-slate-50;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-primary/30 rounded-full transition-colors hover:bg-primary/50;
-}
-
-/* Reveal Animations Classes */
-.reveal-up {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.reveal-up.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
 }
