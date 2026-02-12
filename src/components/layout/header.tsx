@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { UserCircle, Menu, Search, ChevronDown, ShoppingBag } from 'lucide-react';
+import { UserCircle, Menu, Search, ChevronDown } from 'lucide-react';
 import Logotipo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { obtenerCategorias, obtenerConfiguracionSitio } from '@/lib/mock-data';
@@ -71,14 +71,15 @@ const Encabezado = async () => {
         {/* Actions */}
         <div className="flex items-center gap-3">
           {/* Search Bar - Desktop */}
-          <div className="hidden xl:flex items-center gap-2 rounded-full border bg-slate-50 px-4 py-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          <form action="/products" method="GET" className="hidden xl:flex items-center gap-2 rounded-full border bg-slate-50 px-4 py-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <Search className="h-4 w-4 text-slate-400" />
             <Input 
+              name="q"
               type="search" 
-              placeholder="¿Qué estás buscando?" 
+              placeholder="Buscar productos..." 
               className="h-auto border-0 bg-transparent p-0 text-sm focus-visible:ring-0 w-48 placeholder:text-slate-400" 
             />
-          </div>
+          </form>
 
           <div className="flex items-center gap-1 sm:gap-2">
             <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
@@ -98,14 +99,28 @@ const Encabezado = async () => {
                   <span className="sr-only">Menú</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px] border-none">
-                <SheetHeader className="mb-8 border-b pb-6">
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] border-none flex flex-col">
+                <SheetHeader className="mb-8 border-b pb-6 shrink-0">
                    <SheetTitle>
                       <Logotipo configuracion={configuracion} />
                    </SheetTitle>
                 </SheetHeader>
-                <nav className="flex flex-col gap-y-2">
+                
+                {/* Search Bar - Mobile */}
+                <form action="/products" method="GET" className="mb-6 flex items-center gap-2 rounded-xl border bg-slate-50 px-4 py-3 focus-within:ring-2 focus-within:ring-primary/20 transition-all shrink-0">
+                  <Search className="h-5 w-5 text-slate-400" />
+                  <Input 
+                    name="q"
+                    type="search" 
+                    placeholder="¿Qué buscas?" 
+                    className="h-auto border-0 bg-transparent p-0 text-base focus-visible:ring-0 w-full placeholder:text-slate-400" 
+                  />
+                </form>
+
+                <nav className="flex flex-col gap-y-2 overflow-y-auto flex-1 custom-scrollbar">
                   <MobileNavLink href="/">Inicio</MobileNavLink>
+                  <MobileNavLink href="/products">Todos los Productos</MobileNavLink>
+                  
                   <div className="mt-4 mb-2 px-3 text-xs font-bold uppercase tracking-widest text-slate-400">
                     Categorías
                   </div>
@@ -114,12 +129,13 @@ const Encabezado = async () => {
                       {categoria.nombre}
                     </MobileNavLink>
                   ))}
-                  <div className="mt-6 border-t pt-6">
-                    <Button asChild className="w-full h-12 rounded-xl font-bold">
-                      <Link href="/products">Ver Todos los Productos</Link>
-                    </Button>
-                  </div>
                 </nav>
+                
+                <div className="mt-auto border-t pt-6 shrink-0">
+                  <Button asChild className="w-full h-12 rounded-xl font-bold">
+                    <Link href="/checkout">Ir al Carrito</Link>
+                  </Button>
+                </div>
               </SheetContent>
             </Sheet>
           </div>
