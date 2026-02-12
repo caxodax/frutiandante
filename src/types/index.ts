@@ -27,11 +27,17 @@ export interface EnlaceRedSocial {
 }
 
 export interface ConfiguracionSitio {
-  // Si esta configuración también se guarda en Supabase, considera añadir IDs y created_at
   id?: string | number;
   urlLogo: string;
   nombreEmpresa: string;
   enlacesRedesSociales: EnlaceRedSocial[];
   numeroWhatsapp: string;
+  // Campos para la página About
+  tituloAbout?: string;
+  subtituloAbout?: string;
+  historiaAbout?: string;
+  misionAbout?: string;
+  visionAbout?: string;
+  urlImagenAbout?: string;
   created_at?: string; // Añadido para Supabase
 }
