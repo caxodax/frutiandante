@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,7 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { obtenerProductoPorSlug, obtenerConfiguracionSitio } from '@/lib/mock-data';
-import type { Producto, ConfiguracionSitio } from '@/tipos';
+import type { Producto, ConfiguracionSitio } from '@/types';
+import { useCart } from '@/hooks/use-cart';
+import { useToast } from '@/hooks/use-toast';
 import { ShoppingCart, MessageSquare, ChevronLeft, ChevronRight, Star, CheckCircle, ShieldCheck } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -54,6 +57,9 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   const [imagenSeleccionada, setImagenSeleccionada] = useState<string | null>(null);
   const [indiceImagenActual, setIndiceImagenActual] = useState(0);
   const [cargando, setCargando] = useState(true);
+  
+  const { addItem } = useCart();
+  const { toast } = useToast();
 
   useEffect(() => {
     async function cargarDatos() {
@@ -90,9 +96,17 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     );
   }
 
-  const gestionarPedidoWhatsApp = () => {
+  const manejarAnadirAlCarrito = () => {
+    addItem(producto);
+    toast({
+      title: "Producto añadido",
+      description: `${producto.nombre} se ha añadido al carrito.`,
+    });
+  };
+
+  const manejarPedidoWhatsAppDirecto = () => {
     if (!configuracion || !producto) return;
-    const mensaje = `Hola ${configuracion.nombreEmpresa}, estoy interesado/a en pedir el producto: ${producto.nombre} (ID: ${producto.id}). Precio Detalle: $${producto.precioDetalle.toFixed(2)}. Por favor, bríndeme más detalles.`;
+    const mensaje = `Hola ${configuracion.nombreEmpresa}, estoy interesado/a en el producto: ${producto.nombre} (ID: ${producto.id}). Precio: $${producto.precioDetalle.toFixed(2)}.`;
     const urlWhatsapp = `https://wa.me/${configuracion.numeroWhatsapp}?text=${encodeURIComponent(mensaje)}`;
     window.open(urlWhatsapp, '_blank');
   };
@@ -125,7 +139,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                       height={600}
                       className="h-full w-full object-cover transition-opacity duration-500 ease-in-out opacity-100 hover:opacity-90"
                       priority
-                      data-ai-hint="producto principal alta calidad"
                     />
                   )}
                   {producto.imagenes.length > 1 && (
@@ -153,7 +166,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                           width={80}
                           height={80}
                           className="h-full w-full object-cover"
-                          data-ai-hint="miniatura producto detalle"
                         />
                       </button>
                     ))}
@@ -198,11 +210,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 <Separator className="my-8" />
                 
                 <div className="flex flex-col gap-4 sm:flex-row">
-                  <Button size="lg" className="w-full flex-grow bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 hover:bg-primary/90 sm:w-auto">
+                  <Button size="lg" className="w-full flex-grow bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 hover:bg-primary/90 sm:w-auto" onClick={manejarAnadirAlCarrito}>
                     <ShoppingCart className="mr-2 h-5 w-5" /> Añadir al Carrito
                   </Button>
-                  <Button size="lg" variant="outline" className="w-full border-accent text-accent shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground sm:w-auto flex-grow" onClick={gestionarPedidoWhatsApp}>
-                    <MessageSquare className="mr-2 h-5 w-5" /> Pedir por WhatsApp
+                  <Button size="lg" variant="outline" className="w-full border-accent text-accent shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground sm:w-auto flex-grow" onClick={manejarPedidoWhatsAppDirecto}>
+                    <MessageSquare className="mr-2 h-5 w-5" /> Pedir Detalles
                   </Button>
                 </div>
 

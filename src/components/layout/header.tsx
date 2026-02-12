@@ -1,9 +1,10 @@
+
 import Link from 'next/link';
-import { ShoppingCart, UserCircle, Menu, Search, ChevronDown, LayoutGrid } from 'lucide-react';
+import { UserCircle, Menu, Search, ChevronDown, LayoutGrid } from 'lucide-react';
 import Logotipo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { obtenerCategorias, obtenerConfiguracionSitio } from '@/lib/mock-data';
-import type { ConfiguracionSitio } from '@/tipos';
+import { CartDrawer } from './cart-drawer';
 import {
   Sheet,
   SheetContent,
@@ -37,7 +38,6 @@ const Encabezado = async () => {
             Inicio
           </Link>
 
-          {/* Menú Desplegable de Categorías */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center font-headline text-sm font-medium text-foreground/80 transition-colors hover:text-primary focus:outline-none">
@@ -80,15 +80,8 @@ const Encabezado = async () => {
             </Link>
           </Button>
           
-          <Button variant="ghost" size="icon" className="relative rounded-full hover:bg-accent/10">
-            <ShoppingCart className="h-6 w-6 text-foreground/80" />
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-              0
-            </span>
-            <span className="sr-only">Carrito de Compras</span>
-          </Button>
+          <CartDrawer />
 
-          {/* Menú Móvil */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-accent/10">
