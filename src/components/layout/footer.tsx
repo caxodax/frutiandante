@@ -24,7 +24,7 @@ const PieDePagina = async () => {
       <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
         <div className="grid gap-10 md:grid-cols-12 lg:gap-16">
           {/* Columna de Logo y Descripción */}
-          <div className="md:col-span-4 lg:col-span-5">
+          <div className="md:col-span-5 lg:col-span-6">
             <div className="inline-block">
               <Logotipo className="mb-4" configuracion={configuracion} />
             </div>
@@ -72,23 +72,19 @@ const PieDePagina = async () => {
           </div>
           
           {/* Columna de Contacto */}
-          <div className="md:col-span-4 lg:col-span-3">
-            <h3 className="font-headline text-base font-bold text-foreground">Mantente Conectado</h3>
+          <div className="md:col-span-3 lg:col-span-2">
+            <h3 className="font-headline text-base font-bold text-foreground">Contacto</h3>
             <ul className="mt-4 space-y-3 text-sm">
                 <li className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-4 w-4 text-primary" /> <span>hola@frutiandante.cl</span>
+                    <Mail className="h-4 w-4 text-primary shrink-0" /> <span className="truncate">hola@frutiandante.cl</span>
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="h-4 w-4 text-primary" /> <span>+{configuracion.numeroWhatsapp}</span>
+                    <Phone className="h-4 w-4 text-primary shrink-0" /> <span>+{configuracion.numeroWhatsapp}</span>
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="h-4 w-4 text-primary" /> <span>Santiago, Región Metropolitana</span>
+                    <MapPin className="h-4 w-4 text-primary shrink-0" /> <span className="leading-tight">Santiago, Chile</span>
                 </li>
             </ul>
-            <form className="mt-6 flex gap-2">
-              <Input type="email" placeholder="Tu correo" className="flex-grow rounded-xl bg-slate-50 border-slate-100" />
-              <Button type="submit" variant="default" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-4">Suscribirse</Button>
-            </form>
           </div>
         </div>
         

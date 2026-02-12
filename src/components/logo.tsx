@@ -27,7 +27,7 @@ const Logotipo = ({ className, configuracion }: LogotipoProps) => {
           data-ai-hint="logotipo comida fresca" 
         />
       ) : (
-        <span className="font-headline text-2xl font-black text-slate-900 tracking-tighter group-hover:text-primary transition-colors overflow-hidden text-ellipsis">
+        <span className="font-headline text-2xl font-black text-slate-900 tracking-tighter group-hover:text-primary transition-colors">
          {nombreDisplay}
         </span>
       )}
