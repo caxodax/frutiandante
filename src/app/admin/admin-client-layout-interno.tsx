@@ -73,7 +73,7 @@ export default function AdminClientLayoutInterno({
     return doc(firestore, 'users', user.uid);
   }, [firestore, user]);
 
-  const { data: userProfile, loading: profileLoading } = useDoc(userProfileRef);
+  const { data: userProfile, loading: profileLoading, error: profileError } = useDoc(userProfileRef);
 
   useEffect(() => {
     if (userLoading || profileLoading) return;
@@ -81,12 +81,12 @@ export default function AdminClientLayoutInterno({
     if (pathname !== '/admin/login') {
       if (!user) {
         router.replace('/admin/login');
-      } else if (userProfile && (userProfile as any).role !== 'admin') {
-        // Redirigir a la tienda si el usuario no tiene rol de admin
+      } else if (profileError || !userProfile || (userProfile as any).role !== 'admin') {
+        // Redirigir a la tienda si hay error de permisos, no hay perfil o no es admin
         router.replace('/');
       }
     }
-  }, [user, userLoading, userProfile, profileLoading, router, pathname]);
+  }, [user, userLoading, userProfile, profileLoading, profileError, router, pathname]);
 
   const manejarCerrarSesion = async () => {
     await signOut(auth);

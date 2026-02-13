@@ -7,27 +7,37 @@ Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despac
 Para que la aplicación funcione correctamente y sea segura, debes aplicar estas reglas en tu consola de Firebase:
 
 ### 1. Firestore Rules (Base de Datos)
-Copia esto en la pestaña **Rules** de Firestore:
+Copia esto en la pestaña **Rules** de Firestore. Estas reglas permiten el acceso dinámico basado en el rol de usuario almacenado en la base de datos.
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Configuración del sitio: Lectura pública, escritura solo para administradores
     match /config/site {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    
+    // Productos y Categorías: Lectura pública, gestión solo para administradores
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     match /categories/{categoryId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    
+    // Pedidos: Creación libre, lectura para el dueño del pedido o administradores
     match /orders/{orderId} {
       allow create: if true;
-      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.email.endsWith('@frutiandante.cl'));
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+    
+    // Usuarios: Cada usuario puede leer y escribir su propio perfil
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
