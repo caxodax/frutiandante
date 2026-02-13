@@ -1,4 +1,3 @@
-// src/app/admin/login/page.tsx
 'use client';
 
 import type React from 'react';
@@ -9,98 +8,96 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
-import Logotipo from '@/components/logo'; // Asumiendo que Logotipo puede obtener config o tiene una default
-import { obtenerConfiguracionSitio } from '@/lib/mock-data'; // Para el logo
+import Logotipo from '@/components/logo';
+import { obtenerConfiguracionSitio } from '@/lib/mock-data';
 import type { ConfiguracionSitio } from '@/tipos';
-import { ShieldAlert, LogIn } from 'lucide-react';
-
-// CONTRASEÑA FIJA (SOLO PARA DEMOSTRACIÓN - NO USAR EN PRODUCCIÓN)
-const CLAVE_ADMIN_DEMO = 'admin123';
+import { ShieldAlert, LogIn, Mail } from 'lucide-react';
+import { useAuth, useUser } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function PaginaLoginAdmin() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useUser();
+  const auth = useAuth();
+  
+  const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [cargando, setCargando] = useState(false);
   const [configuracionSitio, setConfiguracionSitio] = useState<ConfiguracionSitio | null>(null);
 
   useEffect(() => {
-    // Verificar si ya está autenticado para redirigir
-    if (localStorage.getItem('adminAutenticado') === 'true') {
+    if (user && !authLoading) {
       router.replace('/admin');
     }
-    // Cargar configuración para el logo
     const cargarConfig = async () => {
       const config = await obtenerConfiguracionSitio();
       setConfiguracionSitio(config);
     };
     cargarConfig();
-  }, [router]);
+  }, [user, authLoading, router]);
 
   const manejarLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setCargando(true);
 
-    // Simular una pequeña demora
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    if (contrasena === CLAVE_ADMIN_DEMO) {
-      localStorage.setItem('adminAutenticado', 'true');
+    try {
+      await signInWithEmailAndPassword(auth, email, contrasena);
       toast({
         title: "¡Bienvenido/a!",
-        description: "Inicio de sesión exitoso.",
-        variant: "default",
+        description: "Acceso autorizado al panel de Frutiandante.",
       });
       router.push('/admin');
-    } else {
+    } catch (error: any) {
       toast({
-        title: "Error de Autenticación",
-        description: "La contraseña ingresada es incorrecta. Inténtalo de nuevo.",
+        title: "Error de Acceso",
+        description: "Credenciales inválidas o sin permisos. Verifica tu correo y contraseña.",
         variant: "destructive",
       });
       setCargando(false);
-      setContrasena(''); // Limpiar campo de contraseña
     }
   };
 
-  if (!configuracionSitio) {
+  if (authLoading || !configuracionSitio) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted p-4">
-        <Card className="w-full max-w-md animate-pulse">
-          <CardHeader className="items-center text-center">
-             <div className="h-10 w-32 bg-gray-300 rounded mb-2"></div>
-             <div className="h-6 w-48 bg-gray-300 rounded mb-1"></div>
-             <div className="h-4 w-64 bg-gray-300 rounded"></div>
-          </CardHeader>
-          <CardContent className="space-y-6 pt-6">
-             <div className="space-y-2">
-                <div className="h-4 w-24 bg-gray-300 rounded"></div>
-                <div className="h-10 w-full bg-gray-300 rounded"></div>
-             </div>
-          </CardContent>
-          <CardFooter>
-             <div className="h-10 w-full bg-gray-300 rounded"></div>
-          </CardFooter>
-        </Card>
+      <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+        <LogIn className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted to-secondary/30 p-4">
-      <Card className="w-full max-w-md shadow-2xl border-border">
-        <CardHeader className="items-center text-center space-y-2 pt-8">
-           <Logotipo configuracion={configuracionSitio} />
-          <CardTitle className="font-headline text-3xl text-foreground">Acceso al Panel</CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Ingresa la contraseña para administrar el sitio.
-          </CardDescription>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-orange-50/30 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-none rounded-[2.5rem] overflow-hidden bg-white/80 backdrop-blur-sm">
+        <CardHeader className="items-center text-center space-y-4 pt-12">
+          <Logotipo configuracion={configuracionSitio} />
+          <div className="space-y-1">
+            <CardTitle className="font-headline text-3xl font-black text-slate-900">Panel de Control</CardTitle>
+            <CardDescription className="text-slate-500 font-medium">
+              Solo personal autorizado de Frutiandante.
+            </CardDescription>
+          </div>
         </CardHeader>
         <form onSubmit={manejarLogin}>
-          <CardContent className="space-y-6 pt-6">
+          <CardContent className="space-y-5 pt-4 px-8">
             <div className="space-y-2">
-              <Label htmlFor="contrasenaAdmin" className="text-foreground/80">Contraseña de Administrador</Label>
+              <Label htmlFor="emailAdmin" className="text-slate-700 font-bold ml-1">Correo Electrónico</Label>
+              <div className="relative">
+                <Input
+                  id="emailAdmin"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ejemplo@frutiandante.cl"
+                  required
+                  disabled={cargando}
+                  className="h-12 pl-10 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
+                />
+                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contrasenaAdmin" className="text-slate-700 font-bold ml-1">Contraseña</Label>
               <div className="relative">
                 <Input
                   id="contrasenaAdmin"
@@ -110,26 +107,20 @@ export default function PaginaLoginAdmin() {
                   placeholder="••••••••"
                   required
                   disabled={cargando}
-                  className="pl-10 text-base"
+                  className="h-12 pl-10 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                 />
-                <ShieldAlert className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <ShieldAlert className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
           </CardContent>
-          <CardFooter className="pb-8">
-            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 text-base py-3" disabled={cargando}>
+          <CardFooter className="pb-12 px-8 pt-6">
+            <Button type="submit" className="w-full h-14 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all" disabled={cargando}>
               {cargando ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Verificando...
-                </>
+                <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
                 <>
                   <LogIn className="mr-2 h-5 w-5" />
-                  Ingresar al Panel
+                  Entrar al Panel
                 </>
               )}
             </Button>

@@ -1,10 +1,8 @@
-// src/app/admin/admin-client-layout-interno.tsx
 'use client'; 
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation"; // Importar usePathname
 import {
   Home,
   Package,
@@ -39,6 +37,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUser, useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 
 const elementosNavegacionAdmin = [
   { href: "/admin", label: "Panel", icon: Home },
@@ -62,74 +62,35 @@ export default function AdminClientLayoutInterno({
   logotipoCabeceraMovil,
 }: AdminClientLayoutInternoProps) {
   const router = useRouter();
-  const pathname = usePathname(); // Obtener la ruta actual
-  const [autenticado, setAutenticado] = useState(false);
-  const [cargandoAutenticacion, setCargandoAutenticacion] = useState(true);
+  const pathname = usePathname();
+  const { user, loading } = useUser();
+  const auth = useAuth();
 
-  useEffect(() => {
-    // Si la ruta actual es la página de login, no aplicar la lógica de autenticación de este layout.
-    // La página de login manejará su propia lógica (ej. redirigir si YA está autenticado).
-    if (pathname === '/admin/login') {
-      setAutenticado(false); // Asumir no autenticado para la lógica de este layout
-      setCargandoAutenticacion(false);
-      return; // Salir temprano, no intentar redirigir
-    }
-
-    // Para todas las demás rutas /admin/*, verificar autenticación
-    const adminAutenticadoStorage = localStorage.getItem('adminAutenticado');
-    if (adminAutenticadoStorage === 'true') {
-      setAutenticado(true);
-    } else {
-      router.replace('/admin/login'); // Redirigir a login si no está autenticado
-    }
-    setCargandoAutenticacion(false);
-  }, [pathname, router]); // Añadir pathname al array de dependencias
-
-  const manejarCerrarSesion = () => {
-    localStorage.removeItem('adminAutenticado');
-    setAutenticado(false);
+  const manejarCerrarSesion = async () => {
+    await signOut(auth);
     router.push('/admin/login');
   };
 
-  // Si estamos en la página de login, renderizar sus hijos directamente (el contenido de la página de login)
-  // Esto ocurre después de que el useEffect inicial para /admin/login haya puesto cargandoAutenticacion a false.
   if (pathname === '/admin/login') {
-    if (cargandoAutenticacion) { // Debería ser breve
-      return (
-        <div className="flex min-h-screen items-center justify-center bg-muted p-4">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-      );
-    }
-    return <>{children}</>; // Renderiza el contenido de PaginaLoginAdmin
+    return <>{children}</>;
   }
 
-  // Para otras páginas /admin/* (no login):
-  // 1. Estado de carga inicial
-  if (cargandoAutenticacion) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="space-y-4 p-8 rounded-lg shadow-lg bg-card">
-          <Skeleton className="h-12 w-12 rounded-full" />
-          <Skeleton className="h-4 w-[250px]" />
-          <Skeleton className="h-4 w-[200px]" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-sm font-medium text-muted-foreground">Cargando panel...</p>
         </div>
       </div>
     );
   }
 
-  // 2. Mensaje de redirección si no está autenticado (y la carga ha terminado)
-  if (!autenticado) { // Implica que cargandoAutenticacion es false
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-        <p className="text-lg font-medium">Redirigiendo al inicio de sesión...</p>
-        <p className="text-sm text-muted-foreground">Por favor, espera un momento.</p>
-      </div>
-    );
+  if (!user) {
+    router.replace('/admin/login');
+    return null;
   }
 
-  // 3. Si está autenticado y no estamos en la página de login, renderizar el layout completo del admin
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -143,7 +104,7 @@ export default function AdminClientLayoutInterno({
             {elementosNavegacionAdmin.map((item) => (
               <SidebarMenuItem key={item.label}>
                 <Link href={item.href}>
-                  <SidebarMenuButton disabled={item.disabled} className="font-headline">
+                  <SidebarMenuButton disabled={item.disabled} isActive={pathname === item.href} className="font-headline">
                     <item.icon className="h-5 w-5" />
                     {item.label}
                   </SidebarMenuButton>
@@ -153,14 +114,14 @@ export default function AdminClientLayoutInterno({
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-4">
-          <Button variant="outline" className="w-full font-headline" onClick={manejarCerrarSesion}>
+          <Button variant="outline" className="w-full font-headline border-destructive/20 text-destructive hover:bg-destructive/10" onClick={manejarCerrarSesion}>
             <LogOut className="mr-2 h-4 w-4" />
             Cerrar Sesión
           </Button>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 shadow-sm sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 md:justify-end">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 shadow-sm sm:px-6 md:justify-end">
           <div className="md:hidden">
             {logotipoCabeceraMovil}
           </div>
@@ -170,16 +131,16 @@ export default function AdminClientLayoutInterno({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" data-ai-hint="avatar administrador" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Admin" />
+                  <AvatarFallback>{user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Cuenta Admin</DropdownMenuLabel>
+              <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled>Perfil</DropdownMenuItem>
-              <DropdownMenuItem disabled>Configuración de Cuenta</DropdownMenuItem>
+              <DropdownMenuItem disabled>Configuración</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={manejarCerrarSesion} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                  <LogOut className="mr-2 h-4 w-4" />
@@ -189,7 +150,7 @@ export default function AdminClientLayoutInterno({
           </DropdownMenu>
           </div>
         </header>
-        <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8 md:p-6">
+        <main className="flex-1 p-4 sm:p-6">
           {children}
         </main>
       </SidebarInset>
