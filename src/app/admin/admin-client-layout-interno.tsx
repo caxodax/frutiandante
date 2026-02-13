@@ -1,6 +1,7 @@
 'use client'; 
 
 import type React from "react";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -36,7 +37,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useUser, useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 
@@ -66,15 +66,24 @@ export default function AdminClientLayoutInterno({
   const { user, loading } = useUser();
   const auth = useAuth();
 
+  // Corregido: La redirección se realiza dentro de useEffect para evitar errores de ciclo de vida de React
+  useEffect(() => {
+    if (!loading && !user && pathname !== '/admin/login') {
+      router.replace('/admin/login');
+    }
+  }, [user, loading, router, pathname]);
+
   const manejarCerrarSesion = async () => {
     await signOut(auth);
     router.push('/admin/login');
   };
 
+  // Si estamos en la página de login, renderizamos directamente
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
+  // Mostramos estado de carga
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -86,8 +95,9 @@ export default function AdminClientLayoutInterno({
     );
   }
 
+  // Si no hay usuario y no estamos cargando, el useEffect hará el replace, 
+  // pero retornamos null por seguridad mientras ocurre.
   if (!user) {
-    router.replace('/admin/login');
     return null;
   }
 
