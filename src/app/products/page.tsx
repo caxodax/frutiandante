@@ -1,23 +1,28 @@
 import Encabezado from '@/components/layout/header';
 import PieDePagina from '@/components/layout/footer';
 import TarjetaProducto from '@/components/product-card';
-import { obtenerProductos } from '@/lib/mock-data';
-import { Search, ListFilter, ShoppingBag } from 'lucide-react';
+import { obtenerProductos, obtenerCategorias } from '@/lib/mock-data';
+import { Search, ListFilter, ShoppingBag, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 export default async function PaginaProductos({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; category?: string }>;
 }) {
-  const query = (await searchParams).q?.toLowerCase() || '';
-  const todosLosProductos = await obtenerProductos();
+  const { q = '', category = '' } = await searchParams;
+  const query = q.toLowerCase();
   
-  const productosFiltrados = todosLosProductos.filter(p => 
-    p.nombre.toLowerCase().includes(query) || 
-    p.descripcion.toLowerCase().includes(query)
-  );
+  const todosLosProductos = await obtenerProductos();
+  const categorias = await obtenerCategorias();
+  
+  const productosFiltrados = todosLosProductos.filter(p => {
+    const matchesQuery = p.nombre.toLowerCase().includes(query) || p.descripcion.toLowerCase().includes(query);
+    const matchesCategory = category ? p.idCategoria === category : true;
+    return matchesQuery && matchesCategory;
+  });
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
@@ -33,32 +38,47 @@ export default async function PaginaProductos({
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
               {query 
                 ? `Encontramos ${productosFiltrados.length} productos que coinciden con tu búsqueda.` 
-                : "Lo último en tecnología y accesorios con los mejores precios de Chile."}
+                : "Frescura garantizada del campo chileno directamente a tu puerta."}
             </p>
           </div>
         </div>
 
         <div className="container mx-auto px-4 -mt-8">
-          {/* Filtros rápidos */}
-          <div className="bg-white rounded-2xl shadow-xl p-4 md:p-6 mb-12 flex flex-col md:flex-row gap-4 items-center justify-between border border-slate-100">
-            <div className="relative w-full md:w-1/2">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
-              <form action="/products" method="GET">
-                <Input 
-                  name="q"
-                  defaultValue={query}
-                  placeholder="¿Buscas algo más específico?" 
-                  className="pl-12 h-14 rounded-xl border-slate-100 bg-slate-50 text-lg focus-visible:ring-primary/20"
-                />
-              </form>
-            </div>
-            <div className="flex gap-3 w-full md:w-auto">
-              <Button variant="outline" className="h-14 flex-1 md:px-6 rounded-xl font-bold gap-2">
-                <ListFilter className="h-5 w-5" /> Filtros
-              </Button>
-              <Button className="h-14 flex-1 md:px-8 rounded-xl font-bold bg-slate-900 shadow-lg shadow-slate-200">
-                Ordenar por: Recientes
-              </Button>
+          {/* Filtros y Buscador */}
+          <div className="bg-white rounded-3xl shadow-xl p-4 md:p-8 mb-12 border border-slate-100">
+            <div className="flex flex-col gap-8">
+              <div className="relative w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
+                <form action="/products" method="GET">
+                  <Input 
+                    name="q"
+                    defaultValue={query}
+                    placeholder="¿Buscas algo específico? Ej: Manzanas, Paltas..." 
+                    className="pl-12 h-14 rounded-2xl border-slate-100 bg-slate-50 text-lg focus-visible:ring-primary/20"
+                  />
+                  {category && <input type="hidden" name="category" value={category} />}
+                </form>
+              </div>
+
+              {/* Filtros de Categoría */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mr-2">Categorías:</span>
+                <Button asChild variant={!category ? "default" : "outline"} className="rounded-xl font-bold h-10">
+                  <Link href="/products">Todas</Link>
+                </Button>
+                {categorias.map((cat) => (
+                  <Button 
+                    key={cat.id} 
+                    asChild 
+                    variant={category === cat.id ? "default" : "outline"}
+                    className="rounded-xl font-bold h-10"
+                  >
+                    <Link href={`/products?category=${cat.id}${query ? `&q=${query}` : ''}`}>
+                      {cat.nombre}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -69,14 +89,14 @@ export default async function PaginaProductos({
               ))}
             </div>
           ) : (
-            <div className="py-24 text-center">
-              <div className="mx-auto h-24 w-24 rounded-full bg-slate-100 flex items-center justify-center mb-6">
-                <ShoppingBag className="h-12 w-12 text-slate-300" />
+            <div className="py-24 text-center bg-white rounded-[2.5rem] shadow-sm border border-slate-100">
+              <div className="mx-auto h-24 w-24 rounded-full bg-slate-50 flex items-center justify-center mb-6">
+                <ShoppingBag className="h-12 w-12 text-slate-200" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">No hay resultados</h3>
-              <p className="text-slate-500 mb-8 max-w-md mx-auto">No pudimos encontrar nada que coincida con "{query}". Intenta con otras palabras clave o explora todas las categorías.</p>
-              <Button asChild size="lg" className="h-14 px-10 rounded-xl">
-                <Link href="/products">Ver todos los productos</Link>
+              <p className="text-slate-500 mb-8 max-w-md mx-auto">No pudimos encontrar nada que coincida con tus criterios. Intenta con otras palabras clave o cambia de categoría.</p>
+              <Button asChild size="lg" className="h-14 px-10 rounded-xl font-bold">
+                <Link href="/products">Ver toda la feria</Link>
               </Button>
             </div>
           )}

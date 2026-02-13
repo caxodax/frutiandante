@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Encabezado from '@/components/layout/header';
 import PieDePagina from '@/components/layout/footer';
 import TarjetaProducto from '@/components/product-card';
@@ -15,6 +16,25 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const categoria = await obtenerCategoriaPorSlug(slug);
+
+  if (!categoria) {
+    return {
+      title: 'Categoría No Encontrada | Frutiandante',
+    };
+  }
+
+  return {
+    title: `${categoria.nombre} | Feria Online Frutiandante`,
+    description: `Explora nuestra selección de ${categoria.nombre.toLowerCase()} frescas y de calidad.`,
+  };
+}
 
 async function obtenerDatosCategoria(slug: string): Promise<{ categoria: Categoria | undefined; productos: Producto[]; todasCategorias: Categoria[] }> {
   const categoria = await obtenerCategoriaPorSlug(slug);
@@ -22,12 +42,13 @@ async function obtenerDatosCategoria(slug: string): Promise<{ categoria: Categor
   if (!categoria) {
     return { categoria: undefined, productos: [], todasCategorias };
   }
-  const productos = await obtenerProductosPorIdCategoria(categoria.id);
+  const productos = await obtenerProductosPorIdCategoria(categoria.id as string);
   return { categoria, productos, todasCategorias };
 }
 
-export default async function PaginaCategoria({ params }: { params: { slug: string } }) {
-  const { categoria, productos, todasCategorias } = await obtenerDatosCategoria(params.slug);
+export default async function PaginaCategoria({ params }: Props) {
+  const { slug } = await params;
+  const { categoria, productos, todasCategorias } = await obtenerDatosCategoria(slug);
 
   if (!categoria) {
     return (
@@ -113,14 +134,6 @@ export default async function PaginaCategoria({ params }: { params: { slug: stri
                 </Button>
               </div>
             )}
-
-            {/* Paginación (Placeholder) */}
-            {productos.length > 10 && (
-                 <div className="mt-12 flex justify-center">
-                    <Button variant="outline" className="mr-2">Anterior</Button>
-                    <Button variant="outline">Siguiente</Button>
-                 </div>
-            )}
           </div>
         </section>
          {/* Sección de Otras Categorías */}
@@ -134,7 +147,7 @@ export default async function PaginaCategoria({ params }: { params: { slug: stri
               {todasCategorias.filter(c => c.id !== categoria.id).slice(0,5).map((cat) => (
                 <Button asChild variant="outline" key={cat.id} className="justify-start h-auto py-3 hover:bg-primary/5 hover:border-primary">
                   <Link href={`/category/${cat.slug}`} className="flex flex-col items-center text-center gap-2">
-                     <LayoutGrid className="h-6 w-6 text-primary" /> {/* Placeholder icon */}
+                     <LayoutGrid className="h-6 w-6 text-primary" />
                     <span className="font-medium text-sm">{cat.nombre}</span>
                   </Link>
                 </Button>
@@ -148,12 +161,3 @@ export default async function PaginaCategoria({ params }: { params: { slug: stri
     </div>
   );
 }
-
-// Generar rutas estáticas para categorías si es necesario para el rendimiento
-// export async function generateStaticParams() {
-//   const categorias = await obtenerCategorias();
-//   return categorias.map((categoria) => ({
-//     slug: categoria.slug,
-//   }));
-// }
-

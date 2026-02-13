@@ -1,10 +1,37 @@
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import Encabezado from '@/components/layout/header';
 import PieDePagina from '@/components/layout/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductDetailClient from './product-detail-client';
+import { obtenerProductoPorSlug } from '@/lib/mock-data';
+
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const producto = await obtenerProductoPorSlug(slug);
+
+  if (!producto) {
+    return {
+      title: 'Producto No Encontrado | Frutiandante',
+    };
+  }
+
+  return {
+    title: `${producto.nombre} | Frutiandante`,
+    description: producto.descripcion,
+    openGraph: {
+      title: producto.nombre,
+      description: producto.descripcion,
+      images: [producto.imagenes[0]],
+    },
+  };
+}
 
 function CargadorDetalleProducto() {
   return (
@@ -42,7 +69,7 @@ function CargadorDetalleProducto() {
   );
 }
 
-export default async function PaginaDetalleProducto({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PaginaDetalleProducto({ params }: Props) {
   const { slug } = await params;
 
   return (
