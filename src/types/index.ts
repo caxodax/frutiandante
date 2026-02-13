@@ -44,6 +44,7 @@ export interface ConfiguracionSitio {
   numeroCuenta?: string;
   rutCuenta?: string;
   emailCuenta?: string;
+  referencia?: string;
   created_at?: string;
 }
 
@@ -53,5 +54,7 @@ export interface Pedido {
   items: any[];
   total: number;
   estado: 'pendiente' | 'completado' | 'cancelado';
+  metodoPago: string;
+  referenciaBancaria?: string;
   created_at: string;
 }

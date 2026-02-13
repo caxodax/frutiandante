@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash, Copy } from 'lucide-react';
+import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash, Copy, FileText } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -25,22 +25,13 @@ export default function CheckoutClient() {
   const firestore = useFirestore();
   const [mounted, setMounted] = useState(false);
   
-  // Generar un código de referencia único para la sesión de pago
-  const codigoReferencia = useMemo(() => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = 'FR-';
-    for (let i = 0; i < 5; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }, []);
-
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     telefono: '',
     direccion: '',
-    notas: ''
+    notas: '',
+    referenciaBancaria: ''
   });
   
   const [metodoPago, setMetodoPago] = useState<string>('transferencia');
@@ -93,13 +84,18 @@ export default function CheckoutClient() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const copiarAlPortapapeles = (texto: string) => {
-    navigator.clipboard.writeText(texto);
-    toast({ description: "Copiado al portapapeles" });
-  };
-
   const manejarFinalizarPedido = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (metodoPago === 'transferencia' && !formData.referenciaBancaria) {
+      toast({ 
+        title: "Falta Información", 
+        description: "Por favor, ingresa el número de referencia de tu transferencia.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setEnviando(true);
 
     try {
@@ -108,33 +104,33 @@ export default function CheckoutClient() {
       
       const textoMetodoPago = metodoPago === 'transferencia' ? '🏦 Transferencia Bancaria' : '💵 Efectivo al recibir';
       const infoDescuento = aplicaDescuento ? `\n🎁 *Descuento 2do Pedido (${descuentoPorcentaje}%):* -$${montoDescuento.toLocaleString('es-CL')}` : '';
+      const infoReferencia = metodoPago === 'transferencia' ? `\n🔢 *Referencia de Pago:* ${formData.referenciaBancaria}` : '';
 
       const mensajeFinal = `🚀 *NUEVO PEDIDO - FRUTIANDANTE*\n\n` +
-        `🆔 *Referencia:* ${codigoReferencia}\n` +
         `👤 *Cliente:*\n` +
         `• Nombre: ${formData.nombre}\n` +
         `• Teléfono: ${formData.telefono}\n` +
         `• Dirección: ${formData.direccion}\n\n` +
         `💳 *Método de Pago:*\n` +
-        `• ${textoMetodoPago}\n\n` +
+        `• ${textoMetodoPago}${infoReferencia}\n\n` +
         `📦 *Detalle del Pedido:*\n` +
         `${mensajeItems}\n\n` +
         `💰 *SUBTOTAL: $${totalPrice.toLocaleString('es-CL')}*` +
         `${infoDescuento}\n` +
         `💵 *TOTAL A PAGAR: $${totalFinal.toLocaleString('es-CL')}*\n\n` +
         `📝 *Notas:* ${formData.notas || 'Sin notas.'}\n\n` +
-        `_Por favor, confirma el stock para procesar el pago con referencia ${codigoReferencia}_`;
+        `_He realizado la transferencia con la referencia indicada arriba._`;
 
       if (firestore) {
         addDoc(collection(firestore, 'orders'), {
           userId: user?.uid || null,
-          codigoReferencia: codigoReferencia,
           items: items.map(i => ({ id: i.id, nombre: i.nombre, cant: i.quantity, precio: i.precioDetalle })),
           subtotal: totalPrice,
           descuento: montoDescuento,
           total: totalFinal,
           cliente: formData.nombre,
           metodoPago: metodoPago,
+          referenciaBancaria: formData.referenciaBancaria || null,
           estado: 'pendiente',
           created_at: serverTimestamp()
         });
@@ -166,8 +162,7 @@ export default function CheckoutClient() {
       <div className="container mx-auto px-4 py-24 text-center">
         <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4" />
         <h1 className="text-4xl font-bold font-headline mb-4">¡Pedido Recibido!</h1>
-        <p className="text-slate-500 mb-2">Referencia de pedido: <span className="font-bold text-slate-900">{codigoReferencia}</span></p>
-        <p className="text-slate-500 mb-8">Coordina la entrega y el pago por WhatsApp.</p>
+        <p className="text-slate-500 mb-8">Gracias por tu compra. Te contactaremos por WhatsApp para coordinar el despacho.</p>
         <Button asChild className="rounded-2xl h-14 px-8 font-bold"><Link href="/">Volver al Inicio</Link></Button>
       </div>
     );
@@ -179,20 +174,14 @@ export default function CheckoutClient() {
     <div className="container mx-auto px-4 pb-20">
       <div className="mb-12">
         <h1 className="text-4xl font-black text-slate-900 font-headline">Finalizar Pedido</h1>
-        <div className="mt-4 flex flex-wrap gap-4">
-          {!user && (
-            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
-              <Percent className="h-5 w-5 text-primary" />
-              <p className="text-sm text-emerald-800">
-                ¿Sabías que si te <Link href="/auth" className="font-bold underline">registras</Link>, tu segundo pedido tiene un <strong>{descuentoPorcentaje}% de descuento</strong>?
-              </p>
-            </div>
-          )}
-          <div className="p-4 bg-slate-900 text-white rounded-2xl flex items-center gap-3">
-             <Hash className="h-5 w-5 text-primary" />
-             <p className="text-sm font-bold">Referencia de Pedido: <span className="text-primary">{codigoReferencia}</span></p>
+        {!user && (
+          <div className="mt-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
+            <Percent className="h-5 w-5 text-primary" />
+            <p className="text-sm text-emerald-800">
+              ¿Sabías que si te <Link href="/auth" className="font-bold underline">registras</Link>, tu segundo pedido tiene un <strong>{descuentoPorcentaje}% de descuento</strong>?
+            </p>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -246,33 +235,15 @@ export default function CheckoutClient() {
                   </RadioGroup>
 
                   {metodoPago === 'transferencia' && config && (
-                    <div className="mt-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="mt-4 animate-in fade-in slide-in-from-top-4 duration-300 space-y-4">
                       <div className="bg-slate-900 text-white rounded-[2rem] p-8 shadow-xl border border-white/10">
                         <div className="flex items-center gap-3 mb-6">
                           <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
                             <Landmark className="h-5 w-5 text-primary" />
                           </div>
-                          <h4 className="font-headline font-bold text-xl">Datos de Transferencia</h4>
+                          <h4 className="font-headline font-bold text-xl">Datos para Transferencia</h4>
                         </div>
                         
-                        {/* CÓDIGO DE REFERENCIA DESTACADO */}
-                        <div className="mb-8 p-6 bg-primary/10 border-2 border-dashed border-primary/40 rounded-2xl text-center group relative">
-                           <span className="text-primary block text-[10px] font-black uppercase tracking-widest mb-1">Referencia obligatoria para la glosa</span>
-                           <div className="flex items-center justify-center gap-3">
-                             <p className="text-3xl font-black text-white tracking-widest">{codigoReferencia}</p>
-                             <Button 
-                              type="button" 
-                              variant="ghost" 
-                              size="icon" 
-                              className="text-primary hover:text-white hover:bg-primary/20"
-                              onClick={() => copiarAlPortapapeles(codigoReferencia)}
-                             >
-                               <Copy className="h-5 w-5" />
-                             </Button>
-                           </div>
-                           <p className="mt-2 text-xs text-slate-400 italic">Por favor, incluye este código en el campo de glosa de tu banco.</p>
-                        </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                           <div className="space-y-1">
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Banco</span>
@@ -290,8 +261,7 @@ export default function CheckoutClient() {
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">RUT</span>
                             <p className="text-lg font-bold">{config.rutCuenta || 'No configurado'}</p>
                           </div>
-                          
-                          <div className="md:col-span-2 p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3 mt-2">
+                          <div className="md:col-span-2 p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3">
                              <Mail className="h-5 w-5 text-primary" />
                              <div>
                                <span className="text-slate-400 block text-[10px] font-bold uppercase tracking-widest">Enviar comprobante a:</span>
@@ -299,6 +269,21 @@ export default function CheckoutClient() {
                              </div>
                           </div>
                         </div>
+                      </div>
+
+                      <div className="bg-primary/10 border-2 border-dashed border-primary/40 rounded-2xl p-6">
+                        <Label htmlFor="referenciaBancaria" className="font-bold text-primary flex items-center gap-2 mb-2">
+                          <FileText className="h-5 w-5" /> Número de Referencia / Operación
+                        </Label>
+                        <Input 
+                          id="referenciaBancaria" 
+                          required={metodoPago === 'transferencia'}
+                          value={formData.referenciaBancaria} 
+                          onChange={manejarInputChange}
+                          placeholder="Pega aquí el código de tu comprobante"
+                          className="h-12 rounded-xl bg-white border-primary/20 focus:ring-primary/40 text-lg font-bold"
+                        />
+                        <p className="mt-2 text-xs text-slate-500 italic">Una vez realizada la transferencia, pega aquí el número de referencia para validar tu pago rápidamente.</p>
                       </div>
                     </div>
                   )}

@@ -59,6 +59,8 @@
         "items": { "type": "array" },
         "total": { "type": "number" },
         "estado": { "type": "string", "enum": ["pendiente", "completado", "cancelado"] },
+        "metodoPago": { "type": "string" },
+        "referenciaBancaria": { "type": "string", "description": "Código de referencia ingresado por el cliente" },
         "created_at": { "type": "string", "format": "date-time" }
       }
     },
