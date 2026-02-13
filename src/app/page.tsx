@@ -45,23 +45,23 @@ export default function PaginaInicio() {
               data-ai-hint="campo cosecha"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-900/80 to-transparent z-1"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/80 via-emerald-950/60 to-emerald-950/80 lg:bg-gradient-to-r lg:from-emerald-950 lg:via-emerald-900/80 lg:to-transparent z-1"></div>
           
-          <div className="container relative z-10 mx-auto px-4">
-            <div className="max-w-3xl">
+          <div className="container relative z-10 mx-auto px-4 md:px-6">
+            <div className="max-w-3xl mx-auto lg:mx-0 text-center lg:text-left flex flex-col items-center lg:items-start">
               <BadgeChile />
-              <h1 className="mt-8 text-5xl font-black tracking-tight text-white sm:text-7xl leading-tight">
+              <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight">
                 La feria en tu puerta, <br />
                 <span className="text-primary italic font-serif">más fresca que nunca.</span>
               </h1>
-              <p className="mt-6 text-xl text-emerald-50/90 md:text-2xl leading-relaxed max-w-xl">
+              <p className="mt-6 text-lg text-emerald-50/90 md:text-xl lg:text-2xl leading-relaxed max-w-xl">
                 Llevamos lo mejor de la tierra chilena directo a tu mesa. Frutas, verduras y víveres seleccionados con amor.
               </p>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <Button asChild size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-white font-bold rounded-xl">
+              <div className="mt-10 flex flex-wrap justify-center lg:justify-start gap-4 w-full">
+                <Button asChild size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-white font-bold rounded-xl w-full sm:w-auto">
                   <Link href="/products">Comprar Ahora</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="h-14 px-8 text-lg border-white text-white hover:bg-white hover:text-emerald-950 bg-transparent rounded-xl">
+                <Button asChild size="lg" variant="outline" className="h-14 px-8 text-lg border-white text-white hover:bg-white hover:text-emerald-950 bg-transparent rounded-xl w-full sm:w-auto">
                   <Link href="#categorias">Ver Categorías</Link>
                 </Button>
               </div>
@@ -71,20 +71,20 @@ export default function PaginaInicio() {
 
         {/* Value Proposition */}
         <section className="bg-white py-16 border-b">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
               {[
                 { icon: Leaf, title: "100% Orgánico", desc: "Productos sin químicos, directos del productor." },
                 { icon: Truck, title: "Envío en el Día", desc: "Recibe tu pedido hoy mismo en todo Santiago." },
                 { icon: ShoppingBasket, title: "Calidad Feria", desc: "Seleccionamos cada pieza con cuidado experto." },
               ].map((item, i) => (
-                <div key={i} className="flex items-start gap-4 p-6">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-primary">
-                    <item.icon className="h-6 w-6" />
+                <div key={i} className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-4 p-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
+                    <item.icon className="h-7 w-7" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 mb-1">{item.title}</h3>
-                    <p className="text-slate-500 text-sm">{item.desc}</p>
+                    <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -94,21 +94,21 @@ export default function PaginaInicio() {
 
         {/* Featured Harvest */}
         <section id="productos-destacados" className="py-20 bg-slate-50/50">
-          <div className="container mx-auto px-4">
-            <div className="mb-12 flex flex-col items-center justify-between gap-4 md:flex-row md:items-end">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="mb-12 flex flex-col items-center justify-between gap-6 md:flex-row md:items-end">
               <div className="text-center md:text-left">
-                <h2 className="text-4xl font-black tracking-tight text-slate-900">Cosecha Destacada</h2>
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Cosecha Destacada</h2>
                 <p className="mt-2 text-slate-500">Frescura garantizada de la huerta a tu cocina.</p>
               </div>
-              <Button asChild variant="ghost" className="text-primary font-bold">
+              <Button asChild variant="ghost" className="text-primary font-bold group">
                 <Link href="/products" className="flex items-center gap-2">
-                  Explorar todo el abasto <ChevronRight className="h-4 w-4" />
+                  Explorar todo el abasto <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
             </div>
             
             {loadingProd ? (
-              <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+              <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
             ) : (
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 {productos?.map((producto: any) => (
@@ -121,28 +121,28 @@ export default function PaginaInicio() {
 
         {/* Categories Grid */}
         <section id="categorias" className="py-20 bg-white">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="mb-12 text-center">
-              <h2 className="text-4xl font-black tracking-tight text-slate-900">Abastece tu Despensa</h2>
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Abastece tu Despensa</h2>
               <p className="mt-2 text-slate-500">Todo lo que necesitas organizado por pasillos.</p>
             </div>
             
             {loadingCat ? (
-              <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+              <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
             ) : (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {categorias?.map((categoria: any) => (
                   <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group">
-                    <Card className="relative h-64 overflow-hidden border-none shadow-md rounded-2xl">
+                    <Card className="relative h-72 overflow-hidden border-none shadow-md rounded-[2rem]">
                       <Image 
                         src={categoria.imagen || `https://picsum.photos/seed/${categoria.slug}/600/400`}
                         alt={categoria.nombre}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                         data-ai-hint={`${categoria.nombre.toLowerCase()} alimentos`}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent"></div>
-                      <CardContent className="absolute bottom-0 p-6 w-full">
+                      <CardContent className="absolute bottom-0 p-8 w-full">
                         <CardTitle className="text-2xl font-black text-white group-hover:text-primary transition-colors">
                           {categoria.nombre}
                         </CardTitle>
@@ -157,18 +157,19 @@ export default function PaginaInicio() {
 
         {/* Newsletter / CTA */}
         <section className="py-20 px-4">
-          <div className="container mx-auto">
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-secondary px-8 py-16 text-center text-white shadow-2xl">
-              <div className="relative z-10 mx-auto max-w-2xl">
-                <h2 className="text-4xl font-black md:text-5xl mb-6">Únete al Club Frutiandante</h2>
-                <p className="text-lg text-white/90 mb-10 leading-relaxed">
+          <div className="container mx-auto max-w-6xl">
+            <div className="relative overflow-hidden rounded-[3rem] bg-secondary px-6 py-20 md:px-12 text-center text-white shadow-2xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
+              <div className="relative z-10 mx-auto max-w-3xl">
+                <h2 className="text-4xl font-black md:text-5xl lg:text-6xl mb-6 leading-tight">Únete al Club Frutiandante</h2>
+                <p className="text-lg md:text-xl text-white/90 mb-10 leading-relaxed">
                   Recibe ofertas exclusivas de temporada y consejos de salud directamente en tu WhatsApp.
                 </p>
                 <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                  <Button size="lg" className="h-14 px-10 text-lg font-bold bg-white text-emerald-950 hover:bg-emerald-50 rounded-xl">
+                  <Button size="lg" className="h-16 px-12 text-lg font-black bg-white text-emerald-950 hover:bg-emerald-50 rounded-2xl shadow-xl transition-all active:scale-95">
                     Quiero Suscribirme
                   </Button>
-                  <Button size="lg" className="h-14 px-10 text-lg border-2 border-white text-white bg-transparent hover:bg-white/10 rounded-xl transition-all font-bold">
+                  <Button size="lg" className="h-16 px-12 text-lg border-2 border-white text-white bg-transparent hover:bg-white/10 rounded-2xl transition-all font-black">
                     Más Información
                   </Button>
                 </div>
@@ -184,8 +185,8 @@ export default function PaginaInicio() {
 
 function BadgeChile() {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-white backdrop-blur-md">
-      <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+    <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-2.5 text-xs font-black text-white backdrop-blur-md uppercase tracking-widest shadow-lg">
+      <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse"></span>
       COSECHA LOCAL PARA TODO CHILE 🇨🇱
     </div>
   );
