@@ -1,5 +1,6 @@
+
 import Link from 'next/link';
-import { Menu, Search, ChevronDown } from 'lucide-react';
+import { Menu, Search, ChevronDown, UserCircle } from 'lucide-react';
 import Logotipo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { obtenerCategorias, obtenerConfiguracionSitio } from '@/lib/mock-data';
@@ -78,15 +79,21 @@ const Encabezado = async () => {
                   <Menu className="h-6 w-6 text-slate-600" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader className="mb-8 border-b pb-6">
+              <SheetContent side="right" className="rounded-l-3xl p-0 overflow-hidden border-none shadow-2xl">
+                <SheetHeader className="p-8 bg-slate-50 border-b">
                    <SheetTitle><Logotipo configuracion={configuracion} /></SheetTitle>
                 </SheetHeader>
-                <nav className="flex flex-col gap-y-2">
+                <nav className="flex flex-col p-6 space-y-2">
                   <MobileNavLink href="/">Inicio</MobileNavLink>
                   <MobileNavLink href="/products">Productos</MobileNavLink>
-                  <div className="mt-6">
-                    <Button asChild className="w-full h-12 rounded-xl font-bold"><Link href="/admin/login">Mi Cuenta</Link></Button>
+                  <MobileNavLink href="/my-orders">Mis Pedidos</MobileNavLink>
+                  <div className="mt-8 space-y-4">
+                    <Button asChild className="w-full h-14 rounded-2xl font-black text-lg shadow-xl shadow-primary/20">
+                      <Link href="/auth">Mi Cuenta</Link>
+                    </Button>
+                    <Link href="/admin/login" className="block text-center text-xs font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-widest">
+                      Acceso Administrador
+                    </Link>
                   </div>
                 </nav>
               </SheetContent>
@@ -100,7 +107,7 @@ const Encabezado = async () => {
 
 function MobileNavLink({ href, children }: { href: string, children: React.ReactNode }) {
   return (
-    <Link href={href} className="flex items-center rounded-xl px-4 py-3 text-lg font-bold text-slate-900 hover:bg-slate-50">
+    <Link href={href} className="flex items-center rounded-xl px-4 py-3 text-lg font-bold text-slate-900 hover:bg-slate-50 transition-colors">
       {children}
     </Link>
   );
