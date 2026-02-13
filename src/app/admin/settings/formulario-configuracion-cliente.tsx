@@ -1,4 +1,3 @@
-
 'use client';
 
 import type React from 'react';
@@ -10,9 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ConfiguracionSitio } from '@/tipos';
-import { UploadCloud, PlusCircle, Trash2, Globe, Layout, Info, Percent } from 'lucide-react';
+import { UploadCloud, PlusCircle, Trash2, Globe, Layout, Info, Percent, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
+import { useFirestore } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface FormularioConfiguracionClienteProps {
   configuracionInicial: ConfiguracionSitio;
@@ -20,27 +23,54 @@ interface FormularioConfiguracionClienteProps {
 
 export default function FormularioConfiguracionCliente({ configuracionInicial }: FormularioConfiguracionClienteProps) {
   const { toast } = useToast();
+  const firestore = useFirestore();
   const [cargando, setCargando] = useState(false);
+  const [formData, setFormData] = useState<ConfiguracionSitio>(configuracionInicial);
+
+  const manejarInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextareaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: id === 'porcentajeDescuentoSegundoPedido' ? Number(value) : value
+    }));
+  };
 
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firestore) return;
+    
     setCargando(true);
     
-    // Simulación de guardado. En una implementación real usarías setDoc de Firestore.
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const configRef = doc(firestore, 'config', 'site');
     
-    toast({
-      title: "Configuración guardada",
-      description: "Los cambios se han aplicado correctamente.",
-    });
-    setCargando(false);
+    setDoc(configRef, {
+      ...formData,
+      updated_at: new Date().toISOString()
+    }, { merge: true })
+      .then(() => {
+        toast({
+          title: "Configuración guardada",
+          description: "Los cambios se han aplicado correctamente en Firebase.",
+        });
+      })
+      .catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: configRef.path,
+          operation: 'update',
+          requestResourceData: formData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      })
+      .finally(() => {
+        setCargando(false);
+      });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-black tracking-tight text-slate-900 font-headline">Configuración del Sitio</h1>
-        <p className="text-slate-500">Gestiona la identidad visual, promociones y contenido informativo.</p>
+        <p className="text-slate-500">Gestiona la identidad visual, promociones y contenido informativo de Frutiandante.</p>
       </div>
 
       <form onSubmit={manejarEnvio}>
@@ -67,24 +97,36 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="nombreEmpresa" className="font-bold">Nombre de la Empresa</Label>
-                    <Input id="nombreEmpresa" defaultValue={configuracionInicial.nombreEmpresa} className="h-12 rounded-xl" />
+                    <Input 
+                      id="nombreEmpresa" 
+                      value={formData.nombreEmpresa} 
+                      onChange={manejarInputChange}
+                      className="h-12 rounded-xl" 
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="numeroWhatsapp" className="font-bold">WhatsApp de Contacto</Label>
-                    <Input id="numeroWhatsapp" defaultValue={configuracionInicial.numeroWhatsapp} className="h-12 rounded-xl" placeholder="56912345678" />
+                    <Input 
+                      id="numeroWhatsapp" 
+                      value={formData.numeroWhatsapp} 
+                      onChange={manejarInputChange}
+                      className="h-12 rounded-xl" 
+                      placeholder="56912345678" 
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="descuentoSegundo" className="font-bold flex items-center gap-2">
+                    <Label htmlFor="porcentajeDescuentoSegundoPedido" className="font-bold flex items-center gap-2">
                       <Percent className="h-4 w-4 text-primary" /> % Descuento Segundo Pedido
                     </Label>
                     <Input 
-                      id="descuentoSegundo" 
+                      id="porcentajeDescuentoSegundoPedido" 
                       type="number" 
-                      defaultValue={configuracionInicial.porcentajeDescuentoSegundoPedido || 10} 
+                      value={formData.porcentajeDescuentoSegundoPedido || 10} 
+                      onChange={manejarInputChange}
                       className="h-12 rounded-xl" 
                       placeholder="10" 
                     />
-                    <p className="text-xs text-muted-foreground italic">Se aplica solo a usuarios registrados en su segunda compra.</p>
+                    <p className="text-xs text-muted-foreground italic">Se aplica automáticamente a usuarios registrados en su segunda compra.</p>
                   </div>
                 </div>
               </CardContent>
@@ -100,15 +142,22 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                 <CardContent className="p-8 space-y-6">
                   <div className="space-y-4">
                     <Label htmlFor="urlLogo" className="font-bold">URL del Logotipo</Label>
-                    <Input id="urlLogo" defaultValue={configuracionInicial.urlLogo} className="h-12 rounded-xl" />
+                    <Input 
+                      id="urlLogo" 
+                      value={formData.urlLogo} 
+                      onChange={manejarInputChange}
+                      className="h-12 rounded-xl" 
+                    />
                     <div className="flex flex-wrap items-center gap-6 mt-4 p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-                      {configuracionInicial.urlLogo && (
+                      {formData.urlLogo ? (
                         <div className="relative h-20 w-48 bg-white rounded-xl border p-2 flex items-center justify-center">
-                          <Image src={configuracionInicial.urlLogo} alt="Logo" fill className="object-contain p-2" />
+                          <Image src={formData.urlLogo} alt="Logo Preview" fill className="object-contain p-2" />
                         </div>
+                      ) : (
+                        <div className="h-20 w-48 bg-slate-100 rounded-xl border flex items-center justify-center text-slate-400 text-xs font-bold">Sin Logo</div>
                       )}
-                      <Button type="button" variant="outline" className="h-12 rounded-xl font-bold gap-2">
-                        <UploadCloud className="h-5 w-5" /> Cambiar Logo
+                      <Button type="button" variant="outline" className="h-12 rounded-xl font-bold gap-2" disabled>
+                        <UploadCloud className="h-5 w-5" /> Subir a Storage (Próximamente)
                       </Button>
                     </div>
                   </div>
@@ -126,12 +175,23 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="tituloAbout" className="font-bold">Título</Label>
-                    <Input id="tituloAbout" defaultValue={configuracionInicial.tituloAbout} className="h-12 rounded-xl" />
+                    <Input 
+                      id="tituloAbout" 
+                      value={formData.tituloAbout} 
+                      onChange={manejarInputChange}
+                      className="h-12 rounded-xl" 
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="historiaAbout" className="font-bold">Historia</Label>
-                  <Textarea id="historiaAbout" defaultValue={configuracionInicial.historiaAbout} className="rounded-2xl" rows={6} />
+                  <Textarea 
+                    id="historiaAbout" 
+                    value={formData.historiaAbout} 
+                    onChange={manejarInputChange}
+                    className="rounded-2xl" 
+                    rows={6} 
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -140,6 +200,9 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
 
         <div className="mt-8 flex justify-end">
           <Button type="submit" size="lg" className="h-14 px-12 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20" disabled={cargando}>
+            {cargando ? (
+              <Loader2 className="h-6 w-6 animate-spin mr-2" />
+            ) : null}
             {cargando ? "Guardando..." : "Guardar Cambios"}
           </Button>
         </div>
