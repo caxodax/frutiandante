@@ -13,7 +13,7 @@ import { obtenerConfiguracionSitio } from '@/lib/mock-data';
 import type { ConfiguracionSitio } from '@/tipos';
 import { ShieldAlert, LogIn, Mail, Loader2 } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 export default function PaginaLoginAdmin() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function PaginaLoginAdmin() {
   const [configuracionSitio, setConfiguracionSitio] = useState<ConfiguracionSitio | null>(null);
 
   useEffect(() => {
-    if (user && !authLoading) {
+    if (user && !authLoading && user.email?.endsWith('@frutiandante.cl')) {
       router.replace('/admin');
     }
     const cargarConfig = async () => {
@@ -42,7 +42,14 @@ export default function PaginaLoginAdmin() {
     setCargando(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, contrasena);
+      const userCredential = await signInWithEmailAndPassword(auth, email, contrasena);
+      
+      // Verificación estricta de dominio admin
+      if (!userCredential.user.email?.endsWith('@frutiandante.cl')) {
+        await signOut(auth);
+        throw new Error("Acceso denegado: Solo se permiten correos @frutiandante.cl");
+      }
+
       toast({
         title: "¡Bienvenido/a!",
         description: "Acceso autorizado al panel de Frutiandante.",
@@ -51,7 +58,7 @@ export default function PaginaLoginAdmin() {
     } catch (error: any) {
       toast({
         title: "Error de Acceso",
-        description: "Credenciales inválidas o sin permisos. Verifica tu correo y contraseña.",
+        description: error.message || "Credenciales inválidas o sin permisos.",
         variant: "destructive",
       });
       setCargando(false);
@@ -74,7 +81,7 @@ export default function PaginaLoginAdmin() {
           <div className="space-y-1">
             <CardTitle className="font-headline text-3xl font-black text-slate-900">Panel de Control</CardTitle>
             <CardDescription className="text-slate-500 font-medium">
-              Solo personal autorizado de Frutiandante.
+              Solo personal autorizado de Frutiandante (@frutiandante.cl).
             </CardDescription>
           </div>
         </CardHeader>
@@ -88,7 +95,7 @@ export default function PaginaLoginAdmin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ejemplo@frutiandante.cl"
+                  placeholder="tu-nombre@frutiandante.cl"
                   required
                   disabled={cargando}
                   className="h-12 pl-10 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"

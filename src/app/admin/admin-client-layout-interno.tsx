@@ -66,10 +66,14 @@ export default function AdminClientLayoutInterno({
   const { user, loading } = useUser();
   const auth = useAuth();
 
-  // Corregido: La redirección se realiza dentro de useEffect para evitar errores de ciclo de vida de React
   useEffect(() => {
-    if (!loading && !user && pathname !== '/admin/login') {
-      router.replace('/admin/login');
+    if (!loading && pathname !== '/admin/login') {
+      if (!user) {
+        router.replace('/admin/login');
+      } else if (!user.email?.endsWith('@frutiandante.cl')) {
+        // Si el usuario está logueado pero no es admin, lo mandamos a la tienda
+        router.replace('/');
+      }
     }
   }, [user, loading, router, pathname]);
 
@@ -78,26 +82,23 @@ export default function AdminClientLayoutInterno({
     router.push('/admin/login');
   };
 
-  // Si estamos en la página de login, renderizamos directamente
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
-  // Mostramos estado de carga
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">Cargando panel...</p>
+          <p className="text-sm font-medium text-muted-foreground">Verificando credenciales...</p>
         </div>
       </div>
     );
   }
 
-  // Si no hay usuario y no estamos cargando, el useEffect hará el replace, 
-  // pero retornamos null por seguridad mientras ocurre.
-  if (!user) {
+  // Solo renderizar el contenido si el usuario es admin
+  if (!user || !user.email?.endsWith('@frutiandante.cl')) {
     return null;
   }
 
