@@ -1,4 +1,4 @@
-// src/app/admin/categories/new/page.tsx
+
 'use client';
 
 import type React from 'react';
@@ -11,16 +11,18 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/lib/supabase-client'; // Importar cliente de Supabase
-import type { Categoria } from '@/tipos';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function PaginaAnadirCategoria() {
   const router = useRouter();
   const { toast } = useToast();
+  const firestore = useFirestore();
   const [nombre, setNombre] = useState('');
   const [slug, setSlug] = useState('');
   const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const generarSlug = (valorNombre: string) => {
     return valorNombre
@@ -39,50 +41,35 @@ export default function PaginaAnadirCategoria() {
 
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firestore) return;
+    
     setGuardando(true);
-    setError(null);
 
-    if (!nombre.trim() || !slug.trim()) {
-      setError("El nombre y el slug de la categoría son obligatorios.");
-      setGuardando(false);
-      toast({
-        title: "Error de Validación",
-        description: "Por favor, completa los campos de nombre y slug.",
-        variant: "destructive",
-      });
-      return;
-    }
+    const nuevaCategoria = { 
+      nombre, 
+      slug,
+      created_at: new Date().toISOString()
+    };
 
-    const nuevaCategoria: Pick<Categoria, 'nombre' | 'slug'> = { nombre, slug };
-
-    const { data, error: supabaseError } = await supabase
-      .from('categorias')
-      .insert([nuevaCategoria])
-      .select()
-      .single(); // .single() es útil si esperas un solo registro de vuelta
-
-    setGuardando(false);
-
-    if (supabaseError) {
-      console.error('Error al guardar categoría en Supabase:', supabaseError);
-      setError(supabaseError.message);
-      toast({
-        title: "Error al Guardar",
-        description: `No se pudo guardar la categoría: ${supabaseError.message}`,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Categoría Guardada",
-        description: `La categoría "${data?.nombre || nombre}" ha sido creada exitosamente.`,
-        variant: "default", 
-      });
-      
-      setTimeout(() => {
+    const categoriesRef = collection(firestore, 'categories');
+    
+    addDoc(categoriesRef, nuevaCategoria)
+      .then(() => {
+        toast({
+          title: "Categoría Guardada",
+          description: `La categoría "${nombre}" ha sido creada exitosamente.`,
+        });
         router.push('/admin/categories');
-        router.refresh(); // Para asegurar que la lista se actualice
-      }, 1500); 
-    }
+      })
+      .catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: 'categories',
+          operation: 'create',
+          requestResourceData: nuevaCategoria,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        setGuardando(false);
+      });
   };
 
   return (
@@ -98,7 +85,7 @@ export default function PaginaAnadirCategoria() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Añadir Nueva Categoría</CardTitle>
-          <CardDescription>Completa los detalles para crear una nueva categoría de productos en Supabase.</CardDescription>
+          <CardDescription>Completa los detalles para crear una nueva categoría en Firebase Firestore.</CardDescription>
         </CardHeader>
         <form onSubmit={manejarEnvio}>
           <CardContent className="space-y-6 pt-6">
@@ -108,7 +95,7 @@ export default function PaginaAnadirCategoria() {
                 id="nombreCategoria"
                 value={nombre}
                 onChange={handleNombreChange}
-                placeholder="Ej: Electrónica, Ropa de Verano"
+                placeholder="Ej: Frutas de Estación"
                 required
                 disabled={guardando}
               />
@@ -119,24 +106,18 @@ export default function PaginaAnadirCategoria() {
                 id="slugCategoria"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                placeholder="Ej: electronica, ropa-de-verano"
+                placeholder="Ej: frutas-estacion"
                 required
                 disabled={guardando}
               />
-              <p className="text-xs text-muted-foreground">
-                El slug es la versión amigable para URL del nombre. Se genera automáticamente.
-              </p>
             </div>
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => router.push('/admin/categories')} disabled={guardando}>
               Cancelar
             </Button>
             <Button type="submit" disabled={guardando}>
-              {guardando ? 'Guardando en Supabase...' : 'Guardar Categoría'}
+              {guardando ? 'Guardando...' : 'Guardar Categoría'}
             </Button>
           </CardFooter>
         </form>

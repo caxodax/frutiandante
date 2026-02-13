@@ -1,0 +1,64 @@
+
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Un producto de la feria Frutiandante",
+      "type": "object",
+      "properties": {
+        "nombre": { "type": "string" },
+        "descripcion": { "type": "string" },
+        "precioDetalle": { "type": "number" },
+        "precioMayorista": { "type": "number" },
+        "imagenes": { "type": "array", "items": { "type": "string" } },
+        "idCategoria": { "type": "string" },
+        "slug": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["nombre", "precioDetalle", "idCategoria", "slug"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Categoría de productos",
+      "type": "object",
+      "properties": {
+        "nombre": { "type": "string" },
+        "slug": { "type": "string" }
+      },
+      "required": ["nombre", "slug"]
+    },
+    "SiteConfig": {
+      "title": "SiteConfig",
+      "description": "Configuración general de la tienda",
+      "type": "object",
+      "properties": {
+        "nombreEmpresa": { "type": "string" },
+        "numeroWhatsapp": { "type": "string" },
+        "urlLogo": { "type": "string" },
+        "tituloAbout": { "type": "string" },
+        "subtituloAbout": { "type": "string" },
+        "historiaAbout": { "type": "string" },
+        "misionAbout": { "type": "string" },
+        "visionAbout": { "type": "string" },
+        "urlImagenAbout": { "type": "string" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Colección de productos"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Colección de categorías"
+    },
+    "/config/site": {
+      "schema": "SiteConfig",
+      "description": "Documento único de configuración"
+    }
+  }
+}
