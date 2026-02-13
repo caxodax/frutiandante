@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import Logotipo from '@/components/logo';
 import { obtenerConfiguracionSitio } from '@/lib/mock-data';
 import type { ConfiguracionSitio } from '@/tipos';
-import { ShieldAlert, LogIn, Mail } from 'lucide-react';
+import { ShieldAlert, LogIn, Mail, Loader2 } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -61,7 +61,7 @@ export default function PaginaLoginAdmin() {
   if (authLoading || !configuracionSitio) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
-        <LogIn className="h-10 w-10 animate-spin text-primary" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
