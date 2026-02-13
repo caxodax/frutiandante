@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { UserCircle, LogIn, LogOut, ShoppingBag, LayoutDashboard } from 'lucide-react';
+import { UserCircle, LogOut, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -38,11 +38,6 @@ export function UserMenu() {
           <DropdownMenuItem asChild>
             <Link href="/my-orders" className="cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors font-bold">
               <ShoppingBag className="h-4 w-4 text-slate-400" /> Mis Pedidos
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/admin" className="cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors font-bold">
-              <LayoutDashboard className="h-4 w-4 text-slate-400" /> Panel Admin
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="my-1" />
