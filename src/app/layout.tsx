@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from '@/hooks/use-cart';
 
 export const metadata: Metadata = {
-  title: 'Frutiandante | Feria Online y Despacho de Víveres',
+  title: 'Frutiandante',
   description: 'La frescura del campo chileno directamente en tu hogar. Despacho de frutas, verduras y víveres premium.',
 };
 
