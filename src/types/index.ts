@@ -14,6 +14,7 @@ export interface Categoria {
   id?: string | number;
   nombre: string;
   slug: string;
+  imagen?: string;
   created_at?: string;
 }
 
@@ -37,6 +38,12 @@ export interface ConfiguracionSitio {
   visionAbout?: string;
   urlImagenAbout?: string;
   porcentajeDescuentoSegundoPedido?: number;
+  // Datos Bancarios
+  banco?: string;
+  tipoCuenta?: string;
+  numeroCuenta?: string;
+  rutCuenta?: string;
+  emailCuenta?: string;
   created_at?: string;
 }
 

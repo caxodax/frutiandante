@@ -41,7 +41,12 @@
         "misionAbout": { "type": "string" },
         "visionAbout": { "type": "string" },
         "urlImagenAbout": { "type": "string" },
-        "porcentajeDescuentoSegundoPedido": { "type": "number", "description": "Porcentaje de descuento para el segundo pedido de usuarios registrados" }
+        "porcentajeDescuentoSegundoPedido": { "type": "number", "description": "Porcentaje de descuento para el segundo pedido de usuarios registrados" },
+        "banco": { "type": "string", "description": "Nombre del banco para transferencia" },
+        "tipoCuenta": { "type": "string", "description": "Tipo de cuenta (Corriente, Vista, etc.)" },
+        "numeroCuenta": { "type": "string", "description": "Número de cuenta bancaria" },
+        "rutCuenta": { "type": "string", "description": "RUT asociado a la cuenta" },
+        "emailCuenta": { "type": "string", "description": "Email para recibir comprobantes" }
       }
     },
     "Order": {

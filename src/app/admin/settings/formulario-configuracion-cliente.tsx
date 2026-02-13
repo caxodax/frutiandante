@@ -1,3 +1,4 @@
+
 'use client';
 
 import type React from 'react';
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ConfiguracionSitio } from '@/tipos';
-import { UploadCloud, PlusCircle, Trash2, Globe, Layout, Info, Percent, Loader2 } from 'lucide-react';
+import { UploadCloud, Globe, Layout, Info, Percent, Loader2, Landmark, Mail } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useStorage } from '@/firebase';
@@ -93,20 +94,23 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-black tracking-tight text-slate-900 font-headline">Configuración del Sitio</h1>
-        <p className="text-slate-500">Gestiona la identidad visual, promociones y contenido informativo de Frutiandante.</p>
+        <p className="text-slate-500">Gestiona la identidad visual, promociones y datos de pago de Frutiandante.</p>
       </div>
 
       <form onSubmit={manejarEnvio}>
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-14 bg-white p-1 rounded-2xl shadow-sm border mb-8">
+          <TabsList className="grid w-full grid-cols-4 h-14 bg-white p-1 rounded-2xl shadow-sm border mb-8 overflow-x-auto">
             <TabsTrigger value="general" className="rounded-xl font-bold gap-2">
               <Globe className="h-4 w-4" /> General
             </TabsTrigger>
             <TabsTrigger value="apariencia" className="rounded-xl font-bold gap-2">
-              <Layout className="h-4 w-4" /> Logo y Redes
+              <Layout className="h-4 w-4" /> Logo
+            </TabsTrigger>
+            <TabsTrigger value="pagos" className="rounded-xl font-bold gap-2">
+              <Landmark className="h-4 w-4" /> Pagos
             </TabsTrigger>
             <TabsTrigger value="about" className="rounded-xl font-bold gap-2">
-              <Info className="h-4 w-4" /> Sobre Nosotros
+              <Info className="h-4 w-4" /> Nosotros
             </TabsTrigger>
           </TabsList>
 
@@ -149,7 +153,7 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                       className="h-12 rounded-xl" 
                       placeholder="10" 
                     />
-                    <p className="text-xs text-muted-foreground italic">Se aplica automáticamente a usuarios registrados en su segunda compra.</p>
+                    <p className="text-xs text-muted-foreground italic">Se aplica a usuarios registrados en su segunda compra.</p>
                   </div>
                 </div>
               </CardContent>
@@ -157,20 +161,21 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
           </TabsContent>
 
           <TabsContent value="apariencia">
-            <div className="space-y-8">
-              <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
-                <CardHeader className="bg-slate-50 border-b p-8">
-                  <CardTitle className="text-2xl font-bold">Logotipo de la Empresa</CardTitle>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                  <div className="space-y-4">
-                    <Label htmlFor="urlLogo" className="font-bold">URL del Logotipo</Label>
-                    <div className="flex gap-2">
+            <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
+              <CardHeader className="bg-slate-50 border-b p-8">
+                <CardTitle className="text-2xl font-bold">Logotipo de la Empresa</CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 space-y-6">
+                <div className="space-y-4">
+                  <Label htmlFor="urlLogo" className="font-bold">Imagen del Logo</Label>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 space-y-4">
                       <Input 
                         id="urlLogo" 
                         value={formData.urlLogo} 
                         onChange={manejarInputChange}
-                        className="h-12 rounded-xl flex-1" 
+                        className="h-12 rounded-xl"
+                        placeholder="URL de la imagen"
                       />
                       <input
                         type="file"
@@ -182,55 +187,73 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                       <Button 
                         type="button" 
                         variant="outline" 
-                        className="h-12 rounded-xl font-bold gap-2 shrink-0"
+                        className="h-12 w-full rounded-xl font-bold gap-2"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={subiendoLogo}
                       >
                         {subiendoLogo ? <Loader2 className="h-5 w-5 animate-spin" /> : <UploadCloud className="h-5 w-5" />}
-                        Subir Archivo
+                        Subir Logo a Storage
                       </Button>
                     </div>
-                    <div className="flex flex-wrap items-center gap-6 mt-4 p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                    <div className="h-32 w-48 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 relative flex items-center justify-center overflow-hidden">
                       {formData.urlLogo ? (
-                        <div className="relative h-20 w-48 bg-white rounded-xl border p-2 flex items-center justify-center">
-                          <Image src={formData.urlLogo} alt="Logo Preview" fill className="object-contain p-2" />
-                        </div>
+                        <Image src={formData.urlLogo} alt="Logo Preview" fill className="object-contain p-2" />
                       ) : (
-                        <div className="h-20 w-48 bg-slate-100 rounded-xl border flex items-center justify-center text-slate-400 text-xs font-bold">Sin Logo</div>
+                        <span className="text-xs text-slate-400 font-bold">Sin Vista Previa</span>
                       )}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="pagos">
+            <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
+              <CardHeader className="bg-slate-50 border-b p-8">
+                <CardTitle className="text-2xl font-bold">Datos para Transferencia</CardTitle>
+                <CardDescription>Estos datos se mostrarán a los clientes al elegir transferencia.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 space-y-6">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="banco" className="font-bold">Banco</Label>
+                    <Input id="banco" value={formData.banco || ''} onChange={manejarInputChange} className="h-12 rounded-xl" placeholder="Ej: Banco Estado" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tipoCuenta" className="font-bold">Tipo de Cuenta</Label>
+                    <Input id="tipoCuenta" value={formData.tipoCuenta || ''} onChange={manejarInputChange} className="h-12 rounded-xl" placeholder="Ej: Cuenta Corriente" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="numeroCuenta" className="font-bold">Número de Cuenta</Label>
+                    <Input id="numeroCuenta" value={formData.numeroCuenta || ''} onChange={manejarInputChange} className="h-12 rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rutCuenta" className="font-bold">RUT del Titular</Label>
+                    <Input id="rutCuenta" value={formData.rutCuenta || ''} onChange={manejarInputChange} className="h-12 rounded-xl" />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="emailCuenta" className="font-bold">Email para Comprobante</Label>
+                    <Input id="emailCuenta" value={formData.emailCuenta || ''} onChange={manejarInputChange} className="h-12 rounded-xl" placeholder="comprobantes@frutiandante.cl" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="about">
             <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
               <CardHeader className="bg-slate-50 border-b p-8">
-                <CardTitle className="text-2xl font-bold">Contenido Informativo</CardTitle>
+                <CardTitle className="text-2xl font-bold">Contenido Nosotros</CardTitle>
               </CardHeader>
-              <CardContent className="p-8 space-y-8">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="tituloAbout" className="font-bold">Título</Label>
-                    <Input 
-                      id="tituloAbout" 
-                      value={formData.tituloAbout} 
-                      onChange={manejarInputChange}
-                      className="h-12 rounded-xl" 
-                    />
-                  </div>
+              <CardContent className="p-8 space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="tituloAbout" className="font-bold">Título Principal</Label>
+                  <Input id="tituloAbout" value={formData.tituloAbout || ''} onChange={manejarInputChange} className="h-12 rounded-xl" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="historiaAbout" className="font-bold">Historia</Label>
-                  <Textarea 
-                    id="historiaAbout" 
-                    value={formData.historiaAbout} 
-                    onChange={manejarInputChange}
-                    className="rounded-2xl" 
-                    rows={6} 
-                  />
+                  <Label htmlFor="historiaAbout" className="font-bold">Nuestra Historia</Label>
+                  <Textarea id="historiaAbout" value={formData.historiaAbout || ''} onChange={manejarInputChange} className="rounded-2xl" rows={6} />
                 </div>
               </CardContent>
             </Card>
@@ -239,10 +262,8 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
 
         <div className="mt-8 flex justify-end">
           <Button type="submit" size="lg" className="h-14 px-12 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20" disabled={cargando || subiendoLogo}>
-            {cargando ? (
-              <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            ) : null}
-            {cargando ? "Guardando..." : "Guardar Cambios"}
+            {cargando ? <Loader2 className="h-6 w-6 animate-spin mr-2" /> : null}
+            {cargando ? "Guardando..." : "Guardar Configuración"}
           </Button>
         </div>
       </form>

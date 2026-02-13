@@ -11,12 +11,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, ArrowLeft, CheckCircle2, ShoppingBag, Truck, Banknote, Wallet, Copy, Landmark, Percent } from 'lucide-react';
+import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { obtenerConfiguracionSitio } from '@/lib/mock-data';
-import { useUser, useFirestore, useCollection } from '@/firebase';
-import { collection, query, where, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
+import { collection, query, where, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
 export default function CheckoutClient() {
@@ -25,20 +24,26 @@ export default function CheckoutClient() {
   const { user } = useUser();
   const firestore = useFirestore();
   const [mounted, setMounted] = useState(false);
-  const [siteConfig, setSiteConfig] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     telefono: '',
     direccion: '',
-    notas: '',
-    referencia: ''
+    notas: ''
   });
   
   const [metodoPago, setMetodoPago] = useState<string>('transferencia');
   const [enviando, setEnviando] = useState(false);
   const [completado, setCompletado] = useState(false);
+
+  // Obtener configuración real de Firestore
+  const siteConfigRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'site');
+  }, [firestore]);
+
+  const { data: siteConfig } = useDoc(siteConfigRef);
 
   // Consulta de pedidos anteriores para ver si aplica descuento
   const ordersQuery = useMemoFirebase(() => {
@@ -50,16 +55,17 @@ export default function CheckoutClient() {
 
   useEffect(() => {
     setMounted(true);
-    obtenerConfiguracionSitio().then(setSiteConfig);
-  }, []);
+    if (user) {
+      setFormData(prev => ({ ...prev, email: user.email || '' }));
+    }
+  }, [user]);
 
   const aplicaDescuento = useMemo(() => {
     if (!user || !previousOrders) return false;
-    // Si tiene exactamente 1 pedido previo, este es su segundo pedido.
     return previousOrders.length === 1;
   }, [user, previousOrders]);
 
-  const descuentoPorcentaje = siteConfig?.porcentajeDescuentoSegundoPedido || 10;
+  const descuentoPorcentaje = (siteConfig as any)?.porcentajeDescuentoSegundoPedido || 10;
   const montoDescuento = aplicaDescuento ? (totalPrice * (descuentoPorcentaje / 100)) : 0;
   const totalFinal = totalPrice - montoDescuento;
 
@@ -84,8 +90,7 @@ export default function CheckoutClient() {
     setEnviando(true);
 
     try {
-      const config = await obtenerConfiguracionSitio();
-      
+      const config = siteConfig as any;
       const mensajeItems = items.map(item => `• ${item.nombre} (x${item.quantity}) - $${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}`).join('\n');
       
       const textoMetodoPago = metodoPago === 'transferencia' ? '🏦 Transferencia Bancaria' : '💵 Efectivo al recibir';
@@ -107,27 +112,27 @@ export default function CheckoutClient() {
         `📝 *Notas:* ${formData.notas || 'Sin notas.'}\n\n` +
         `_Por favor, confirma el stock._`;
 
-      // Guardar el pedido en Firestore si tenemos acceso
       if (firestore) {
         addDoc(collection(firestore, 'orders'), {
           userId: user?.uid || null,
-          items: items.map(i => ({ id: i.id, nombre: i.nombre, cant: i.quantity })),
+          items: items.map(i => ({ id: i.id, nombre: i.nombre, cant: i.quantity, precio: i.precioDetalle })),
           subtotal: totalPrice,
           descuento: montoDescuento,
           total: totalFinal,
           cliente: formData.nombre,
+          metodoPago: metodoPago,
           estado: 'pendiente',
           created_at: serverTimestamp()
         });
       }
 
-      const urlWhatsapp = `https://wa.me/${config.numeroWhatsapp}?text=${encodeURIComponent(mensajeFinal)}`;
+      const urlWhatsapp = `https://wa.me/${config?.numeroWhatsapp || '56912345678'}?text=${encodeURIComponent(mensajeFinal)}`;
       window.open(urlWhatsapp, '_blank');
       
       setCompletado(true);
       clearCart();
     } catch (error) {
-      toast({ title: "Error", description: "No se pudo procesar.", variant: "destructive" });
+      toast({ title: "Error", description: "No se pudo procesar el pedido.", variant: "destructive" });
     } finally {
       setEnviando(false);
     }
@@ -147,11 +152,13 @@ export default function CheckoutClient() {
       <div className="container mx-auto px-4 py-24 text-center">
         <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4" />
         <h1 className="text-4xl font-bold font-headline mb-4">¡Pedido Recibido!</h1>
-        <p className="text-slate-500 mb-8">Coordina la entrega en tu WhatsApp.</p>
-        <Button asChild><Link href="/">Volver al Inicio</Link></Button>
+        <p className="text-slate-500 mb-8">Coordina la entrega y el pago por WhatsApp.</p>
+        <Button asChild className="rounded-2xl h-14 px-8 font-bold"><Link href="/">Volver al Inicio</Link></Button>
       </div>
     );
   }
+
+  const config = siteConfig as any;
 
   return (
     <div className="container mx-auto px-4 pb-20">
@@ -161,7 +168,7 @@ export default function CheckoutClient() {
           <div className="mt-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
             <Percent className="h-5 w-5 text-primary" />
             <p className="text-sm text-emerald-800">
-              ¿Sabías que si te <Link href="/admin/login" className="font-bold underline">registras</Link>, tu segundo pedido tiene un <strong>{descuentoPorcentaje}% de descuento</strong>?
+              ¿Sabías que si te <Link href="/auth" className="font-bold underline">registras</Link>, tu segundo pedido tiene un <strong>{descuentoPorcentaje}% de descuento</strong>?
             </p>
           </div>
         )}
@@ -179,21 +186,23 @@ export default function CheckoutClient() {
               <CardContent className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="nombre" className="font-bold">Nombre Completo</Label>
-                    <Input id="nombre" required value={formData.nombre} onChange={manejarInputChange} />
+                    <Label htmlFor="nombre" className="font-bold flex items-center gap-2"><User className="h-4 w-4 text-slate-400" /> Nombre Completo</Label>
+                    <Input id="nombre" required value={formData.nombre} onChange={manejarInputChange} className="h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="font-bold">Email</Label>
-                    <Input id="email" type="email" required value={formData.email} onChange={manejarInputChange} />
+                    <Label htmlFor="email" className="font-bold flex items-center gap-2"><Mail className="h-4 w-4 text-slate-400" /> Email</Label>
+                    <Input id="email" type="email" required value={formData.email} onChange={manejarInputChange} className="h-12 rounded-xl" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefono" className="font-bold">WhatsApp</Label>
-                  <Input id="telefono" required value={formData.telefono} onChange={manejarInputChange} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="direccion" className="font-bold">Dirección</Label>
-                  <Input id="direccion" required value={formData.direccion} onChange={manejarInputChange} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="telefono" className="font-bold">WhatsApp</Label>
+                    <Input id="telefono" required value={formData.telefono} onChange={manejarInputChange} placeholder="569..." className="h-12 rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="direccion" className="font-bold">Dirección de Entrega</Label>
+                    <Input id="direccion" required value={formData.direccion} onChange={manejarInputChange} placeholder="Calle, número, comuna" className="h-12 rounded-xl" />
+                  </div>
                 </div>
                 
                 <Separator className="my-8" />
@@ -201,20 +210,63 @@ export default function CheckoutClient() {
                 <div className="space-y-6">
                   <Label className="font-bold text-lg font-headline">Método de Pago</Label>
                   <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center space-x-2 border p-4 rounded-xl">
-                      <RadioGroupItem value="transferencia" id="transferencia" />
-                      <Label htmlFor="transferencia" className="font-bold">Transferencia</Label>
+                    <div className={`flex items-center space-x-2 border-2 p-5 rounded-2xl transition-all ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="transferencia" id="transferencia" className="h-5 w-5" />
+                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-2 cursor-pointer">
+                        <Landmark className="h-5 w-5 text-primary" /> Transferencia
+                      </Label>
                     </div>
-                    <div className="flex items-center space-x-2 border p-4 rounded-xl">
-                      <RadioGroupItem value="efectivo" id="efectivo" />
-                      <Label htmlFor="efectivo" className="font-bold">Efectivo al recibir</Label>
+                    <div className={`flex items-center space-x-2 border-2 p-5 rounded-2xl transition-all ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="efectivo" id="efectivo" className="h-5 w-5" />
+                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-2 cursor-pointer">
+                        <ShoppingBag className="h-5 w-5 text-primary" /> Efectivo al recibir
+                      </Label>
                     </div>
                   </RadioGroup>
+
+                  {/* Datos Bancarios Dinámicos */}
+                  {metodoPago === 'transferencia' && config && (
+                    <div className="mt-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                      <div className="bg-slate-900 text-white rounded-[2rem] p-8 shadow-xl border border-white/10">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Landmark className="h-5 w-5 text-primary" />
+                          </div>
+                          <h4 className="font-headline font-bold text-xl">Datos de Transferencia</h4>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                          <div className="space-y-1">
+                            <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Banco</span>
+                            <p className="text-lg font-bold">{config.banco || 'No configurado'}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Tipo de Cuenta</span>
+                            <p className="text-lg font-bold">{config.tipoCuenta || 'No configurado'}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Número de Cuenta</span>
+                            <p className="text-lg font-bold font-mono">{config.numeroCuenta || 'No configurado'}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">RUT</span>
+                            <p className="text-lg font-bold">{config.rutCuenta || 'No configurado'}</p>
+                          </div>
+                          <div className="md:col-span-2 p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3 mt-2">
+                             <Mail className="h-5 w-5 text-primary" />
+                             <div>
+                               <span className="text-slate-400 block text-[10px] font-bold uppercase tracking-widest">Enviar comprobante a:</span>
+                               <p className="font-bold">{config.emailCuenta || 'No configurado'}</p>
+                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2 pt-4">
-                  <Label htmlFor="notas" className="font-bold">Notas (Opcional)</Label>
-                  <Textarea id="notas" rows={3} value={formData.notas} onChange={manejarInputChange} />
+                  <Label htmlFor="notas" className="font-bold">Notas del Pedido (Opcional)</Label>
+                  <Textarea id="notas" rows={3} value={formData.notas} onChange={manejarInputChange} placeholder="Instrucciones especiales para el repartidor..." className="rounded-2xl" />
                 </div>
               </CardContent>
             </form>
@@ -225,20 +277,23 @@ export default function CheckoutClient() {
           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white sticky top-24 overflow-hidden">
             <CardHeader className="p-8 border-b bg-emerald-950 text-white">
               <CardTitle className="text-2xl font-bold flex items-center gap-3 font-headline">
-                <ShoppingBag className="h-6 w-6 text-primary" /> Resumen
+                <ShoppingBag className="h-6 w-6 text-primary" /> Resumen del Pedido
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
-              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center gap-4">
+                  <div key={item.id} className="flex justify-between items-center gap-4 group">
                     <div className="flex gap-4 items-center">
-                      <div className="h-12 w-12 rounded-lg bg-slate-50 overflow-hidden relative">
+                      <div className="h-14 w-14 rounded-xl bg-slate-50 overflow-hidden relative border border-slate-100 group-hover:scale-105 transition-transform">
                          <Image src={item.imagenes[0]} alt={item.nombre} fill className="object-cover" />
                       </div>
-                      <span className="text-sm font-bold line-clamp-1">{item.nombre} x{item.quantity}</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-900 line-clamp-1">{item.nombre}</span>
+                        <span className="text-xs text-slate-500">Cantidad: {item.quantity}</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-bold">${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}</span>
+                    <span className="text-sm font-black text-slate-700">${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}</span>
                   </div>
                 ))}
               </div>
@@ -247,27 +302,27 @@ export default function CheckoutClient() {
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span>Subtotal</span>
+                  <span className="text-slate-500 font-medium">Subtotal</span>
                   <span className="font-bold">${totalPrice.toLocaleString('es-CL')}</span>
                 </div>
                 
                 {aplicaDescuento && (
-                  <div className="flex justify-between text-sm text-emerald-600 font-bold bg-emerald-50 p-2 rounded-lg border border-emerald-100 animate-in fade-in slide-in-from-right-4">
-                    <span className="flex items-center gap-1"><Percent className="h-3 w-3" /> Descuento 2do Pedido</span>
+                  <div className="flex justify-between text-sm text-emerald-600 font-bold bg-emerald-50 p-3 rounded-xl border border-emerald-100 animate-in fade-in slide-in-from-right-4">
+                    <span className="flex items-center gap-1"><Percent className="h-4 w-4" /> Beneficio Club (2do Pedido)</span>
                     <span>-${montoDescuento.toLocaleString('es-CL')}</span>
                   </div>
                 )}
 
-                <div className="pt-4 flex justify-between items-end">
-                  <span className="text-lg font-bold">Total</span>
-                  <span className="text-3xl font-black text-primary">${totalFinal.toLocaleString('es-CL')}</span>
+                <div className="pt-4 flex justify-between items-end border-t border-dashed mt-4">
+                  <span className="text-lg font-bold text-slate-600">Total a Pagar</span>
+                  <span className="text-4xl font-black text-primary">${totalFinal.toLocaleString('es-CL')}</span>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="p-8 pt-0">
-              <Button type="submit" form="checkout-form" size="lg" className="w-full h-16 rounded-2xl font-bold text-lg" disabled={enviando}>
-                {enviando ? "Procesando..." : "Pedir vía WhatsApp"}
-                <MessageSquare className="ml-2 h-5 w-5" />
+              <Button type="submit" form="checkout-form" size="lg" className="w-full h-16 rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all" disabled={enviando}>
+                {enviando ? "Procesando..." : "Confirmar Pedido"}
+                <MessageSquare className="ml-2 h-6 w-6" />
               </Button>
             </CardFooter>
           </Card>
