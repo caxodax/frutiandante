@@ -46,7 +46,8 @@
         "tipoCuenta": { "type": "string", "description": "Tipo de cuenta (Corriente, Vista, etc.)" },
         "numeroCuenta": { "type": "string", "description": "Número de cuenta bancaria" },
         "rutCuenta": { "type": "string", "description": "RUT asociado a la cuenta" },
-        "emailCuenta": { "type": "string", "description": "Email para recibir comprobantes" }
+        "emailCuenta": { "type": "string", "description": "Email para recibir comprobantes" },
+        "referencia": { "type": "string", "description": "Instrucción de glosa o referencia para la transferencia" }
       }
     },
     "Order": {

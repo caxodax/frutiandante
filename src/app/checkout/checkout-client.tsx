@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User } from 'lucide-react';
+import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -251,6 +251,17 @@ export default function CheckoutClient() {
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">RUT</span>
                             <p className="text-lg font-bold">{config.rutCuenta || 'No configurado'}</p>
                           </div>
+                          
+                          {config.referencia && (
+                            <div className="md:col-span-2 p-4 bg-primary/10 rounded-xl border border-primary/20 flex items-center gap-3 mt-2">
+                               <Hash className="h-5 w-5 text-primary" />
+                               <div>
+                                 <span className="text-primary block text-[10px] font-black uppercase tracking-widest">Referencia / Glosa sugerida:</span>
+                                 <p className="font-bold text-white">{config.referencia}</p>
+                               </div>
+                            </div>
+                          )}
+
                           <div className="md:col-span-2 p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3 mt-2">
                              <Mail className="h-5 w-5 text-primary" />
                              <div>

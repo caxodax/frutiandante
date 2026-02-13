@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ConfiguracionSitio } from '@/tipos';
-import { UploadCloud, Globe, Layout, Info, Percent, Loader2, Landmark, Mail } from 'lucide-react';
+import { UploadCloud, Globe, Layout, Info, Percent, Loader2, Landmark, Mail, Hash } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useStorage } from '@/firebase';
@@ -235,6 +235,17 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="emailCuenta" className="font-bold">Email para Comprobante</Label>
                     <Input id="emailCuenta" value={formData.emailCuenta || ''} onChange={manejarInputChange} className="h-12 rounded-xl" placeholder="comprobantes@frutiandante.cl" />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="referencia" className="font-bold flex items-center gap-2"><Hash className="h-4 w-4 text-primary" /> Glosa / Referencia de Pago</Label>
+                    <Input 
+                      id="referencia" 
+                      value={formData.referencia || ''} 
+                      onChange={manejarInputChange} 
+                      className="h-12 rounded-xl border-primary/20" 
+                      placeholder="Ej: Indicar Nombre y Teléfono en la transferencia" 
+                    />
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Instrucción para que el cliente identifique su pago.</p>
                   </div>
                 </div>
               </CardContent>
