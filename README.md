@@ -60,7 +60,9 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {
+      // Lectura pública para que los clientes vean las fotos
       allow read: if true;
+      // Escritura solo para usuarios autenticados (Admin)
       allow write: if request.auth != null;
     }
   }

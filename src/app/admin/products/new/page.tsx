@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -10,10 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useStorage } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -21,6 +21,8 @@ export default function PaginaAnadirProducto() {
   const router = useRouter();
   const { toast } = useToast();
   const firestore = useFirestore();
+  const storage = useStorage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: categorias } = useCollection(collection(firestore!, 'categories'));
 
   const [form, setForm] = useState({
@@ -30,9 +32,10 @@ export default function PaginaAnadirProducto() {
     precioMayorista: '',
     idCategoria: '',
     slug: '',
-    imagenes: ['']
+    imagenes: [] as string[]
   });
   const [guardando, setGuardando] = useState(false);
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
 
   const generarSlug = (nombre: string) => {
     return nombre.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
@@ -49,7 +52,6 @@ export default function PaginaAnadirProducto() {
       precioMayorista: Number(form.precioMayorista),
       slug: form.slug || generarSlug(form.nombre),
       created_at: serverTimestamp(),
-      imagenes: form.imagenes.filter(img => img.trim() !== '')
     };
 
     addDoc(collection(firestore, 'products'), data)
@@ -68,10 +70,28 @@ export default function PaginaAnadirProducto() {
       });
   };
 
-  const agregarImagen = () => setForm({ ...form, imagenes: [...form.imagenes, ''] });
+  const manejarSubidaImagen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !storage) return;
+
+    setSubiendoImagen(true);
+    const storageRef = ref(storage, `products/${Date.now()}-${file.name}`);
+
+    try {
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      setForm(prev => ({ ...prev, imagenes: [...prev.imagenes, url] }));
+      toast({ title: "Imagen subida", description: "La imagen se ha guardado correctamente." });
+    } catch (error) {
+      toast({ title: "Error", description: "No se pudo subir la imagen.", variant: "destructive" });
+    } finally {
+      setSubiendoImagen(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const eliminarImagen = (index: number) => {
-    const nuevas = form.imagenes.filter((_, i) => i !== index);
-    setForm({ ...form, imagenes: nuevas.length ? nuevas : [''] });
+    setForm({ ...form, imagenes: form.imagenes.filter((_, i) => i !== index) });
   };
 
   return (
@@ -158,28 +178,42 @@ export default function PaginaAnadirProducto() {
             <Card className="shadow-lg rounded-3xl overflow-hidden border-none">
               <CardHeader className="bg-slate-50 border-b p-8 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl font-bold font-headline">Imágenes</CardTitle>
-                <Button type="button" variant="ghost" size="icon" onClick={agregarImagen}><Plus className="h-5 w-5"/></Button>
+                <div className="flex gap-2">
+                   <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={manejarSubidaImagen}
+                  />
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={subiendoImagen}
+                  >
+                    {subiendoImagen ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5"/>}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="p-8 space-y-4">
                 {form.imagenes.map((img, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input 
-                      placeholder="URL de la imagen" 
-                      value={img} 
-                      onChange={(e) => {
-                        const nuevas = [...form.imagenes];
-                        nuevas[i] = e.target.value;
-                        setForm({ ...form, imagenes: nuevas });
-                      }}
-                    />
+                  <div key={i} className="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border">
+                    <div className="h-10 w-10 rounded-lg overflow-hidden bg-white border shrink-0">
+                      <img src={img} alt="Vista previa" className="h-full w-full object-cover" />
+                    </div>
+                    <span className="text-xs truncate flex-1 font-mono">{img.split('/').pop()?.split('?')[0]}</span>
                     <Button type="button" variant="ghost" size="icon" onClick={() => eliminarImagen(i)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                   </div>
                 ))}
-                <p className="text-xs text-slate-400">Pega la URL de la imagen (Ej: de Picsum o Imgur).</p>
+                {form.imagenes.length === 0 && (
+                  <p className="text-sm text-center text-slate-400 py-4 italic">Sube las mejores fotos de tu producto.</p>
+                )}
               </CardContent>
             </Card>
             
-            <Button type="submit" className="w-full h-16 rounded-2xl font-bold text-lg" disabled={guardando}>
+            <Button type="submit" className="w-full h-16 rounded-2xl font-bold text-lg" disabled={guardando || subiendoImagen}>
               {guardando ? <Loader2 className="animate-spin h-6 w-6 mr-2" /> : null}
               {guardando ? 'Guardando...' : 'Publicar Producto'}
             </Button>

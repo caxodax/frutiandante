@@ -19,6 +19,7 @@ export function FirebaseClientProvider({ children }: { children: React.ReactNode
       app={firebaseInstances.app} 
       firestore={firebaseInstances.firestore} 
       auth={firebaseInstances.auth}
+      storage={firebaseInstances.storage}
     >
       {children}
     </FirebaseProvider>

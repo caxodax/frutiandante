@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -12,8 +12,9 @@ import type { ConfiguracionSitio } from '@/tipos';
 import { UploadCloud, PlusCircle, Trash2, Globe, Layout, Info, Percent, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore } from '@/firebase';
+import { useFirestore, useStorage } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -24,7 +25,11 @@ interface FormularioConfiguracionClienteProps {
 export default function FormularioConfiguracionCliente({ configuracionInicial }: FormularioConfiguracionClienteProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
+  const storage = useStorage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [cargando, setCargando] = useState(false);
+  const [subiendoLogo, setSubiendoLogo] = useState(false);
   const [formData, setFormData] = useState<ConfiguracionSitio>(configuracionInicial);
 
   const manejarInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextareaElement>) => {
@@ -35,12 +40,30 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
     }));
   };
 
+  const manejarSubidaLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !storage) return;
+
+    setSubiendoLogo(true);
+    const storageRef = ref(storage, `site/logo-${Date.now()}-${file.name}`);
+
+    try {
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      setFormData(prev => ({ ...prev, urlLogo: url }));
+      toast({ title: "Logo actualizado", description: "La imagen se ha subido correctamente." });
+    } catch (error) {
+      toast({ title: "Error", description: "No se pudo subir el logo.", variant: "destructive" });
+    } finally {
+      setSubiendoLogo(false);
+    }
+  };
+
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firestore) return;
     
     setCargando(true);
-    
     const configRef = doc(firestore, 'config', 'site');
     
     setDoc(configRef, {
@@ -142,12 +165,31 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                 <CardContent className="p-8 space-y-6">
                   <div className="space-y-4">
                     <Label htmlFor="urlLogo" className="font-bold">URL del Logotipo</Label>
-                    <Input 
-                      id="urlLogo" 
-                      value={formData.urlLogo} 
-                      onChange={manejarInputChange}
-                      className="h-12 rounded-xl" 
-                    />
+                    <div className="flex gap-2">
+                      <Input 
+                        id="urlLogo" 
+                        value={formData.urlLogo} 
+                        onChange={manejarInputChange}
+                        className="h-12 rounded-xl flex-1" 
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        ref={fileInputRef}
+                        onChange={manejarSubidaLogo}
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="h-12 rounded-xl font-bold gap-2 shrink-0"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={subiendoLogo}
+                      >
+                        {subiendoLogo ? <Loader2 className="h-5 w-5 animate-spin" /> : <UploadCloud className="h-5 w-5" />}
+                        Subir Archivo
+                      </Button>
+                    </div>
                     <div className="flex flex-wrap items-center gap-6 mt-4 p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                       {formData.urlLogo ? (
                         <div className="relative h-20 w-48 bg-white rounded-xl border p-2 flex items-center justify-center">
@@ -156,9 +198,6 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                       ) : (
                         <div className="h-20 w-48 bg-slate-100 rounded-xl border flex items-center justify-center text-slate-400 text-xs font-bold">Sin Logo</div>
                       )}
-                      <Button type="button" variant="outline" className="h-12 rounded-xl font-bold gap-2" disabled>
-                        <UploadCloud className="h-5 w-5" /> Subir a Storage (Próximamente)
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -199,7 +238,7 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
         </Tabs>
 
         <div className="mt-8 flex justify-end">
-          <Button type="submit" size="lg" className="h-14 px-12 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20" disabled={cargando}>
+          <Button type="submit" size="lg" className="h-14 px-12 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20" disabled={cargando || subiendoLogo}>
             {cargando ? (
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
             ) : null}
