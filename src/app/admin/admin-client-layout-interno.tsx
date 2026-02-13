@@ -81,8 +81,10 @@ export default function AdminClientLayoutInterno({
     if (pathname !== '/admin/login') {
       if (!user) {
         router.replace('/admin/login');
-      } else if (profileError || !userProfile || (userProfile as any).role !== 'admin') {
-        // Redirigir a la tienda si hay error de permisos, no hay perfil o no es admin
+      } else if (profileError) {
+        // Si hay error de permisos al intentar leer el perfil, probablemente no es admin
+        router.replace('/');
+      } else if (!userProfile || (userProfile as any).role !== 'admin') {
         router.replace('/');
       }
     }
@@ -108,8 +110,7 @@ export default function AdminClientLayoutInterno({
     );
   }
 
-  // Si no hay usuario o el rol no es admin, no renderizamos el panel (el useEffect manejará la redirección)
-  if (!user || !userProfile || (userProfile as any).role !== 'admin') {
+  if (!user || profileError || !userProfile || (userProfile as any).role !== 'admin') {
     return null;
   }
 
@@ -158,13 +159,13 @@ export default function AdminClientLayoutInterno({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar>
-                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Admin" />
-                    <AvatarFallback>{user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} alt="Admin" />
+                    <AvatarFallback>{user?.email?.substring(0,2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem disabled>Perfil</DropdownMenuItem>
                 <DropdownMenuItem disabled>Configuración</DropdownMenuItem>

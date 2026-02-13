@@ -2,12 +2,12 @@
 
 Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despacho de víveres y productos frescos del campo chileno directamente al hogar.
 
-## Configuración de Firebase (Reglas de Seguridad)
+## Configuración de Firebase (IMPORTANTE)
 
-Para que la aplicación funcione correctamente y sea segura, debes aplicar estas reglas en tu consola de Firebase:
+Para que la aplicación funcione correctamente y las colecciones aparezcan en tu consola, debes aplicar estas reglas en tu consola de Firebase:
 
 ### 1. Firestore Rules (Base de Datos)
-Copia esto en la pestaña **Rules** de Firestore. Estas reglas garantizan que solo los administradores gestionen el sitio y que los clientes tengan sus roles protegidos.
+Copia esto en la pestaña **Rules** de Firestore. Estas reglas permiten que los usuarios creen su perfil como 'cliente' y que tú puedas gestionarlo todo.
 
 ```javascript
 rules_version = '2';
@@ -15,7 +15,16 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Función auxiliar para verificar si el usuario es admin
     function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Usuarios: Lectura y creación permitida para el propio usuario
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
     }
 
     // Configuración del sitio: Lectura pública, escritura solo administradores
@@ -38,15 +47,6 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow create: if true;
       allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
-    }
-    
-    // Usuarios: 
-    // - El usuario puede leer y crear su propio perfil.
-    // - El rol 'admin' solo puede ser asignado manualmente en la consola de Firebase.
-    match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.role == 'cliente';
-      allow update: if request.auth != null && request.auth.uid == userId && request.resource.data.role == resource.data.role;
     }
   }
 }
