@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -68,6 +67,15 @@ export default function CheckoutClient() {
   const montoDescuento = aplicaDescuento ? (totalPrice * (descuentoPorcentaje / 100)) : 0;
   const totalFinal = totalPrice - montoDescuento;
 
+  const copiarAlPortapapeles = (texto: string, etiqueta: string) => {
+    if (!texto) return;
+    navigator.clipboard.writeText(texto);
+    toast({
+      title: "Copiado",
+      description: `${etiqueta} copiado al portapapeles.`,
+    });
+  };
+
   if (!mounted || !isLoaded) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
@@ -89,8 +97,8 @@ export default function CheckoutClient() {
     
     if (metodoPago === 'transferencia' && !formData.referenciaBancaria) {
       toast({ 
-        title: "Falta Información", 
-        description: "Por favor, ingresa el número de referencia de tu transferencia.", 
+        title: "Referencia obligatoria", 
+        description: "Por favor, ingresa el número de referencia de tu transferencia para continuar.", 
         variant: "destructive" 
       });
       return;
@@ -119,7 +127,7 @@ export default function CheckoutClient() {
         `${infoDescuento}\n` +
         `💵 *TOTAL A PAGAR: $${totalFinal.toLocaleString('es-CL')}*\n\n` +
         `📝 *Notas:* ${formData.notas || 'Sin notas.'}\n\n` +
-        `_He realizado la transferencia con la referencia indicada arriba._`;
+        `_He realizado la transferencia con la referencia: ${formData.referenciaBancaria || 'N/A'}_`;
 
       if (firestore) {
         addDoc(collection(firestore, 'orders'), {
@@ -245,35 +253,73 @@ export default function CheckoutClient() {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                          <div className="space-y-1">
+                          <button 
+                            type="button" 
+                            onClick={() => copiarAlPortapapeles(config.banco, "Banco")}
+                            className="text-left space-y-1 hover:bg-white/5 p-2 rounded-xl transition-colors group relative"
+                          >
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Banco</span>
-                            <p className="text-lg font-bold">{config.banco || 'No configurado'}</p>
-                          </div>
-                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <p className="text-lg font-bold">{config.banco || 'No configurado'}</p>
+                              <Copy className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </button>
+
+                          <button 
+                            type="button" 
+                            onClick={() => copiarAlPortapapeles(config.tipoCuenta, "Tipo de Cuenta")}
+                            className="text-left space-y-1 hover:bg-white/5 p-2 rounded-xl transition-colors group relative"
+                          >
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Tipo de Cuenta</span>
-                            <p className="text-lg font-bold">{config.tipoCuenta || 'No configurado'}</p>
-                          </div>
-                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <p className="text-lg font-bold">{config.tipoCuenta || 'No configurado'}</p>
+                              <Copy className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </button>
+
+                          <button 
+                            type="button" 
+                            onClick={() => copiarAlPortapapeles(config.numeroCuenta, "Número de Cuenta")}
+                            className="text-left space-y-1 hover:bg-white/5 p-2 rounded-xl transition-colors group relative"
+                          >
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Número de Cuenta</span>
-                            <p className="text-lg font-bold font-mono">{config.numeroCuenta || 'No configurado'}</p>
-                          </div>
-                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <p className="text-lg font-bold font-mono">{config.numeroCuenta || 'No configurado'}</p>
+                              <Copy className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </button>
+
+                          <button 
+                            type="button" 
+                            onClick={() => copiarAlPortapapeles(config.rutCuenta, "RUT")}
+                            className="text-left space-y-1 hover:bg-white/5 p-2 rounded-xl transition-colors group relative"
+                          >
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">RUT</span>
-                            <p className="text-lg font-bold">{config.rutCuenta || 'No configurado'}</p>
-                          </div>
-                          <div className="md:col-span-2 p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-lg font-bold">{config.rutCuenta || 'No configurado'}</p>
+                              <Copy className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </button>
+
+                          <button 
+                             type="button" 
+                             onClick={() => copiarAlPortapapeles(config.emailCuenta, "Email")}
+                             className="md:col-span-2 p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3 hover:bg-white/10 transition-colors group"
+                          >
                              <Mail className="h-5 w-5 text-primary" />
-                             <div>
-                               <span className="text-slate-400 block text-[10px] font-bold uppercase tracking-widest">Enviar comprobante a:</span>
-                               <p className="font-bold">{config.emailCuenta || 'No configurado'}</p>
+                             <div className="flex-1">
+                               <span className="text-slate-400 block text-[10px] font-bold uppercase tracking-widest text-left">Enviar comprobante a:</span>
+                               <p className="font-bold text-left">{config.emailCuenta || 'No configurado'}</p>
                              </div>
-                          </div>
+                             <Copy className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </button>
                         </div>
+                        <p className="mt-6 text-[10px] text-center text-slate-500 font-bold uppercase tracking-widest italic">Haz clic sobre los datos para copiarlos rápidamente.</p>
                       </div>
 
                       <div className="bg-primary/10 border-2 border-dashed border-primary/40 rounded-2xl p-6">
                         <Label htmlFor="referenciaBancaria" className="font-bold text-primary flex items-center gap-2 mb-2">
-                          <FileText className="h-5 w-5" /> Número de Referencia / Operación
+                          <FileText className="h-5 w-5" /> Número de Referencia / Operación <span className="text-destructive">*</span>
                         </Label>
                         <Input 
                           id="referenciaBancaria" 
@@ -283,7 +329,7 @@ export default function CheckoutClient() {
                           placeholder="Pega aquí el código de tu comprobante"
                           className="h-12 rounded-xl bg-white border-primary/20 focus:ring-primary/40 text-lg font-bold"
                         />
-                        <p className="mt-2 text-xs text-slate-500 italic">Una vez realizada la transferencia, pega aquí el número de referencia para validar tu pago rápidamente.</p>
+                        <p className="mt-2 text-xs text-slate-500 italic">Una vez realizada la transferencia, pega aquí el número de referencia del banco para validar tu pago rápidamente.</p>
                       </div>
                     </div>
                   )}
