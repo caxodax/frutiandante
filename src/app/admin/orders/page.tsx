@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useUser } from '@/firebase';
 import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -20,14 +20,15 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function PaginaAdminPedidos() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<any>(null);
 
   const ordersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
-  }, [firestore]);
+  }, [firestore, user]);
 
   const { data: orders, loading } = useCollection(ordersQuery);
 
@@ -131,6 +132,11 @@ export default function PaginaAdminPedidos() {
                       </TableCell>
                     </TableRow>
                   ))}
+                  {pedidosFiltrados.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-10 text-slate-400">No se encontraron pedidos.</TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -138,7 +144,6 @@ export default function PaginaAdminPedidos() {
         </CardContent>
       </Card>
 
-      {/* Modal de Detalles */}
       <Dialog open={!!pedidoSeleccionado} onOpenChange={() => setPedidoSeleccionado(null)}>
         <DialogContent className="max-w-2xl rounded-3xl">
           <DialogHeader>
@@ -159,7 +164,7 @@ export default function PaginaAdminPedidos() {
                 </div>
                 {pedidoSeleccionado.referenciaBancaria && (
                   <div className="col-span-2 mt-2 p-2 bg-primary/10 rounded-xl border border-primary/20">
-                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Referencia de Transferencia</p>
+                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Referencia del Cliente (Banco)</p>
                     <p className="font-mono font-black text-lg">{pedidoSeleccionado.referenciaBancaria}</p>
                   </div>
                 )}

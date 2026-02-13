@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Package, LayoutGrid, Settings, DollarSign, Users, LineChart, Loader2, ArrowRight } from 'lucide-react';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useUser } from '@/firebase';
 import { collection, query, limit, orderBy } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { format } from 'date-fns';
@@ -13,11 +13,20 @@ import { es } from 'date-fns/locale';
 
 export default function PaginaPanelAdmin() {
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const prodQuery = useMemoFirebase(() => firestore ? collection(firestore, 'products') : null, [firestore]);
   const catQuery = useMemoFirebase(() => firestore ? collection(firestore, 'categories') : null, [firestore]);
-  const ordersQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'orders'), orderBy('created_at', 'desc')) : null, [firestore]);
-  const recentOrdersQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'orders'), orderBy('created_at', 'desc'), limit(5)) : null, [firestore]);
+  
+  const ordersQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
+  }, [firestore, user]);
+
+  const recentOrdersQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'), limit(5));
+  }, [firestore, user]);
 
   const { data: productos, loading: loadingProd } = useCollection(prodQuery);
   const { data: categorias, loading: loadingCat } = useCollection(catQuery);
