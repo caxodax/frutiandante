@@ -2,6 +2,52 @@
 
 Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despacho de víveres y productos frescos del campo chileno directamente al hogar.
 
+## Configuración de Firebase (Reglas de Seguridad)
+
+Para que la aplicación funcione correctamente y sea segura, debes aplicar estas reglas en tu consola de Firebase:
+
+### 1. Firestore Rules (Base de Datos)
+Copia esto en la pestaña **Rules** de Firestore:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /config/site {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.email.endsWith('@frutiandante.cl'));
+    }
+  }
+}
+```
+
+### 2. Storage Rules (Imágenes)
+Copia esto en la pestaña **Rules** de Storage:
+
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+```
+
 ## Cómo subir a GitHub desde aquí
 
 Si al hacer el commit te sale `nothing to commit, working tree clean`, significa que tus archivos ya están listos. **Sigue con estos pasos para subirlo a tu cuenta:**
@@ -12,34 +58,13 @@ Si al hacer el commit te sale `nothing to commit, working tree clean`, significa
 3. Haz clic en **"Create repository"** (no marques ninguna otra casilla).
 
 ### 2. Enlaza y sube tu código
-Copia y pega estos comandos en la terminal (si ya hiciste `git init` y `git commit`, empieza desde el paso de la rama):
+Copia y pega estos comandos en la terminal:
 
 ```bash
-# 1. Asegurarte de que estás en la rama principal correcta
 git branch -M main
-
-# 2. Enlazar con tu repositorio de GitHub
-# IMPORTANTE: Reemplaza "TU_USUARIO" con tu nombre real de GitHub en el link de abajo
 git remote add origin https://github.com/TU_USUARIO/frutiandante.git
-
-# 3. Subir los cambios
-# Se te pedirá que inicies sesión. Sigue las instrucciones que aparezcan.
 git push -u origin main
 ```
-
-> **Nota sobre el error "remote origin already exists":**
-> Si te sale este error al ejecutar el paso 2, usa este comando primero:
-> `git remote remove origin`
-> Y luego vuelve a intentar el paso 2.
-
-## Comandos Útiles de Git
-
-Si quieres revisar tu progreso:
-
-- **Ver estado de los archivos:** `git status`
-- **Ver qué se va a subir:** `git log --oneline`
-- **Ver cambios actuales:** `git diff`
-- **Bajar cambios de GitHub:** `git pull origin main`
 
 ## Desarrollo
 Para correr el proyecto localmente:
