@@ -1,7 +1,7 @@
 'use client'; 
 
 import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -37,7 +37,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useUser, useAuth } from "@/firebase";
+import { useUser, useAuth, useFirestore, useDoc } from "@/firebase";
+import { doc } from "firebase/firestore";
+import { useMemoFirebase } from "@/firebase/firestore/use-collection";
 import { signOut } from "firebase/auth";
 
 const elementosNavegacionAdmin = [
@@ -63,19 +65,29 @@ export default function AdminClientLayoutInterno({
 }: AdminClientLayoutInternoProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, loading } = useUser();
+  const { user, loading: userLoading } = useUser();
   const auth = useAuth();
+  const firestore = useFirestore();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userProfile, loading: profileLoading } = useDoc(userProfileRef);
 
   useEffect(() => {
-    if (!loading && pathname !== '/admin/login') {
+    if (userLoading || profileLoading) return;
+
+    if (pathname !== '/admin/login') {
       if (!user) {
         router.replace('/admin/login');
-      } else if (!user.email?.endsWith('@frutiandante.cl')) {
-        // Si el usuario está logueado pero no es admin, lo mandamos a la tienda
+      } else if (userProfile && (userProfile as any).role !== 'admin') {
+        // Si el usuario está logueado pero no tiene el rol admin en Firestore
         router.replace('/');
       }
     }
-  }, [user, loading, router, pathname]);
+  }, [user, userLoading, userProfile, profileLoading, router, pathname]);
 
   const manejarCerrarSesion = async () => {
     await signOut(auth);
@@ -86,7 +98,7 @@ export default function AdminClientLayoutInterno({
     return <>{children}</>;
   }
 
-  if (loading) {
+  if (userLoading || profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -97,8 +109,8 @@ export default function AdminClientLayoutInterno({
     );
   }
 
-  // Solo renderizar el contenido si el usuario es admin
-  if (!user || !user.email?.endsWith('@frutiandante.cl')) {
+  // Solo renderizar el contenido si el usuario tiene el rol admin en Firestore
+  if (!user || !userProfile || (userProfile as any).role !== 'admin') {
     return null;
   }
 
@@ -158,7 +170,7 @@ export default function AdminClientLayoutInterno({
                 Cerrar Sesión
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </享受DropdownMenu>
           </div>
         </header>
         <main className="flex-1 p-4 sm:p-6">

@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, Mail, Lock, Chrome, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,6 +19,7 @@ export default function AuthForm() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { user, loading: authLoading } = useUser();
   const redirect = searchParams.get('redirect') || '/';
 
@@ -31,11 +33,27 @@ export default function AuthForm() {
     }
   }, [user, authLoading, router, redirect]);
 
+  const syncUserProfile = async (firebaseUser: any) => {
+    if (!firestore) return;
+    const userRef = doc(firestore, 'users', firebaseUser.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      // Por defecto todos son clientes
+      await setDoc(userRef, {
+        email: firebaseUser.email,
+        role: 'cliente',
+        created_at: serverTimestamp()
+      });
+    }
+  };
+
   const manejarLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      await syncUserProfile(cred.user);
       toast({ title: "¡Bienvenido de nuevo!", description: "Has iniciado sesión correctamente." });
     } catch (error: any) {
       toast({ title: "Error", description: "Credenciales incorrectas.", variant: "destructive" });
@@ -48,7 +66,8 @@ export default function AuthForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await syncUserProfile(cred.user);
       toast({ title: "¡Cuenta creada!", description: "Ahora puedes disfrutar de tus beneficios en Frutiandante." });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -60,7 +79,8 @@ export default function AuthForm() {
   const manejarGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const cred = await signInWithPopup(auth, provider);
+      await syncUserProfile(cred.user);
       toast({ title: "Acceso con Google", description: "Iniciaste sesión con éxito." });
     } catch (error: any) {
       toast({ title: "Error", description: "No se pudo conectar con Google.", variant: "destructive" });

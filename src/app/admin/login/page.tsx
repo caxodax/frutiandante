@@ -11,15 +11,17 @@ import { useToast } from "@/hooks/use-toast";
 import Logotipo from '@/components/logo';
 import { obtenerConfiguracionSitio } from '@/lib/mock-data';
 import type { ConfiguracionSitio } from '@/tipos';
-import { ShieldAlert, LogIn, Mail, Loader2 } from 'lucide-react';
-import { useAuth, useUser } from '@/firebase';
+import { ShieldAlert, LogIn, Mail, Loader2 } from 'lucide-center';
+import { useAuth, useUser, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function PaginaLoginAdmin() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, loading: authLoading } = useUser();
   const auth = useAuth();
+  const firestore = useFirestore();
   
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
@@ -27,27 +29,28 @@ export default function PaginaLoginAdmin() {
   const [configuracionSitio, setConfiguracionSitio] = useState<ConfiguracionSitio | null>(null);
 
   useEffect(() => {
-    if (user && !authLoading && user.email?.endsWith('@frutiandante.cl')) {
-      router.replace('/admin');
-    }
     const cargarConfig = async () => {
       const config = await obtenerConfiguracionSitio();
       setConfiguracionSitio(config);
     };
     cargarConfig();
-  }, [user, authLoading, router]);
+  }, []);
 
   const manejarLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firestore) return;
     setCargando(true);
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, contrasena);
       
-      // Verificación estricta de dominio admin
-      if (!userCredential.user.email?.endsWith('@frutiandante.cl')) {
+      // Validación de rol en Firestore
+      const userRef = doc(firestore, 'users', userCredential.user.uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (!userSnap.exists() || userSnap.data().role !== 'admin') {
         await signOut(auth);
-        throw new Error("Acceso denegado: Solo se permiten correos @frutiandante.cl");
+        throw new Error("Acceso denegado: No tienes permisos de administrador.");
       }
 
       toast({
@@ -81,7 +84,7 @@ export default function PaginaLoginAdmin() {
           <div className="space-y-1">
             <CardTitle className="font-headline text-3xl font-black text-slate-900">Panel de Control</CardTitle>
             <CardDescription className="text-slate-500 font-medium">
-              Solo personal autorizado de Frutiandante (@frutiandante.cl).
+              Solo personal con rol de administrador.
             </CardDescription>
           </div>
         </CardHeader>
@@ -95,7 +98,7 @@ export default function PaginaLoginAdmin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tu-nombre@frutiandante.cl"
+                  placeholder="tu-email@ejemplo.com"
                   required
                   disabled={cargando}
                   className="h-12 pl-10 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
