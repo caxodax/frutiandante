@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -8,7 +7,7 @@ import TarjetaProducto from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
-import { ChevronRight, Truck, ShoppingBasket, Salad, Leaf, Loader2 } from 'lucide-react';
+import { ChevronRight, Truck, ShoppingBasket, Leaf, Loader2 } from 'lucide-react';
 import { useCollection, useFirestore } from '@/firebase';
 import { collection, query, limit } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
@@ -144,9 +143,6 @@ export default function PaginaInicio() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent"></div>
                       <CardContent className="absolute bottom-0 p-6 w-full">
-                        <div className="bg-white/20 backdrop-blur-md p-2 rounded-lg mb-3 w-fit">
-                          <Salad className="h-5 w-5 text-white" />
-                        </div>
                         <CardTitle className="text-2xl font-black text-white group-hover:text-primary transition-colors">
                           {categoria.nombre}
                         </CardTitle>
