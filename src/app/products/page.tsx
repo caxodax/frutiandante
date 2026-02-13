@@ -1,50 +1,64 @@
+
+'use client';
+
 import Encabezado from '@/components/layout/header';
 import PieDePagina from '@/components/layout/footer';
 import TarjetaProducto from '@/components/product-card';
-import { obtenerProductos, obtenerCategorias } from '@/lib/mock-data';
-import { Search, ListFilter, ShoppingBag, LayoutGrid } from 'lucide-react';
+import { Search, ShoppingBag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
-export default async function PaginaProductos({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string; category?: string }>;
-}) {
-  const { q = '', category = '' } = await searchParams;
-  const query = q.toLowerCase();
+export default function PaginaProductos() {
+  const searchParams = useSearchParams();
+  const q = searchParams.get('q') || '';
+  const category = searchParams.get('category') || '';
+  const queryText = q.toLowerCase();
   
-  const todosLosProductos = await obtenerProductos();
-  const categorias = await obtenerCategorias();
-  
-  const productosFiltrados = todosLosProductos.filter(p => {
-    const matchesQuery = p.nombre.toLowerCase().includes(query) || p.descripcion.toLowerCase().includes(query);
-    const matchesCategory = category ? p.idCategoria === category : true;
-    return matchesQuery && matchesCategory;
+  const firestore = useFirestore();
+
+  const productosQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    let baseQuery = query(collection(firestore, 'products'));
+    if (category) {
+      baseQuery = query(baseQuery, where('idCategoria', '==', category));
+    }
+    return baseQuery;
+  }, [firestore, category]);
+
+  const categoriasQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'categories');
+  }, [firestore]);
+
+  const { data: todosLosProductos, loading: loadingProd } = useCollection(productosQuery);
+  const { data: categorias, loading: loadingCat } = useCollection(categoriasQuery);
+
+  const productosFiltrados = (todosLosProductos || []).filter((p: any) => {
+    return p.nombre.toLowerCase().includes(queryText) || p.descripcion.toLowerCase().includes(queryText);
   });
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Encabezado />
       <main className="flex-grow pb-20">
-        {/* Banner de búsqueda */}
         <div className="bg-slate-900 py-16 text-white overflow-hidden relative">
           <div className="absolute top-0 right-0 w-1/3 h-full bg-primary/10 blur-[100px] rounded-full translate-x-1/2"></div>
           <div className="container mx-auto px-4 relative z-10 text-center">
             <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 font-headline">
-              {query ? `Resultados para "${query}"` : "Explora Nuestro Catálogo"}
+              {q ? `Resultados para "${q}"` : "Explora Nuestro Catálogo"}
             </h1>
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              {query 
-                ? `Encontramos ${productosFiltrados.length} productos que coinciden con tu búsqueda.` 
-                : "Frescura garantizada del campo chileno directamente a tu puerta."}
+              Frescura garantizada del campo chileno directamente a tu puerta.
             </p>
           </div>
         </div>
 
         <div className="container mx-auto px-4 -mt-8">
-          {/* Filtros y Buscador */}
           <div className="bg-white rounded-3xl shadow-xl p-4 md:p-8 mb-12 border border-slate-100">
             <div className="flex flex-col gap-8">
               <div className="relative w-full">
@@ -52,7 +66,7 @@ export default async function PaginaProductos({
                 <form action="/products" method="GET">
                   <Input 
                     name="q"
-                    defaultValue={query}
+                    defaultValue={q}
                     placeholder="¿Buscas algo específico? Ej: Manzanas, Paltas..." 
                     className="pl-12 h-14 rounded-2xl border-slate-100 bg-slate-50 text-lg focus-visible:ring-primary/20"
                   />
@@ -60,20 +74,19 @@ export default async function PaginaProductos({
                 </form>
               </div>
 
-              {/* Filtros de Categoría */}
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mr-2">Categorías:</span>
                 <Button asChild variant={!category ? "default" : "outline"} className="rounded-xl font-bold h-10">
                   <Link href="/products">Todas</Link>
                 </Button>
-                {categorias.map((cat) => (
+                {categorias?.map((cat: any) => (
                   <Button 
                     key={cat.id} 
                     asChild 
                     variant={category === cat.id ? "default" : "outline"}
                     className="rounded-xl font-bold h-10"
                   >
-                    <Link href={`/products?category=${cat.id}${query ? `&q=${query}` : ''}`}>
+                    <Link href={`/products?category=${cat.id}${q ? `&q=${q}` : ''}`}>
                       {cat.nombre}
                     </Link>
                   </Button>
@@ -82,9 +95,11 @@ export default async function PaginaProductos({
             </div>
           </div>
 
-          {productosFiltrados.length > 0 ? (
+          {loadingProd ? (
+            <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
+          ) : productosFiltrados.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {productosFiltrados.map((producto) => (
+              {productosFiltrados.map((producto: any) => (
                 <TarjetaProducto key={producto.id} producto={producto} />
               ))}
             </div>
@@ -94,7 +109,7 @@ export default async function PaginaProductos({
                 <ShoppingBag className="h-12 w-12 text-slate-200" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">No hay resultados</h3>
-              <p className="text-slate-500 mb-8 max-w-md mx-auto">No pudimos encontrar nada que coincida con tus criterios. Intenta con otras palabras clave o cambia de categoría.</p>
+              <p className="text-slate-500 mb-8 max-w-md mx-auto">No pudimos encontrar nada que coincida con tus criterios.</p>
               <Button asChild size="lg" className="h-14 px-10 rounded-xl font-bold">
                 <Link href="/products">Ver toda la feria</Link>
               </Button>

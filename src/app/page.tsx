@@ -1,17 +1,34 @@
+
+'use client';
+
 import Link from 'next/link';
 import Encabezado from '@/components/layout/header';
 import PieDePagina from '@/components/layout/footer';
 import TarjetaProducto from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { obtenerProductos, obtenerCategorias } from '@/lib/mock-data';
 import Image from 'next/image';
-import { ChevronRight, Truck, ShieldCheck, Leaf, ShoppingBasket, Salad } from 'lucide-react';
+import { ChevronRight, Truck, ShoppingBasket, Salad, Leaf, Loader2 } from 'lucide-react';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, query, limit } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
+import { Badge } from '@/components/ui/badge';
 
-export default async function PaginaInicio() {
-  const productos = await obtenerProductos();
-  const categorias = await obtenerCategorias();
-  const productosDestacados = productos.slice(0, 4);
+export default function PaginaInicio() {
+  const firestore = useFirestore();
+
+  const productosQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'products'), limit(4));
+  }, [firestore]);
+
+  const categoriasQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'categories');
+  }, [firestore]);
+
+  const { data: productos, loading: loadingProd } = useCollection(productosQuery);
+  const { data: categorias, loading: loadingCat } = useCollection(categoriasQuery);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -91,11 +108,15 @@ export default async function PaginaInicio() {
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {productosDestacados.map((producto) => (
-                <TarjetaProducto key={producto.id} producto={producto} />
-              ))}
-            </div>
+            {loadingProd ? (
+              <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+            ) : (
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                {productos?.map((producto: any) => (
+                  <TarjetaProducto key={producto.id} producto={producto} />
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -107,30 +128,34 @@ export default async function PaginaInicio() {
               <p className="mt-2 text-slate-500">Todo lo que necesitas organizado por pasillos.</p>
             </div>
             
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {categorias.map((categoria) => (
-                <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group">
-                  <Card className="relative h-64 overflow-hidden border-none shadow-md rounded-2xl">
-                    <Image 
-                      src={`https://picsum.photos/seed/${categoria.slug}/600/400`}
-                      alt={categoria.nombre}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      data-ai-hint={`${categoria.nombre.toLowerCase()} alimentos`}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent"></div>
-                    <CardContent className="absolute bottom-0 p-6 w-full">
-                      <div className="bg-white/20 backdrop-blur-md p-2 rounded-lg mb-3 w-fit">
-                        <Salad className="h-5 w-5 text-white" />
-                      </div>
-                      <CardTitle className="text-2xl font-black text-white group-hover:text-primary transition-colors">
-                        {categoria.nombre}
-                      </CardTitle>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+            {loadingCat ? (
+              <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                {categorias?.map((categoria: any) => (
+                  <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group">
+                    <Card className="relative h-64 overflow-hidden border-none shadow-md rounded-2xl">
+                      <Image 
+                        src={`https://picsum.photos/seed/${categoria.slug}/600/400`}
+                        alt={categoria.nombre}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        data-ai-hint={`${categoria.nombre.toLowerCase()} alimentos`}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent"></div>
+                      <CardContent className="absolute bottom-0 p-6 w-full">
+                        <div className="bg-white/20 backdrop-blur-md p-2 rounded-lg mb-3 w-fit">
+                          <Salad className="h-5 w-5 text-white" />
+                        </div>
+                        <CardTitle className="text-2xl font-black text-white group-hover:text-primary transition-colors">
+                          {categoria.nombre}
+                        </CardTitle>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -147,7 +172,6 @@ export default async function PaginaInicio() {
                   <Button size="lg" className="h-14 px-10 text-lg font-bold bg-white text-emerald-950 hover:bg-emerald-50 rounded-xl">
                     Quiero Suscribirme
                   </Button>
-                  {/* Corregido: Quitado variant="outline" para evitar fondo blanco y texto blanco */}
                   <Button size="lg" className="h-14 px-10 text-lg border-2 border-white text-white bg-transparent hover:bg-white/10 rounded-xl transition-all font-bold">
                     Más Información
                   </Button>
