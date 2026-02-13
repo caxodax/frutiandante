@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,9 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, Mail, Lock, Chrome, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function AuthForm() {
   const router = useRouter();
@@ -36,20 +39,26 @@ export default function AuthForm() {
   const syncUserProfile = async (firebaseUser: any) => {
     if (!firestore) return;
     const userRef = doc(firestore, 'users', firebaseUser.uid);
-    const userSnap = await getDoc(userRef);
     
-    // Si el perfil no existe, lo creamos con rol 'cliente' por defecto
-    if (!userSnap.exists()) {
-      try {
-        await setDoc(userRef, {
-          email: firebaseUser.email,
-          role: 'cliente',
-          created_at: serverTimestamp()
+    // Usamos setDoc con merge: true para crear o actualizar el perfil
+    // Por defecto, siempre asignamos 'cliente'. Si ya es 'admin', las reglas
+    // de seguridad deberían impedir que este llamado sobrescriba el rol si no es necesario,
+    // o simplemente lo creamos la primera vez.
+    const userData = {
+      email: firebaseUser.email,
+      role: 'cliente',
+      created_at: serverTimestamp()
+    };
+
+    setDoc(userRef, userData, { merge: true })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'write',
+          requestResourceData: userData,
         });
-      } catch (error) {
-        console.error("Error al crear perfil de usuario:", error);
-      }
-    }
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
   const manejarLogin = async (e: React.FormEvent) => {
