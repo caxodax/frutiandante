@@ -1,7 +1,6 @@
-'use client'; 
+'use client';
 
-import type React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -83,7 +82,7 @@ export default function AdminClientLayoutInterno({
       if (!user) {
         router.replace('/admin/login');
       } else if (userProfile && (userProfile as any).role !== 'admin') {
-        // Si el usuario está logueado pero no tiene el rol admin en Firestore
+        // Redirigir a la tienda si el usuario no tiene rol de admin
         router.replace('/');
       }
     }
@@ -109,7 +108,7 @@ export default function AdminClientLayoutInterno({
     );
   }
 
-  // Solo renderizar el contenido si el usuario tiene el rol admin en Firestore
+  // Si no hay usuario o el rol no es admin, no renderizamos el panel (el useEffect manejará la redirección)
   if (!user || !userProfile || (userProfile as any).role !== 'admin') {
     return null;
   }
@@ -126,12 +125,17 @@ export default function AdminClientLayoutInterno({
           <SidebarMenu>
             {elementosNavegacionAdmin.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href}>
-                  <SidebarMenuButton disabled={item.disabled} isActive={pathname === item.href} className="font-headline">
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={pathname === item.href} 
+                  disabled={item.disabled}
+                  className="font-headline"
+                >
+                  <Link href={item.href}>
                     <item.icon className="h-5 w-5" />
-                    {item.label}
-                  </SidebarMenuButton>
-                </Link>
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
@@ -151,26 +155,26 @@ export default function AdminClientLayoutInterno({
           <div className="flex items-center gap-2">
             <SidebarTrigger className="md:hidden" />
             <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar>
-                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Admin" />
-                  <AvatarFallback>{user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled>Perfil</DropdownMenuItem>
-              <DropdownMenuItem disabled>Configuración</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={manejarCerrarSesion} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                 <LogOut className="mr-2 h-4 w-4" />
-                Cerrar Sesión
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </享受DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar>
+                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Admin" />
+                    <AvatarFallback>{user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled>Perfil</DropdownMenuItem>
+                <DropdownMenuItem disabled>Configuración</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={manejarCerrarSesion} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Cerrar Sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <main className="flex-1 p-4 sm:p-6">

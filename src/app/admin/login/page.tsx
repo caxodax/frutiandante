@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import Logotipo from '@/components/logo';
 import { obtenerConfiguracionSitio } from '@/lib/mock-data';
 import type { ConfiguracionSitio } from '@/tipos';
-import { ShieldAlert, LogIn, Mail, Loader2 } from 'lucide-center';
+import { ShieldAlert, LogIn, Mail, Loader2 } from 'lucide-react';
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -44,7 +44,6 @@ export default function PaginaLoginAdmin() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, contrasena);
       
-      // Validación de rol en Firestore
       const userRef = doc(firestore, 'users', userCredential.user.uid);
       const userSnap = await getDoc(userRef);
       
