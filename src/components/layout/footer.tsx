@@ -1,9 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import { Facebook, Instagram, Twitter, Linkedin, Youtube, Send, Mail, Phone, MapPin } from 'lucide-react';
-import { obtenerConfiguracionSitio } from '@/lib/mock-data';
-import type { EnlaceRedSocial } from '@/tipos';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useFirestore, useDoc } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
+import type { EnlaceRedSocial, ConfiguracionSitio } from '@/tipos';
 import Logotipo from '@/components/logo';
 
 const mapaIconos: Record<EnlaceRedSocial['plataforma'], React.ElementType> = {
@@ -15,24 +17,36 @@ const mapaIconos: Record<EnlaceRedSocial['plataforma'], React.ElementType> = {
   TikTok: Send,
 };
 
-const PieDePagina = async () => {
-  const configuracion = await obtenerConfiguracionSitio();
+const PieDePagina = () => {
+  const firestore = useFirestore();
+
+  const siteConfigRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'site');
+  }, [firestore]);
+
+  const { data: siteConfig } = useDoc(siteConfigRef);
+  const configuracion = (siteConfig as any) as ConfiguracionSitio;
   const anoActual = new Date().getFullYear();
+
+  // Valores por defecto mientras carga o si no hay datos
+  const nombreEmpresa = configuracion?.nombreEmpresa || 'Frutiandante';
+  const redesSociales = configuracion?.enlacesRedesSociales || [];
 
   return (
     <footer className="border-t bg-card text-card-foreground">
       <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
         <div className="grid gap-10 md:grid-cols-12 lg:gap-16">
-          {/* Columna de Logo y Descripción - Aumentado span para evitar cortes */}
+          {/* Columna de Logo y Descripción */}
           <div className="md:col-span-6 lg:col-span-6">
             <div className="inline-block">
               <Logotipo className="mb-4" configuracion={configuracion} />
             </div>
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-md">
-              {configuracion.nombreEmpresa} es tu feria online de confianza. Llevamos la frescura del campo chileno directamente a tu hogar con la mejor selección de temporada.
+              {nombreEmpresa} es tu feria online de confianza. Llevamos la frescura del campo chileno directamente a tu hogar con la mejor selección de temporada.
             </p>
             <div className="mt-6 flex space-x-4">
-              {configuracion.enlacesRedesSociales.map((enlace) => {
+              {redesSociales.map((enlace) => {
                 const ComponenteIcono = mapaIconos[enlace.plataforma] || Send;
                 return (
                   <Link
@@ -56,8 +70,7 @@ const PieDePagina = async () => {
             <ul className="mt-4 space-y-2 text-sm">
               <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">Sobre Nosotros</Link></li>
               <li><Link href="/products" className="text-muted-foreground hover:text-primary transition-colors">Productos</Link></li>
-              <li><Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contacto</Link></li>
-              <li><Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors">Preguntas Frecuentes</Link></li>
+              <li><Link href="/my-orders" className="text-muted-foreground hover:text-primary transition-colors">Mis Pedidos</Link></li>
             </ul>
           </div>
           
@@ -69,7 +82,7 @@ const PieDePagina = async () => {
                     <Mail className="h-4 w-4 text-primary shrink-0" /> <span className="truncate">hola@frutiandante.cl</span>
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="h-4 w-4 text-primary shrink-0" /> <span>+{configuracion.numeroWhatsapp}</span>
+                    <Phone className="h-4 w-4 text-primary shrink-0" /> <span>+{configuracion?.numeroWhatsapp || '569...'}</span>
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="h-4 w-4 text-primary shrink-0" /> <span className="leading-tight">Santiago, Chile</span>
@@ -80,7 +93,7 @@ const PieDePagina = async () => {
         
         <div className="mt-12 border-t pt-8 text-center">
           <p className="text-sm text-muted-foreground font-medium">
-            &copy; {anoActual} {configuracion.nombreEmpresa}. Todos los derechos reservados.
+            &copy; {anoActual} {nombreEmpresa}. Todos los derechos reservados.
           </p>
           <p className="mt-1 text-xs text-muted-foreground italic">
             Desde el campo chileno con amor 🇨🇱
