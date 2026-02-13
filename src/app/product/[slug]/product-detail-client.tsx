@@ -1,87 +1,55 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { obtenerProductoPorSlug, obtenerConfiguracionSitio } from '@/lib/mock-data';
-import type { Producto, ConfiguracionSitio } from '@/tipos';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart, MessageSquare, ChevronLeft, ChevronRight, Star, CheckCircle, ShieldCheck } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
-
-function CargadorDetalleProducto() {
-  return (
-    <div className="container mx-auto px-4 py-8 md:py-12">
-      <Card className="overflow-hidden shadow-xl animate-pulse">
-        <CardContent className="p-4 md:p-6 lg:p-8">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="flex flex-col items-center">
-              <Skeleton className="aspect-square w-full max-w-md rounded-lg" />
-              <div className="mt-4 flex w-full max-w-md space-x-2">
-                <Skeleton className="h-20 w-20 rounded-md" />
-                <Skeleton className="h-20 w-20 rounded-md" />
-                <Skeleton className="h-20 w-20 rounded-md" />
-              </div>
-            </div>
-            <div className="py-4 md:py-0">
-              <Skeleton className="h-10 w-3/4 rounded-md" />
-              <Separator className="my-4" />
-              <Skeleton className="h-4 w-full rounded-md mt-2" />
-              <Skeleton className="h-4 w-5/6 rounded-md mt-2" />
-              <Skeleton className="h-4 w-4/6 rounded-md mt-2" />
-              <Separator className="my-6" />
-              <Skeleton className="h-12 w-1/2 rounded-md" />
-              <Skeleton className="h-8 w-1/3 rounded-md mt-3" />
-              <Separator className="my-6" />
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Skeleton className="h-12 w-full sm:w-1/2 rounded-md" />
-                <Skeleton className="h-12 w-full sm:w-1/2 rounded-md" />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+import { ShoppingCart, MessageSquare, ChevronLeft, ChevronRight, Star, CheckCircle, ShieldCheck, Loader2 } from 'lucide-react';
+import { useFirestore, useCollection, useDoc } from '@/firebase';
+import { collection, query, where, limit, doc } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
 export default function ProductDetailClient({ slug }: { slug: string }) {
-  const [producto, setProducto] = useState<Producto | null>(null);
-  const [configuracion, setConfiguracion] = useState<ConfiguracionSitio | null>(null);
-  const [imagenSeleccionada, setImagenSeleccionada] = useState<string | null>(null);
-  const [indiceImagenActual, setIndiceImagenActual] = useState(0);
-  const [cargando, setCargando] = useState(true);
-  
+  const firestore = useFirestore();
   const { addItem } = useCart();
   const { toast } = useToast();
+  
+  const [imagenSeleccionada, setImagenSeleccionada] = useState<string | null>(null);
+  const [indiceImagenActual, setIndiceImagenActual] = useState(0);
+
+  // Consulta para obtener el producto por slug
+  const productQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'products'), where('slug', '==', slug), limit(1));
+  }, [firestore, slug]);
+
+  const { data: products, loading: loadingProd } = useCollection(productQuery);
+  const producto = products && products.length > 0 ? products[0] : null;
+
+  // Consulta para obtener la configuración del sitio
+  const siteConfigRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'site');
+  }, [firestore]);
+
+  const { data: configuracion } = useDoc(siteConfigRef);
 
   useEffect(() => {
-    async function cargarDatos() {
-      try {
-        const productoObtenido = await obtenerProductoPorSlug(slug);
-        const configuracionObtenida = await obtenerConfiguracionSitio();
-        
-        if (productoObtenido) {
-          setProducto(productoObtenido);
-          setImagenSeleccionada(productoObtenido.imagenes[0] || null);
-          setIndiceImagenActual(0);
-        }
-        setConfiguracion(configuracionObtenida);
-      } finally {
-        setCargando(false);
-      }
+    if (producto && producto.imagenes && producto.imagenes.length > 0) {
+      setImagenSeleccionada(producto.imagenes[0]);
     }
-    cargarDatos();
-  }, [slug]);
+  }, [producto]);
 
-  if (cargando) {
-    return <CargadorDetalleProducto />;
+  if (loadingProd) {
+    return (
+      <div className="container mx-auto px-4 py-20 flex justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
   }
   
   if (!producto) {
@@ -97,7 +65,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   }
 
   const manejarAnadirAlCarrito = () => {
-    addItem(producto);
+    addItem(producto as any);
     toast({
       title: "Producto añadido",
       description: `${producto.nombre} se ha añadido al carrito.`,
@@ -106,12 +74,13 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   const manejarPedidoWhatsAppDirecto = () => {
     if (!configuracion || !producto) return;
-    const mensaje = `Hola ${configuracion.nombreEmpresa}, estoy interesado/a en el producto: ${producto.nombre} (ID: ${producto.id}). Precio: $${producto.precioDetalle.toFixed(2)}.`;
-    const urlWhatsapp = `https://wa.me/${configuracion.numeroWhatsapp}?text=${encodeURIComponent(mensaje)}`;
+    const mensaje = `Hola ${(configuracion as any).nombreEmpresa}, estoy interesado/a en el producto: ${producto.nombre}. Precio: $${Number(producto.precioDetalle).toLocaleString('es-CL')}.`;
+    const urlWhatsapp = `https://wa.me/ ${(configuracion as any).numeroWhatsapp}?text=${encodeURIComponent(mensaje)}`;
     window.open(urlWhatsapp, '_blank');
   };
 
   const cambiarImagen = (direccion: 'siguiente' | 'anterior') => {
+    if (!producto.imagenes) return;
     let nuevoIndice = indiceImagenActual;
     if (direccion === 'siguiente') {
       nuevoIndice = (indiceImagenActual + 1) % producto.imagenes.length;
@@ -125,44 +94,43 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   return (
     <main className="flex-grow bg-background py-8 md:py-12">
       <div className="container mx-auto px-4">
-        <Card className="overflow-hidden shadow-2xl rounded-xl border">
+        <Card className="overflow-hidden shadow-2xl rounded-3xl border-none">
           <CardContent className="p-4 md:p-6 lg:p-8">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
               <div className="flex flex-col items-center">
-                <div className="relative aspect-square w-full max-w-lg overflow-hidden rounded-lg border bg-card shadow-inner">
+                <div className="relative aspect-square w-full max-w-lg overflow-hidden rounded-3xl border bg-slate-50 shadow-inner">
                   {imagenSeleccionada && (
                      <Image
                       key={imagenSeleccionada}
                       src={imagenSeleccionada}
                       alt={`Imagen principal de ${producto.nombre}`}
-                      width={600}
-                      height={600}
-                      className="h-full w-full object-cover transition-opacity duration-500 ease-in-out opacity-100 hover:opacity-90"
+                      fill
+                      className="h-full w-full object-cover transition-opacity duration-500 ease-in-out opacity-100"
                       priority
                     />
                   )}
-                  {producto.imagenes.length > 1 && (
+                  {producto.imagenes && producto.imagenes.length > 1 && (
                     <>
-                      <Button variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-card/50 hover:bg-card/80 text-foreground" onClick={() => cambiarImagen('anterior')}>
+                      <Button variant="ghost" size="icon" className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 hover:bg-white text-slate-900 shadow-md" onClick={() => cambiarImagen('anterior')}>
                         <ChevronLeft className="h-6 w-6" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-card/50 hover:bg-card/80 text-foreground" onClick={() => cambiarImagen('siguiente')}>
+                      <Button variant="ghost" size="icon" className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 hover:bg-white text-slate-900 shadow-md" onClick={() => cambiarImagen('siguiente')}>
                         <ChevronRight className="h-6 w-6" />
                       </Button>
                     </>
                   )}
                 </div>
-                {producto.imagenes.length > 1 && (
-                  <div className="mt-4 flex w-full max-w-lg justify-center space-x-2 overflow-x-auto p-1">
-                    {producto.imagenes.map((img, indice) => (
+                {producto.imagenes && producto.imagenes.length > 1 && (
+                  <div className="mt-6 flex w-full max-w-lg justify-center gap-3 overflow-x-auto p-2">
+                    {producto.imagenes.map((img: string, indice: number) => (
                       <button
                         key={indice}
                         onClick={() => { setImagenSeleccionada(img); setIndiceImagenActual(indice); }}
-                        className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border-2 transition-all duration-200 ease-in-out hover:opacity-100 ${imagenSeleccionada === img ? 'border-primary ring-2 ring-primary opacity-100 scale-105' : 'border-muted hover:border-primary/50 opacity-70'}`}
+                        className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 transition-all duration-200 ${imagenSeleccionada === img ? 'border-primary ring-4 ring-primary/10 opacity-100 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
                       >
                         <Image
                           src={img}
-                          alt={`Miniatura de ${producto.nombre} ${indice + 1}`}
+                          alt={`Miniatura ${indice + 1}`}
                           width={80}
                           height={80}
                           className="h-full w-full object-cover"
@@ -173,54 +141,60 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 )}
               </div>
 
-              <div className="py-4 md:py-0">
-                <h1 className="font-headline text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">{producto.nombre}</h1>
-                <div className="mt-3 flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-5 w-5 ${i < 4 ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/50'}`} />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground">(123 reseñas)</span>
-                </div>
-                
-                <Separator className="my-6" />
-                
-                <p className="text-foreground/80 leading-relaxed text-base">{producto.descripcion}</p>
-                
-                <Separator className="my-6" />
-                
-                <div className="space-y-4">
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-xl font-semibold text-muted-foreground">Precio:</span>
-                    <span className="font-headline text-4xl font-bold text-primary">${producto.precioDetalle.toLocaleString('es-CL')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-green-600">
-                    <CheckCircle className="h-5 w-5" />
-                    <span>Disponible en stock</span>
+              <div className="py-4 md:py-0 flex flex-col">
+                <div className="mb-6">
+                  <h1 className="font-headline text-4xl font-black text-slate-900 md:text-5xl lg:text-6xl tracking-tight leading-tight">{producto.nombre}</h1>
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`h-5 w-5 ${i < 4 ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
+                      ))}
+                    </div>
+                    <span className="text-sm font-bold text-slate-400">(Recomendado por la feria)</span>
                   </div>
                 </div>
                 
-                <Separator className="my-8" />
+                <Separator className="mb-8" />
                 
-                <div className="flex flex-col gap-4 sm:flex-row">
-                  <Button size="lg" className="w-full flex-grow bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 hover:bg-primary/90 sm:w-auto" onClick={manejarAnadirAlCarrito}>
-                    <ShoppingCart className="mr-2 h-5 w-5" /> Añadir al Carrito
-                  </Button>
-                  <Button size="lg" variant="outline" className="w-full border-accent text-accent shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground sm:w-auto flex-grow" onClick={manejarPedidoWhatsAppDirecto}>
-                    <MessageSquare className="mr-2 h-5 w-5" /> Pedir Detalles
-                  </Button>
+                <div className="prose prose-slate max-w-none mb-8">
+                  <p className="text-slate-600 text-lg leading-relaxed">{producto.descripcion}</p>
                 </div>
+                
+                <div className="mt-auto space-y-8">
+                  <div className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100/50">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-sm font-black text-emerald-800 uppercase tracking-widest">Precio Hoy</span>
+                      <span className="font-headline text-5xl font-black text-emerald-950">${Number(producto.precioDetalle).toLocaleString('es-CL')}</span>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-emerald-700 font-bold">
+                      <CheckCircle className="h-5 w-5" />
+                      <span>Disponible para despacho inmediato</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-4 sm:flex-row">
+                    <Button size="lg" className="w-full flex-grow h-16 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all" onClick={manejarAnadirAlCarrito}>
+                      <ShoppingCart className="mr-2 h-6 w-6" /> Añadir al Pedido
+                    </Button>
+                    <Button size="lg" variant="outline" className="w-full flex-grow h-16 rounded-2xl border-slate-200 font-bold text-lg hover:bg-slate-50 transition-all" onClick={manejarPedidoWhatsAppDirecto}>
+                      <MessageSquare className="mr-2 h-6 w-6 text-primary" /> Consultar
+                    </Button>
+                  </div>
 
-                <div className="mt-8 space-y-3 rounded-lg border bg-muted/30 p-4">
-                    <div className="flex items-center gap-2 text-sm text-foreground/80">
-                        <ShieldCheck className="h-5 w-5 text-primary" />
-                        <span>Compra segura y protegida.</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-foreground/80">
-                        <TruckIcon className="h-5 w-5 text-primary" />
-                        <span>Envíos rápidos a todo el país.</span>
-                    </div>
+                  <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                            <ShieldCheck className="h-6 w-6" />
+                          </div>
+                          <span className="text-xs font-bold text-slate-700 leading-tight">Compra Segura</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                          <div className="h-10 w-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                            <TruckIcon className="h-6 w-6" />
+                          </div>
+                          <span className="text-xs font-bold text-slate-700 leading-tight">Despacho Veloz</span>
+                      </div>
+                  </div>
                 </div>
               </div>
             </div>
