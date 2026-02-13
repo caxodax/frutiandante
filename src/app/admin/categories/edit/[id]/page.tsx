@@ -2,34 +2,51 @@
 'use client';
 
 import type React from 'react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Loader2, UploadCloud, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore, useStorage } from '@/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { useFirestore, useStorage, useDoc } from '@/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import Image from 'next/image';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
-export default function PaginaAnadirCategoria() {
+export default function PaginaEditarCategoria() {
   const router = useRouter();
+  const { id } = useParams();
   const { toast } = useToast();
   const firestore = useFirestore();
   const storage = useStorage();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const categoryRef = useMemoFirebase(() => {
+    if (!firestore || !id) return null;
+    return doc(firestore, 'categories', id as string);
+  }, [firestore, id]);
+
+  const { data: categoria, loading: cargandoDoc } = useDoc(categoryRef);
 
   const [nombre, setNombre] = useState('');
   const [slug, setSlug] = useState('');
   const [imagen, setImagen] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
+
+  useEffect(() => {
+    if (categoria) {
+      setNombre(categoria.nombre || '');
+      setSlug(categoria.slug || '');
+      setImagen(categoria.imagen || '');
+    }
+  }, [categoria]);
 
   const generarSlug = (valorNombre: string) => {
     return valorNombre
@@ -57,7 +74,7 @@ export default function PaginaAnadirCategoria() {
       const snapshot = await uploadBytes(storageRef, file);
       const url = await getDownloadURL(snapshot.ref);
       setImagen(url);
-      toast({ title: "Imagen subida", description: "La imagen de la categoría se ha guardado correctamente." });
+      toast({ title: "Imagen subida", description: "La imagen se ha actualizado correctamente." });
     } catch (error) {
       toast({ title: "Error", description: "No se pudo subir la imagen.", variant: "destructive" });
     } finally {
@@ -67,37 +84,39 @@ export default function PaginaAnadirCategoria() {
 
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firestore) return;
+    if (!firestore || !categoryRef) return;
     
     setGuardando(true);
 
-    const nuevaCategoria = { 
+    const datosActualizados = { 
       nombre, 
       slug,
       imagen,
-      created_at: new Date().toISOString()
+      updated_at: new Date().toISOString()
     };
-
-    const categoriesRef = collection(firestore, 'categories');
     
-    addDoc(categoriesRef, nuevaCategoria)
+    updateDoc(categoryRef, datosActualizados)
       .then(() => {
         toast({
-          title: "Categoría Guardada",
-          description: `La categoría "${nombre}" ha sido creada exitosamente.`,
+          title: "Categoría Actualizada",
+          description: `La categoría "${nombre}" ha sido modificada con éxito.`,
         });
         router.push('/admin/categories');
       })
       .catch(async (err) => {
         const permissionError = new FirestorePermissionError({
-          path: 'categories',
-          operation: 'create',
-          requestResourceData: nuevaCategoria,
+          path: categoryRef.path,
+          operation: 'update',
+          requestResourceData: datosActualizados,
         });
         errorEmitter.emit('permission-error', permissionError);
         setGuardando(false);
       });
   };
+
+  if (cargandoDoc) {
+    return <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -111,8 +130,8 @@ export default function PaginaAnadirCategoria() {
       </div>
       <Card className="shadow-lg rounded-3xl overflow-hidden border-none">
         <CardHeader className="bg-slate-50 border-b p-8">
-          <CardTitle className="font-headline text-2xl font-black">Añadir Nueva Categoría</CardTitle>
-          <CardDescription>Completa los detalles e incluye una imagen representativa.</CardDescription>
+          <CardTitle className="font-headline text-2xl font-black">Editar Categoría</CardTitle>
+          <CardDescription>Actualiza el nombre, slug o imagen de la sección.</CardDescription>
         </CardHeader>
         <form onSubmit={manejarEnvio}>
           <CardContent className="space-y-6 p-8">
@@ -188,7 +207,7 @@ export default function PaginaAnadirCategoria() {
             </Button>
             <Button type="submit" className="rounded-xl h-12 px-8 font-bold" disabled={guardando || subiendoImagen}>
               {guardando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Guardar Categoría
+              Guardar Cambios
             </Button>
           </CardFooter>
         </form>

@@ -136,7 +136,7 @@ export default function PaginaInicio() {
                   <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group">
                     <Card className="relative h-64 overflow-hidden border-none shadow-md rounded-2xl">
                       <Image 
-                        src={`https://picsum.photos/seed/${categoria.slug}/600/400`}
+                        src={categoria.imagen || `https://picsum.photos/seed/${categoria.slug}/600/400`}
                         alt={categoria.nombre}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"

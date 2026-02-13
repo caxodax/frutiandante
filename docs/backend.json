@@ -22,7 +22,8 @@
       "type": "object",
       "properties": {
         "nombre": { "type": "string" },
-        "slug": { "type": "string" }
+        "slug": { "type": "string" },
+        "imagen": { "type": "string" }
       },
       "required": ["nombre", "slug"]
     },
