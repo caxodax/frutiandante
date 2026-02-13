@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect } from "react";
@@ -45,7 +46,7 @@ const elementosNavegacionAdmin = [
   { href: "/admin", label: "Panel", icon: Home },
   { href: "/admin/products", label: "Productos", icon: Package },
   { href: "/admin/categories", label: "Categorías", icon: LayoutGrid },
-  { href: "/admin/orders", label: "Pedidos", icon: LineChart, disabled: true },
+  { href: "/admin/orders", label: "Pedidos", icon: LineChart },
   { href: "/admin/customers", label: "Clientes", icon: Users, disabled: true },
   { href: "/admin/settings", label: "Config. Sitio", icon: Settings },
   { href: "/", label: "Ver Tienda", icon: Store }, 
@@ -82,7 +83,6 @@ export default function AdminClientLayoutInterno({
       if (!user) {
         router.replace('/admin/login');
       } else if (profileError) {
-        // Si hay error de permisos al intentar leer el perfil, probablemente no es admin
         router.replace('/');
       } else if (!userProfile || (userProfile as any).role !== 'admin') {
         router.replace('/');

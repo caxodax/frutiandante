@@ -41,13 +41,13 @@
         "misionAbout": { "type": "string" },
         "visionAbout": { "type": "string" },
         "urlImagenAbout": { "type": "string" },
-        "porcentajeDescuentoSegundoPedido": { "type": "number", "description": "Porcentaje de descuento para el segundo pedido de usuarios registrados" },
-        "banco": { "type": "string", "description": "Nombre del banco para transferencia" },
-        "tipoCuenta": { "type": "string", "description": "Tipo de cuenta (Corriente, Vista, etc.)" },
-        "numeroCuenta": { "type": "string", "description": "Número de cuenta bancaria" },
-        "rutCuenta": { "type": "string", "description": "RUT asociado a la cuenta" },
-        "emailCuenta": { "type": "string", "description": "Email para recibir comprobantes" },
-        "referencia": { "type": "string", "description": "Instrucción de glosa o referencia para la transferencia" }
+        "porcentajeDescuentoSegundoPedido": { "type": "number" },
+        "banco": { "type": "string" },
+        "tipoCuenta": { "type": "string" },
+        "numeroCuenta": { "type": "string" },
+        "rutCuenta": { "type": "string" },
+        "emailCuenta": { "type": "string" },
+        "referencia": { "type": "string" }
       }
     },
     "Order": {
@@ -55,12 +55,15 @@
       "description": "Un pedido realizado en la tienda",
       "type": "object",
       "properties": {
-        "userId": { "type": "string", "description": "ID del usuario si está registrado" },
+        "userId": { "type": "string" },
+        "cliente": { "type": "string" },
         "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "descuento": { "type": "number" },
         "total": { "type": "number" },
         "estado": { "type": "string", "enum": ["pendiente", "completado", "cancelado"] },
         "metodoPago": { "type": "string" },
-        "referenciaBancaria": { "type": "string", "description": "Código de referencia ingresado por el cliente" },
+        "referenciaBancaria": { "type": "string" },
         "created_at": { "type": "string", "format": "date-time" }
       }
     },

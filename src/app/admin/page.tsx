@@ -1,54 +1,81 @@
+
+'use client';
+
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, LayoutGrid, Settings, DollarSign, Users, BarChart3 } from 'lucide-react';
-import { obtenerProductos, obtenerCategorias } from '@/lib/mock-data';
+import { Package, LayoutGrid, Settings, DollarSign, Users, LineChart, Loader2, ArrowRight } from 'lucide-react';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, query, limit, orderBy } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
-export default async function PaginaPanelAdmin() { // Renombrado AdminDashboardPage
-  const productos = await obtenerProductos();
-  const categorias = await obtenerCategorias();
-  // En una app real, obtendrías conteos de pedidos, ingresos, etc.
-  const totalProductos = productos.length;
-  const totalCategorias = categorias.length;
-  const ingresosTotales = productos.reduce((sum, p) => sum + p.precioDetalle, 0) * 0.15; // Ingresos simulados
-  const pedidosTotales = 42; // Pedidos simulados
+export default function PaginaPanelAdmin() {
+  const firestore = useFirestore();
+
+  const prodQuery = useMemoFirebase(() => firestore ? collection(firestore, 'products') : null, [firestore]);
+  const catQuery = useMemoFirebase(() => firestore ? collection(firestore, 'categories') : null, [firestore]);
+  const ordersQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'orders'), orderBy('created_at', 'desc')) : null, [firestore]);
+  const recentOrdersQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'orders'), orderBy('created_at', 'desc'), limit(5)) : null, [firestore]);
+
+  const { data: productos, loading: loadingProd } = useCollection(prodQuery);
+  const { data: categorias, loading: loadingCat } = useCollection(catQuery);
+  const { data: todosPedidos, loading: loadingOrders } = useCollection(ordersQuery);
+  const { data: pedidosRecientes, loading: loadingRecent } = useCollection(recentOrdersQuery);
+
+  const totalProductos = productos?.length || 0;
+  const totalCategorias = categorias?.length || 0;
+  const totalVentas = todosPedidos?.filter(o => o.estado === 'completado').reduce((acc, o) => acc + (o.total || 0), 0) || 0;
+  const totalPedidos = todosPedidos?.length || 0;
 
   const tarjetasResumen = [
-    { titulo: "Ingresos Totales", valor: `$${ingresosTotales.toFixed(2)}`, icon: DollarSign, descripcion: "Basado en cálculos simulados" },
-    { titulo: "Pedidos Totales", valor: pedidosTotales.toString(), icon: Package, descripcion: "Conteo de pedidos simulado" },
-    { titulo: "Productos Totales", valor: totalProductos.toString(), icon: Package, href: "/admin/products" },
-    { titulo: "Categorías Totales", valor: totalCategorias.toString(), icon: LayoutGrid, href: "/admin/categories" },
+    { titulo: "Ventas Completadas", valor: `$${totalVentas.toLocaleString('es-CL')}`, icon: DollarSign, color: "text-emerald-600" },
+    { titulo: "Pedidos Totales", valor: totalPedidos.toString(), icon: LineChart, color: "text-blue-600", href: "/admin/orders" },
+    { titulo: "Productos en Inventario", valor: totalProductos.toString(), icon: Package, color: "text-orange-600", href: "/admin/products" },
+    { titulo: "Secciones/Categorías", valor: totalCategorias.toString(), icon: LayoutGrid, color: "text-purple-600", href: "/admin/categories" },
   ];
 
+  if (loadingProd || loadingCat || loadingOrders) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Panel de Administración</h1>
+        <div>
+          <h1 className="font-headline text-4xl font-black tracking-tight text-slate-900">Panel de Control</h1>
+          <p className="text-slate-500">Bienvenido/a al centro de mando de Frutiandante.</p>
+        </div>
         <div className="flex gap-2">
-          <Button asChild>
-            <Link href="/admin/products/new">Añadir Nuevo Producto</Link>
-          </Button>
-           <Button asChild variant="outline">
-            <Link href="/admin/settings">Configuración del Sitio</Link>
+          <Button asChild className="rounded-2xl font-bold h-12 shadow-lg shadow-primary/20">
+            <Link href="/admin/products/new">Añadir Producto</Link>
           </Button>
         </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {tarjetasResumen.map((tarjeta) => (
-          <Card key={tarjeta.titulo} className="shadow-sm hover:shadow-md transition-shadow">
+          <Card key={tarjeta.titulo} className="border-none shadow-md rounded-[2rem] overflow-hidden hover:shadow-xl transition-all group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium font-body">{tarjeta.titulo}</CardTitle>
-              <tarjeta.icon className="h-5 w-5 text-muted-foreground" />
+              <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-400">{tarjeta.titulo}</CardTitle>
+              <div className={`p-2 rounded-xl bg-slate-50 group-hover:bg-white transition-colors ${tarjeta.color}`}>
+                <tarjeta.icon className="h-5 w-5" />
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="font-headline text-2xl font-bold">{tarjeta.valor}</div>
-              {tarjeta.descripcion && <p className="text-xs text-muted-foreground">{tarjeta.descripcion}</p>}
+            <CardContent className="pt-4">
+              <div className="font-headline text-3xl font-black text-slate-900">{tarjeta.valor}</div>
             </CardContent>
             {tarjeta.href && (
-              <CardFooter>
-                <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href={tarjeta.href}>Gestionar</Link>
+              <CardFooter className="pt-0">
+                <Button asChild size="sm" variant="ghost" className="p-0 text-primary hover:bg-transparent font-bold">
+                  <Link href={tarjeta.href} className="flex items-center gap-1">
+                    Gestionar <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </Button>
               </CardFooter>
             )}
@@ -56,45 +83,75 @@ export default async function PaginaPanelAdmin() { // Renombrado AdminDashboardP
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle className="font-headline">Actividad Reciente</CardTitle>
-            <CardDescription>Actividades y actualizaciones recientes simuladas.</CardDescription>
+      <div className="grid gap-8 md:grid-cols-3">
+        <Card className="md:col-span-2 border-none shadow-lg rounded-[2.5rem] overflow-hidden">
+          <CardHeader className="bg-slate-50/50 p-8 border-b">
+            <CardTitle className="font-headline text-2xl font-black">Ventas Recientes</CardTitle>
+            <CardDescription>Últimos 5 pedidos recibidos en la tienda.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Nuevo producto "Gadget Increíble" añadido.</li>
-              <li>Categoría "Colección de Verano" actualizada.</li>
-              <li>Pedido #12345 procesado.</li>
-              <li>Logotipo del sitio actualizado.</li>
-            </ul>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50/30">
+                  <tr>
+                    <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Cliente</th>
+                    <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Fecha</th>
+                    <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Total</th>
+                    <th className="p-4 text-right font-bold text-slate-400 text-[10px] uppercase tracking-widest">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {pedidosRecientes?.map((p: any) => (
+                    <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="p-4 font-bold text-slate-900">{p.cliente || 'Anónimo'}</td>
+                      <td className="p-4 text-slate-500">
+                        {p.created_at?.seconds 
+                          ? format(new Date(p.created_at.seconds * 1000), "d 'de' MMM", { locale: es })
+                          : '---'}
+                      </td>
+                      <td className="p-4 font-black text-primary">${p.total?.toLocaleString('es-CL')}</td>
+                      <td className="p-4 text-right text-[10px] font-bold uppercase">
+                        <span className={p.estado === 'completado' ? 'text-emerald-500' : 'text-orange-500'}>
+                          {p.estado || 'pendiente'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!pedidosRecientes || pedidosRecientes.length === 0) && (
+                    <tr>
+                      <td colSpan={4} className="p-8 text-center text-slate-400 font-bold italic">No hay pedidos registrados aún.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
+          <CardFooter className="p-6 border-t bg-slate-50/30">
+            <Button asChild variant="outline" className="w-full rounded-xl font-bold">
+              <Link href="/admin/orders">Ver todos los pedidos</Link>
+            </Button>
+          </CardFooter>
         </Card>
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle className="font-headline">Enlaces Rápidos</CardTitle>
-            <CardDescription>Acceso rápido a secciones importantes.</CardDescription>
+
+        <Card className="border-none shadow-lg rounded-[2.5rem] overflow-hidden bg-slate-900 text-white">
+          <CardHeader className="p-8">
+            <CardTitle className="font-headline text-2xl font-black">Acceso Rápido</CardTitle>
+            <CardDescription className="text-slate-400">Atajos de configuración.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <Button asChild variant="outline">
-              <Link href="/admin/products" className="flex items-center gap-2">
-                <Package className="h-4 w-4" /> Gestionar Productos
+          <CardContent className="p-8 pt-0 flex flex-col gap-4">
+            <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
+              <Link href="/admin/settings" className="flex items-center gap-3">
+                <Settings className="h-5 w-5 text-primary" /> Configuración del Sitio
               </Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link href="/admin/categories" className="flex items-center gap-2">
-                <LayoutGrid className="h-4 w-4" /> Gestionar Categorías
+            <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
+              <Link href="/admin/categories" className="flex items-center gap-3">
+                <LayoutGrid className="h-5 w-5 text-primary" /> Gestionar Secciones
               </Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link href="/admin/settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" /> Configurar Sitio
-              </Link>
-            </Button>
-             <Button asChild variant="outline" disabled>
-              <Link href="#" className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" /> Ver Reportes
+            <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
+              <Link href="/admin/products" className="flex items-center gap-3">
+                <Package className="h-5 w-5 text-primary" /> Inventario de Fruta
               </Link>
             </Button>
           </CardContent>
