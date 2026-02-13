@@ -1,3 +1,4 @@
+
 import type { Producto, Categoria, ConfiguracionSitio, EnlaceRedSocial } from '@/tipos';
 
 export const categoriasSimuladas: Categoria[] = [
@@ -14,7 +15,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Pack Manzanas Royal Gala (1kg)',
     descripcion: 'Manzanas dulces y crujientes, seleccionadas directamente de huertos locales. Ideales para colaciones y jugos naturales.',
     precioDetalle: 2490,
-    precioMayorista: 1890,
     imagenes: ['https://picsum.photos/seed/apple1/600/600', 'https://picsum.photos/seed/apple2/600/600'],
     idCategoria: '1',
     slug: 'pack-manzanas-royal-gala-1kg',
@@ -24,7 +24,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Paltas Hass Premium (1kg)',
     descripcion: 'Paltas de textura cremosa y sabor intenso. En su punto justo de madurez para tus ensaladas o el desayuno perfecto.',
     precioDetalle: 5990,
-    precioMayorista: 4500,
     imagenes: ['https://picsum.photos/seed/avocado1/600/600', 'https://picsum.photos/seed/avocado2/600/600'],
     idCategoria: '2',
     slug: 'paltas-hass-premium-1kg',
@@ -34,7 +33,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Arroz Grado 1 Extra Largo (1kg)',
     descripcion: 'Arroz de grano seleccionado que no se pega. El acompañamiento esencial para todas tus comidas chilenas.',
     precioDetalle: 1850,
-    precioMayorista: 1450,
     imagenes: ['https://picsum.photos/seed/rice1/600/600'],
     idCategoria: '3',
     slug: 'arroz-grado-1-extra-largo-1kg',
@@ -44,7 +42,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Huevos de Gallina Feliz - 12 unidades',
     descripcion: 'Huevos frescos de campo, producidos de forma ética. Ricos en nutrientes y con el mejor sabor natural.',
     precioDetalle: 3200,
-    precioMayorista: 2600,
     imagenes: ['https://picsum.photos/seed/eggs1/600/600'],
     idCategoria: '4',
     slug: 'huevos-gallina-feliz-12un',
@@ -54,7 +51,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Frutillas Frescas de San Pedro (500g)',
     descripcion: 'Frutillas grandes, rojas y jugosas. Recién cosechadas para mantener todo su aroma y dulzor.',
     precioDetalle: 3500,
-    precioMayorista: 2800,
     imagenes: ['https://picsum.photos/seed/strawberry1/600/600'],
     idCategoria: '1',
     slug: 'frutillas-frescas-san-pedro-500g',
@@ -64,7 +60,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Aceite de Oliva Extra Virgen (1L)',
     descripcion: 'Aceite de oliva prensado en frío de valles centrales de Chile. Aroma frutado y acidez mínima.',
     precioDetalle: 8990,
-    precioMayorista: 7200,
     imagenes: ['https://picsum.photos/seed/oliveoil1/600/600'],
     idCategoria: '3',
     slug: 'aceite-oliva-extra-virgen-1l',
@@ -74,7 +69,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Mix Ensalada Orgánica Lista (300g)',
     descripcion: 'Selección de lechugas, espinaca baby y rúcula. Lavada y lista para disfrutar. Sin pesticidas.',
     precioDetalle: 2200,
-    precioMayorista: 1750,
     imagenes: ['https://picsum.photos/seed/salad1/600/600'],
     idCategoria: '2',
     slug: 'mix-ensalada-organica-lista',
@@ -84,7 +78,6 @@ export const productosSimulados: Producto[] = [
     nombre: 'Leche Entera Natural (1L)',
     descripcion: 'Leche fresca de vacas alimentadas con pasto. Sin aditivos, directo del productor a tu mesa.',
     precioDetalle: 1400,
-    precioMayorista: 1100,
     imagenes: ['https://picsum.photos/seed/milk1/600/600'],
     idCategoria: '4', 
     slug: 'leche-entera-natural-1l',

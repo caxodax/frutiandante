@@ -4,7 +4,6 @@ export interface Producto {
   nombre: string;
   descripcion: string;
   precioDetalle: number;
-  precioMayorista: number;
   imagenes: string[];
   idCategoria: string;
   slug: string;

@@ -9,7 +9,6 @@
         "nombre": { "type": "string" },
         "descripcion": { "type": "string" },
         "precioDetalle": { "type": "number" },
-        "precioMayorista": { "type": "number" },
         "imagenes": { "type": "array", "items": { "type": "string" } },
         "idCategoria": { "type": "string" },
         "slug": { "type": "string" },

@@ -88,8 +88,7 @@ export default function PaginaAdminProductos() {
                   <TableHead className="hidden sm:table-cell font-bold">Imagen</TableHead>
                   <TableHead className="font-bold">Nombre</TableHead>
                   <TableHead className="font-bold">Categoría</TableHead>
-                  <TableHead className="font-bold">P. Detalle</TableHead>
-                  <TableHead className="font-bold">P. Mayorista</TableHead>
+                  <TableHead className="font-bold">Precio</TableHead>
                   <TableHead className="text-right font-bold">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -113,7 +112,6 @@ export default function PaginaAdminProductos() {
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium text-slate-600">${Number(producto.precioDetalle).toLocaleString('es-CL')}</TableCell>
-                    <TableCell className="font-medium text-primary">${Number(producto.precioMayorista).toLocaleString('es-CL')}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="icon" asChild className="rounded-xl hover:text-primary hover:bg-primary/10">
@@ -135,7 +133,7 @@ export default function PaginaAdminProductos() {
                 ))}
                 {productosFiltrados.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-20 text-slate-400 font-bold">
+                    <TableCell colSpan={5} className="text-center py-20 text-slate-400 font-bold">
                       No se encontraron productos.
                     </TableCell>
                   </TableRow>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -29,7 +30,6 @@ export default function PaginaAnadirProducto() {
     nombre: '',
     descripcion: '',
     precioDetalle: '',
-    precioMayorista: '',
     idCategoria: '',
     slug: '',
     imagenes: [] as string[]
@@ -49,7 +49,6 @@ export default function PaginaAnadirProducto() {
     const data = {
       ...form,
       precioDetalle: Number(form.precioDetalle),
-      precioMayorista: Number(form.precioMayorista),
       slug: form.slug || generarSlug(form.nombre),
       created_at: serverTimestamp(),
     };
@@ -128,27 +127,15 @@ export default function PaginaAnadirProducto() {
                   onChange={(e) => setForm({ ...form, descripcion: e.target.value })} 
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="precioDetalle" className="font-bold">Precio Detalle ($)</Label>
-                  <Input 
-                    id="precioDetalle" 
-                    type="number" 
-                    required 
-                    value={form.precioDetalle} 
-                    onChange={(e) => setForm({ ...form, precioDetalle: e.target.value })} 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="precioMayorista" className="font-bold">Precio Mayorista ($)</Label>
-                  <Input 
-                    id="precioMayorista" 
-                    type="number" 
-                    required 
-                    value={form.precioMayorista} 
-                    onChange={(e) => setForm({ ...form, precioMayorista: e.target.value })} 
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="precioDetalle" className="font-bold">Precio ($)</Label>
+                <Input 
+                  id="precioDetalle" 
+                  type="number" 
+                  required 
+                  value={form.precioDetalle} 
+                  onChange={(e) => setForm({ ...form, precioDetalle: e.target.value })} 
+                />
               </div>
             </CardContent>
           </Card>

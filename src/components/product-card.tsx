@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -67,12 +68,8 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
         
         <div className="mt-4 space-y-3">
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Precio x Unidad</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Precio</span>
             <span className="text-2xl font-black text-slate-900">${producto.precioDetalle.toLocaleString('es-CL')}</span>
-          </div>
-          <div className="flex items-center justify-between rounded-xl bg-emerald-50/50 p-3 border border-emerald-100/50 transition-colors group-hover:bg-emerald-50">
-            <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Mayorista</span>
-            <span className="text-lg font-black text-primary">${producto.precioMayorista.toLocaleString('es-CL')}</span>
           </div>
         </div>
       </CardContent>

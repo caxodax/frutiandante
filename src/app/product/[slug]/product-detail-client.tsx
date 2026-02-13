@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { obtenerProductoPorSlug, obtenerConfiguracionSitio } from '@/lib/mock-data';
-import type { Producto, ConfiguracionSitio } from '@/types';
+import type { Producto, ConfiguracionSitio } from '@/tipos';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { ShoppingCart, MessageSquare, ChevronLeft, ChevronRight, Star, CheckCircle, ShieldCheck } from 'lucide-react';
@@ -193,13 +193,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 <div className="space-y-4">
                   <div className="flex items-baseline gap-3">
                     <span className="text-xl font-semibold text-muted-foreground">Precio:</span>
-                    <span className="font-headline text-4xl font-bold text-primary">${producto.precioDetalle.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-base font-medium text-muted-foreground">Precio Mayorista:</span>
-                     <Badge variant="outline" className="border-primary/50 bg-primary/10 px-3 py-1 font-headline text-xl font-semibold text-primary">
-                      ${producto.precioMayorista.toFixed(2)}
-                    </Badge>
+                    <span className="font-headline text-4xl font-bold text-primary">${producto.precioDetalle.toLocaleString('es-CL')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-green-600">
                     <CheckCircle className="h-5 w-5" />
