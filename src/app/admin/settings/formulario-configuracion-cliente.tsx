@@ -1,4 +1,4 @@
-// src/app/admin/settings/formulario-configuracion-cliente.tsx (Componente de Cliente)
+
 'use client';
 
 import type React from 'react';
@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { ConfiguracionSitio, EnlaceRedSocial } from '@/tipos';
-import { UploadCloud, PlusCircle, Trash2, Globe, Layout, Info } from 'lucide-react';
+import type { ConfiguracionSitio } from '@/tipos';
+import { UploadCloud, PlusCircle, Trash2, Globe, Layout, Info, Percent } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,17 +22,16 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
   const { toast } = useToast();
   const [cargando, setCargando] = useState(false);
 
-  // Placeholder para envío de formulario
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setCargando(true);
     
-    // Simular guardado
+    // Simulación de guardado. En una implementación real usarías setDoc de Firestore.
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     toast({
       title: "Configuración guardada",
-      description: "Los cambios se han aplicado correctamente en la base de datos (simulado).",
+      description: "Los cambios se han aplicado correctamente.",
     });
     setCargando(false);
   };
@@ -41,7 +40,7 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-black tracking-tight text-slate-900 font-headline">Configuración del Sitio</h1>
-        <p className="text-slate-500">Gestiona la identidad visual, información de contacto y contenido de las páginas legales y de información.</p>
+        <p className="text-slate-500">Gestiona la identidad visual, promociones y contenido informativo.</p>
       </div>
 
       <form onSubmit={manejarEnvio}>
@@ -58,12 +57,11 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
             </TabsTrigger>
           </TabsList>
 
-          {/* TAB GENERAL */}
           <TabsContent value="general">
             <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
               <CardHeader className="bg-slate-50 border-b p-8">
-                <CardTitle className="text-2xl font-bold">Información de la Empresa</CardTitle>
-                <CardDescription>Datos básicos que aparecen en el pie de página y cabecera.</CardDescription>
+                <CardTitle className="text-2xl font-bold">Información y Promociones</CardTitle>
+                <CardDescription>Configura los datos base y beneficios para clientes.</CardDescription>
               </CardHeader>
               <CardContent className="p-8 space-y-6">
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -72,21 +70,32 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                     <Input id="nombreEmpresa" defaultValue={configuracionInicial.nombreEmpresa} className="h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="numeroWhatsapp" className="font-bold">Número de WhatsApp (con código de país)</Label>
-                    <Input id="numeroWhatsapp" defaultValue={configuracionInicial.numeroWhatsapp} className="h-12 rounded-xl" placeholder="ej., 56912345678" />
+                    <Label htmlFor="numeroWhatsapp" className="font-bold">WhatsApp de Contacto</Label>
+                    <Input id="numeroWhatsapp" defaultValue={configuracionInicial.numeroWhatsapp} className="h-12 rounded-xl" placeholder="56912345678" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="descuentoSegundo" className="font-bold flex items-center gap-2">
+                      <Percent className="h-4 w-4 text-primary" /> % Descuento Segundo Pedido
+                    </Label>
+                    <Input 
+                      id="descuentoSegundo" 
+                      type="number" 
+                      defaultValue={configuracionInicial.porcentajeDescuentoSegundoPedido || 10} 
+                      className="h-12 rounded-xl" 
+                      placeholder="10" 
+                    />
+                    <p className="text-xs text-muted-foreground italic">Se aplica solo a usuarios registrados en su segunda compra.</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* TAB APARIENCIA */}
           <TabsContent value="apariencia">
             <div className="space-y-8">
               <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
                 <CardHeader className="bg-slate-50 border-b p-8">
                   <CardTitle className="text-2xl font-bold">Logotipo de la Empresa</CardTitle>
-                  <CardDescription>Imagen principal que representa tu marca.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 space-y-6">
                   <div className="space-y-4">
@@ -95,86 +104,34 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
                     <div className="flex flex-wrap items-center gap-6 mt-4 p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                       {configuracionInicial.urlLogo && (
                         <div className="relative h-20 w-48 bg-white rounded-xl border p-2 flex items-center justify-center">
-                          <Image src={configuracionInicial.urlLogo} alt="Logotipo Actual" fill className="object-contain p-2" />
+                          <Image src={configuracionInicial.urlLogo} alt="Logo" fill className="object-contain p-2" />
                         </div>
                       )}
                       <Button type="button" variant="outline" className="h-12 rounded-xl font-bold gap-2">
-                        <UploadCloud className="h-5 w-5" /> Subir Nuevo Logo
+                        <UploadCloud className="h-5 w-5" /> Cambiar Logo
                       </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-
-              <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
-                <CardHeader className="bg-slate-50 border-b p-8">
-                  <CardTitle className="text-2xl font-bold">Redes Sociales</CardTitle>
-                  <CardDescription>Enlaces a tus perfiles oficiales.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                  {configuracionInicial.enlacesRedesSociales.map((enlace, indice) => (
-                    <div key={enlace.id} className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-end">
-                      <div className="space-y-2">
-                        <Label className="font-bold">Plataforma</Label>
-                        <Input defaultValue={enlace.plataforma} disabled className="h-12 rounded-xl bg-slate-50" />
-                      </div>
-                      <div className="sm:col-span-2 space-y-2">
-                        <Label className="font-bold">URL Perfil</Label>
-                        <div className="flex items-center gap-2">
-                          <Input defaultValue={enlace.url} className="h-12 rounded-xl" />
-                          <Button type="button" variant="ghost" size="icon" className="h-12 w-12 rounded-xl text-destructive hover:bg-destructive/10">
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  <Button type="button" variant="outline" className="h-12 rounded-xl font-bold gap-2 mt-4">
-                    <PlusCircle className="h-5 w-5" /> Añadir Red Social
-                  </Button>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
 
-          {/* TAB ABOUT */}
           <TabsContent value="about">
             <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
               <CardHeader className="bg-slate-50 border-b p-8">
-                <CardTitle className="text-2xl font-bold">Página Sobre Nosotros</CardTitle>
-                <CardDescription>Contenido dinámico para la sección de historia y propósito de la empresa.</CardDescription>
+                <CardTitle className="text-2xl font-bold">Contenido Informativo</CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-8">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="tituloAbout" className="font-bold">Título Principal</Label>
-                    <Input id="tituloAbout" defaultValue={configuracionInicial.tituloAbout} className="h-12 rounded-xl" placeholder="Ej: Innovación y Tecnología" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="subtituloAbout" className="font-bold">Subtítulo</Label>
-                    <Input id="subtituloAbout" defaultValue={configuracionInicial.subtituloAbout} className="h-12 rounded-xl" placeholder="Ej: Llevamos la vanguardia a tu puerta" />
+                    <Label htmlFor="tituloAbout" className="font-bold">Título</Label>
+                    <Input id="tituloAbout" defaultValue={configuracionInicial.tituloAbout} className="h-12 rounded-xl" />
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="historiaAbout" className="font-bold">Nuestra Historia</Label>
-                  <Textarea id="historiaAbout" defaultValue={configuracionInicial.historiaAbout} className="rounded-2xl min-h-[150px]" rows={6} />
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="misionAbout" className="font-bold">Misión</Label>
-                    <Textarea id="misionAbout" defaultValue={configuracionInicial.misionAbout} className="rounded-2xl" rows={4} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="visionAbout" className="font-bold">Visión</Label>
-                    <Textarea id="visionAbout" defaultValue={configuracionInicial.visionAbout} className="rounded-2xl" rows={4} />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="urlImagenAbout" className="font-bold">URL Imagen de Cabecera (Banner)</Label>
-                  <Input id="urlImagenAbout" defaultValue={configuracionInicial.urlImagenAbout} className="h-12 rounded-xl" />
+                  <Label htmlFor="historiaAbout" className="font-bold">Historia</Label>
+                  <Textarea id="historiaAbout" defaultValue={configuracionInicial.historiaAbout} className="rounded-2xl" rows={6} />
                 </div>
               </CardContent>
             </Card>
@@ -183,7 +140,7 @@ export default function FormularioConfiguracionCliente({ configuracionInicial }:
 
         <div className="mt-8 flex justify-end">
           <Button type="submit" size="lg" className="h-14 px-12 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20" disabled={cargando}>
-            {cargando ? "Guardando cambios..." : "Guardar Toda la Configuración"}
+            {cargando ? "Guardando..." : "Guardar Cambios"}
           </Button>
         </div>
       </form>

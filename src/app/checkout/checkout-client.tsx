@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -10,15 +11,21 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, ArrowLeft, CheckCircle2, ShoppingBag, Truck, Banknote, Wallet, Copy, Landmark } from 'lucide-react';
+import { MessageSquare, ArrowLeft, CheckCircle2, ShoppingBag, Truck, Banknote, Wallet, Copy, Landmark, Percent } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { obtenerConfiguracionSitio } from '@/lib/mock-data';
+import { useUser, useFirestore, useCollection } from '@/firebase';
+import { collection, query, where, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
 export default function CheckoutClient() {
   const { items, totalPrice, clearCart, isLoaded } = useCart();
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const [mounted, setMounted] = useState(false);
+  const [siteConfig, setSiteConfig] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     nombre: '',
@@ -33,9 +40,28 @@ export default function CheckoutClient() {
   const [enviando, setEnviando] = useState(false);
   const [completado, setCompletado] = useState(false);
 
+  // Consulta de pedidos anteriores para ver si aplica descuento
+  const ordersQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'orders'), where('userId', '==', user.uid));
+  }, [firestore, user]);
+
+  const { data: previousOrders } = useCollection(ordersQuery);
+
   useEffect(() => {
     setMounted(true);
+    obtenerConfiguracionSitio().then(setSiteConfig);
   }, []);
+
+  const aplicaDescuento = useMemo(() => {
+    if (!user || !previousOrders) return false;
+    // Si tiene exactamente 1 pedido previo, este es su segundo pedido.
+    return previousOrders.length === 1;
+  }, [user, previousOrders]);
+
+  const descuentoPorcentaje = siteConfig?.porcentajeDescuentoSegundoPedido || 10;
+  const montoDescuento = aplicaDescuento ? (totalPrice * (descuentoPorcentaje / 100)) : 0;
+  const totalFinal = totalPrice - montoDescuento;
 
   if (!mounted || !isLoaded) {
     return (
@@ -48,32 +74,9 @@ export default function CheckoutClient() {
     );
   }
 
-  if (items.length === 0 && !completado) {
-    return (
-      <div className="container mx-auto px-4 py-24 text-center" suppressHydrationWarning>
-        <div className="mx-auto h-24 w-24 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
-          <ShoppingBag className="h-12 w-12 text-primary/30" />
-        </div>
-        <h1 className="text-3xl font-bold font-headline mb-4 text-slate-900">Tu canasto está vacío</h1>
-        <p className="text-slate-500 mb-8 max-w-md mx-auto">Parece que aún no has seleccionado tus productos frescos. Explora nuestra feria online para empezar.</p>
-        <Button asChild size="lg" className="h-14 px-10 rounded-xl bg-primary hover:bg-primary/90">
-          <Link href="/products">Ver Feria Online</Link>
-        </Button>
-      </div>
-    );
-  }
-
   const manejarInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const copiarAlPortapapeles = (texto: string, label: string) => {
-    navigator.clipboard.writeText(texto);
-    toast({
-      title: "Copiado",
-      description: `${label} copiado al portapapeles.`,
-    });
   };
 
   const manejarFinalizarPedido = async (e: React.FormEvent) => {
@@ -86,289 +89,186 @@ export default function CheckoutClient() {
       const mensajeItems = items.map(item => `• ${item.nombre} (x${item.quantity}) - $${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}`).join('\n');
       
       const textoMetodoPago = metodoPago === 'transferencia' ? '🏦 Transferencia Bancaria' : '💵 Efectivo al recibir';
-      const infoReferencia = (metodoPago === 'transferencia' && formData.referencia) ? `\n🔢 *Referencia:* ${formData.referencia}` : '';
+      const infoDescuento = aplicaDescuento ? `\n🎁 *Descuento 2do Pedido (${descuentoPorcentaje}%):* -$${montoDescuento.toLocaleString('es-CL')}` : '';
 
       const mensajeFinal = `🚀 *NUEVO PEDIDO - FRUTIANDANTE*\n\n` +
         `👤 *Cliente:*\n` +
         `• Nombre: ${formData.nombre}\n` +
+        `• Registro: ${user ? 'SÍ (Usuario Registrado)' : 'NO (Invitado)'}\n` +
         `• Teléfono: ${formData.telefono}\n` +
         `• Dirección: ${formData.direccion}\n\n` +
         `💳 *Método de Pago:*\n` +
-        `• ${textoMetodoPago}${infoReferencia}\n\n` +
+        `• ${textoMetodoPago}\n\n` +
         `📦 *Detalle del Pedido:*\n` +
         `${mensajeItems}\n\n` +
-        `💰 *TOTAL A PAGAR: $${totalPrice.toLocaleString('es-CL')}*\n\n` +
-        `📝 *Notas:* ${formData.notas || 'Sin notas adicionales.'}\n\n` +
-        `_Por favor, confírmame el stock para proceder._`;
+        `💰 *SUBTOTAL: $${totalPrice.toLocaleString('es-CL')}*` +
+        `${infoDescuento}\n` +
+        `💵 *TOTAL A PAGAR: $${totalFinal.toLocaleString('es-CL')}*\n\n` +
+        `📝 *Notas:* ${formData.notas || 'Sin notas.'}\n\n` +
+        `_Por favor, confirma el stock._`;
+
+      // Guardar el pedido en Firestore si tenemos acceso
+      if (firestore) {
+        addDoc(collection(firestore, 'orders'), {
+          userId: user?.uid || null,
+          items: items.map(i => ({ id: i.id, nombre: i.nombre, cant: i.quantity })),
+          subtotal: totalPrice,
+          descuento: montoDescuento,
+          total: totalFinal,
+          cliente: formData.nombre,
+          estado: 'pendiente',
+          created_at: serverTimestamp()
+        });
+      }
 
       const urlWhatsapp = `https://wa.me/${config.numeroWhatsapp}?text=${encodeURIComponent(mensajeFinal)}`;
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
       window.open(urlWhatsapp, '_blank');
       
       setCompletado(true);
       clearCart();
-      
-      toast({
-        title: "¡Pedido enviado!",
-        description: "Se ha generado tu solicitud para coordinar por WhatsApp.",
-      });
-      
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al procesar tu solicitud.",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "No se pudo procesar.", variant: "destructive" });
     } finally {
       setEnviando(false);
     }
   };
 
+  if (items.length === 0 && !completado) {
+    return (
+      <div className="container mx-auto px-4 py-24 text-center">
+        <h1 className="text-3xl font-bold font-headline mb-4">Tu canasto está vacío</h1>
+        <Button asChild><Link href="/products">Ver Feria</Link></Button>
+      </div>
+    );
+  }
+
   if (completado) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center" suppressHydrationWarning>
-        <div className="max-w-xl mx-auto bg-white p-12 rounded-[2.5rem] shadow-xl border border-emerald-50">
-          <div className="mx-auto h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center mb-8">
-            <CheckCircle2 className="h-12 w-12 text-primary" />
-          </div>
-          <h1 className="text-4xl font-bold font-headline mb-4 text-slate-900">¡Pedido en Camino!</h1>
-          <p className="text-slate-500 text-lg mb-10 leading-relaxed">
-            Hemos abierto tu WhatsApp para que coordines el pago y la entrega directamente con nuestro equipo. ¡Gracias por preferir la frescura de Frutiandante!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="h-14 px-10 rounded-xl font-bold flex-1 bg-primary">
-              <Link href="/">Volver al Inicio</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="h-14 px-10 rounded-xl font-bold flex-1 border-primary text-primary hover:bg-emerald-50">
-              <Link href="/products">Seguir Comprando</Link>
-            </Button>
-          </div>
-        </div>
+      <div className="container mx-auto px-4 py-24 text-center">
+        <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4" />
+        <h1 className="text-4xl font-bold font-headline mb-4">¡Pedido Recibido!</h1>
+        <p className="text-slate-500 mb-8">Coordina la entrega en tu WhatsApp.</p>
+        <Button asChild><Link href="/">Volver al Inicio</Link></Button>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 pb-20" suppressHydrationWarning>
-      <div className="mb-12 flex flex-col gap-2">
-        <Link href="/" className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-primary transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Volver a la feria
-        </Link>
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight font-headline">Finalizar Pedido</h1>
+    <div className="container mx-auto px-4 pb-20">
+      <div className="mb-12">
+        <h1 className="text-4xl font-black text-slate-900 font-headline">Finalizar Pedido</h1>
+        {!user && (
+          <div className="mt-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
+            <Percent className="h-5 w-5 text-primary" />
+            <p className="text-sm text-emerald-800">
+              ¿Sabías que si te <Link href="/admin/login" className="font-bold underline">registras</Link>, tu segundo pedido tiene un <strong>{descuentoPorcentaje}% de descuento</strong>?
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-7 space-y-8">
-          {/* Información del Cliente */}
           <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
             <CardHeader className="bg-slate-50/50 border-b p-8">
-              <CardTitle className="text-2xl font-bold flex items-center gap-3 text-slate-900 font-headline">
+              <CardTitle className="text-2xl font-bold flex items-center gap-3 font-headline">
                 <Truck className="h-6 w-6 text-primary" /> Datos de Despacho
               </CardTitle>
-              <CardDescription>Indícanos dónde quieres recibir tus productos frescos.</CardDescription>
             </CardHeader>
             <form id="checkout-form" onSubmit={manejarFinalizarPedido}>
               <CardContent className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="nombre" className="font-bold text-slate-700">Nombre Completo</Label>
-                    <Input id="nombre" className="h-12 rounded-xl border-slate-200 focus:ring-primary/20" placeholder="Ej: Juan Pérez" required value={formData.nombre} onChange={manejarInputChange} />
+                    <Label htmlFor="nombre" className="font-bold">Nombre Completo</Label>
+                    <Input id="nombre" required value={formData.nombre} onChange={manejarInputChange} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="font-bold text-slate-700">Email de Contacto</Label>
-                    <Input id="email" type="email" className="h-12 rounded-xl border-slate-200 focus:ring-primary/20" placeholder="juan@ejemplo.cl" required value={formData.email} onChange={manejarInputChange} />
+                    <Label htmlFor="email" className="font-bold">Email</Label>
+                    <Input id="email" type="email" required value={formData.email} onChange={manejarInputChange} />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="telefono" className="font-bold text-slate-700">Teléfono / WhatsApp</Label>
-                  <Input id="telefono" className="h-12 rounded-xl border-slate-200 focus:ring-primary/20" placeholder="Ej: +56 9 1234 5678" required value={formData.telefono} onChange={manejarInputChange} />
+                  <Label htmlFor="telefono" className="font-bold">WhatsApp</Label>
+                  <Input id="telefono" required value={formData.telefono} onChange={manejarInputChange} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="direccion" className="font-bold text-slate-700">Dirección de Entrega</Label>
-                  <Input id="direccion" className="h-12 rounded-xl border-slate-200 focus:ring-primary/20" placeholder="Calle, número, comuna y región" required value={formData.direccion} onChange={manejarInputChange} />
+                  <Label htmlFor="direccion" className="font-bold">Dirección</Label>
+                  <Input id="direccion" required value={formData.direccion} onChange={manejarInputChange} />
                 </div>
                 
                 <Separator className="my-8" />
 
-                {/* Método de Pago */}
                 <div className="space-y-6">
-                  <Label className="font-bold text-lg text-slate-900 font-headline">Método de Pago</Label>
-                  <RadioGroup 
-                    value={metodoPago} 
-                    onValueChange={setMetodoPago} 
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                  >
-                    <div>
-                      <RadioGroupItem value="transferencia" id="transferencia" className="sr-only" />
-                      <Label 
-                        htmlFor="transferencia"
-                        className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-xl ${metodoPago === 'transferencia' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
-                            <Wallet className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 leading-none">Transferencia</p>
-                            <p className="text-xs text-slate-500 mt-1">Datos bancarios</p>
-                          </div>
-                        </div>
-                        <div className={`h-4 w-4 rounded-full border ${metodoPago === 'transferencia' ? 'bg-primary border-primary' : 'border-slate-300'}`} />
-                      </Label>
+                  <Label className="font-bold text-lg font-headline">Método de Pago</Label>
+                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-2 border p-4 rounded-xl">
+                      <RadioGroupItem value="transferencia" id="transferencia" />
+                      <Label htmlFor="transferencia" className="font-bold">Transferencia</Label>
                     </div>
-
-                    <div>
-                      <RadioGroupItem value="efectivo" id="efectivo" className="sr-only" />
-                      <Label 
-                        htmlFor="efectivo"
-                        className={`relative flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-emerald-50/50 ring-2 ring-primary/10' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-xl ${metodoPago === 'efectivo' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
-                            <Banknote className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 leading-none">Efectivo</p>
-                            <p className="text-xs text-slate-500 mt-1">Al recibir el pedido</p>
-                          </div>
-                        </div>
-                        <div className={`h-4 w-4 rounded-full border ${metodoPago === 'efectivo' ? 'bg-primary border-primary' : 'border-slate-300'}`} />
-                      </Label>
+                    <div className="flex items-center space-x-2 border p-4 rounded-xl">
+                      <RadioGroupItem value="efectivo" id="efectivo" />
+                      <Label htmlFor="efectivo" className="font-bold">Efectivo al recibir</Label>
                     </div>
                   </RadioGroup>
-
-                  {/* Datos Bancarios Condicionales */}
-                  {metodoPago === 'transferencia' && (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                      <div className="bg-slate-900 text-white rounded-[2rem] p-8 space-y-6 shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-8 opacity-10">
-                          <Landmark className="h-24 w-24" />
-                        </div>
-                        <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-                          <Landmark className="h-6 w-6 text-primary" />
-                          <h4 className="font-headline text-xl font-bold">Datos de Transferencia</h4>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("ARTURO JOSE GUTIERREZ ALVAREZ", "Nombre")}>
-                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Titular</p>
-                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
-                              ARTURO JOSE GUTIERREZ ALVAREZ <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
-                            </p>
-                          </div>
-                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("26.170.812-4", "RUT")}>
-                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">RUT</p>
-                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
-                              26.170.812-4 <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Banco</p>
-                            <p className="font-medium">Banco Santander</p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Tipo de Cuenta</p>
-                            <p className="font-medium">Cuenta Corriente</p>
-                          </div>
-                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("0-000-73-86729-0", "Número de Cuenta")}>
-                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Nº Cuenta</p>
-                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
-                              0-000-73-86729-0 <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
-                            </p>
-                          </div>
-                          <div className="space-y-1 group cursor-pointer" onClick={() => copiarAlPortapapeles("ARTUROJGUTIERREZ95@GMAIL.COM", "Email")}>
-                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Email</p>
-                            <p className="font-medium flex items-center gap-2 group-hover:text-primary transition-colors">
-                              ARTUROJGUTIERREZ95@GMAIL.COM <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100" />
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="pt-4 space-y-3">
-                          <Label htmlFor="referencia" className="font-bold text-slate-300">Nº de Referencia / Comprobante (Opcional)</Label>
-                          <Input 
-                            id="referencia" 
-                            className="h-12 rounded-xl bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:ring-primary/20" 
-                            placeholder="Ej: 12345678" 
-                            value={formData.referencia} 
-                            onChange={manejarInputChange} 
-                          />
-                          <p className="text-[10px] text-slate-500 italic">Puedes completar el pago ahora e ingresar la referencia, o coordinarlo luego por WhatsApp.</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 <div className="space-y-2 pt-4">
-                  <Label htmlFor="notas" className="font-bold text-slate-700">Notas adicionales (Opcional)</Label>
-                  <Textarea id="notas" className="rounded-2xl border-slate-200 focus:ring-primary/20" placeholder="Instrucciones para el repartidor o detalles de tu pedido..." rows={3} value={formData.notas} onChange={manejarInputChange} />
+                  <Label htmlFor="notas" className="font-bold">Notas (Opcional)</Label>
+                  <Textarea id="notas" rows={3} value={formData.notas} onChange={manejarInputChange} />
                 </div>
               </CardContent>
             </form>
           </Card>
         </div>
 
-        {/* Resumen Sidebar */}
         <div className="lg:col-span-5">
           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white sticky top-24 overflow-hidden">
             <CardHeader className="p-8 border-b bg-emerald-950 text-white">
               <CardTitle className="text-2xl font-bold flex items-center gap-3 font-headline">
-                <ShoppingBag className="h-6 w-6 text-primary" /> Resumen del Abasto
+                <ShoppingBag className="h-6 w-6 text-primary" /> Resumen
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
-              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-4 group">
-                    <div className="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden border border-slate-100">
-                      <Image src={item.imagenes[0]} alt={item.nombre} fill className="object-cover" />
-                    </div>
-                    <div className="flex-grow py-1">
-                      <h5 className="text-sm font-bold text-slate-900 line-clamp-1">{item.nombre}</h5>
-                      <div className="flex justify-between items-end mt-1">
-                        <span className="text-xs font-medium text-slate-400">Cant: {item.quantity}</span>
-                        <span className="text-sm font-bold text-primary">${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}</span>
+                  <div key={item.id} className="flex justify-between items-center gap-4">
+                    <div className="flex gap-4 items-center">
+                      <div className="h-12 w-12 rounded-lg bg-slate-50 overflow-hidden relative">
+                         <Image src={item.imagenes[0]} alt={item.nombre} fill className="object-cover" />
                       </div>
+                      <span className="text-sm font-bold line-clamp-1">{item.nombre} x{item.quantity}</span>
                     </div>
+                    <span className="text-sm font-bold">${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}</span>
                   </div>
                 ))}
               </div>
 
-              <Separator className="bg-slate-100" />
+              <Separator />
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 font-medium">Subtotal</span>
-                  <span className="font-bold text-slate-900">${totalPrice.toLocaleString('es-CL')}</span>
+                  <span>Subtotal</span>
+                  <span className="font-bold">${totalPrice.toLocaleString('es-CL')}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 font-medium">Despacho</span>
-                  <span className="text-emerald-600 font-bold uppercase tracking-wider text-[10px] bg-emerald-50 px-2 py-1 rounded-full">Por coordinar</span>
-                </div>
-                <div className="pt-4 flex justify-between items-end">
-                  <span className="text-lg font-bold text-slate-900">Total</span>
-                  <div className="text-right">
-                    <span className="text-3xl font-black text-primary">${totalPrice.toLocaleString('es-CL')}</span>
+                
+                {aplicaDescuento && (
+                  <div className="flex justify-between text-sm text-emerald-600 font-bold bg-emerald-50 p-2 rounded-lg border border-emerald-100 animate-in fade-in slide-in-from-right-4">
+                    <span className="flex items-center gap-1"><Percent className="h-3 w-3" /> Descuento 2do Pedido</span>
+                    <span>-${montoDescuento.toLocaleString('es-CL')}</span>
                   </div>
+                )}
+
+                <div className="pt-4 flex justify-between items-end">
+                  <span className="text-lg font-bold">Total</span>
+                  <span className="text-3xl font-black text-primary">${totalFinal.toLocaleString('es-CL')}</span>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="p-8 pt-0">
-              <Button 
-                type="submit" 
-                form="checkout-form" 
-                size="lg" 
-                className="w-full h-16 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 hover:shadow-2xl hover:scale-[1.02] transition-all bg-primary" 
-                disabled={enviando}
-              >
+              <Button type="submit" form="checkout-form" size="lg" className="w-full h-16 rounded-2xl font-bold text-lg" disabled={enviando}>
                 {enviando ? "Procesando..." : "Pedir vía WhatsApp"}
-                {!enviando && <MessageSquare className="ml-2 h-5 w-5" />}
+                <MessageSquare className="ml-2 h-5 w-5" />
               </Button>
-              <p className="mt-4 text-[10px] text-center text-slate-400 uppercase tracking-widest font-bold">
-                Transacción segura • Moneda local (CLP)
-              </p>
             </CardFooter>
           </Card>
         </div>

@@ -40,12 +40,25 @@
         "historiaAbout": { "type": "string" },
         "misionAbout": { "type": "string" },
         "visionAbout": { "type": "string" },
-        "urlImagenAbout": { "type": "string" }
+        "urlImagenAbout": { "type": "string" },
+        "porcentajeDescuentoSegundoPedido": { "type": "number", "description": "Porcentaje de descuento para el segundo pedido de usuarios registrados" }
+      }
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Un pedido realizado en la tienda",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID del usuario si está registrado" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "estado": { "type": "string", "enum": ["pendiente", "completado", "cancelado"] },
+        "created_at": { "type": "string", "format": "date-time" }
       }
     }
   },
   "auth": {
-    "providers": ["password"]
+    "providers": ["password", "google"]
   },
   "firestore": {
     "/products/{productId}": {
@@ -59,6 +72,10 @@
     "/config/site": {
       "schema": "SiteConfig",
       "description": "Documento único de configuración"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Historial de pedidos"
     }
   }
 }

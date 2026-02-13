@@ -1,29 +1,28 @@
+
 export interface Producto {
-  id: string; // Se mantiene como string, pero en Supabase podría ser number o UUID
+  id: string;
   nombre: string;
   descripcion: string;
   precioDetalle: number;
   precioMayorista: number;
-  imagenes: string[]; // URLs
-  idCategoria: string; // o number si el ID de categoría en Supabase es number
+  imagenes: string[];
+  idCategoria: string;
   slug: string;
-  created_at?: string; // Añadido para Supabase
+  created_at?: string;
 }
 
 export interface Categoria {
-  id?: string | number; // Hacer el ID opcional para la creación, Supabase lo genera
+  id?: string | number;
   nombre: string;
   slug: string;
-  created_at?: string; // Añadido para Supabase
-  // Puedes añadir cualquier otro campo que tengas en tu tabla de Supabase, ej:
-  // cantidad_productos?: number; 
+  created_at?: string;
 }
 
 export interface EnlaceRedSocial {
   id: string;
   plataforma: 'Facebook' | 'Instagram' | 'Twitter' | 'LinkedIn' | 'YouTube' | 'TikTok';
   url: string;
-  created_at?: string; // Añadido para Supabase
+  created_at?: string;
 }
 
 export interface ConfiguracionSitio {
@@ -32,12 +31,21 @@ export interface ConfiguracionSitio {
   nombreEmpresa: string;
   enlacesRedesSociales: EnlaceRedSocial[];
   numeroWhatsapp: string;
-  // Campos para la página About
   tituloAbout?: string;
   subtituloAbout?: string;
   historiaAbout?: string;
   misionAbout?: string;
   visionAbout?: string;
   urlImagenAbout?: string;
-  created_at?: string; // Añadido para Supabase
+  porcentajeDescuentoSegundoPedido?: number;
+  created_at?: string;
+}
+
+export interface Pedido {
+  id?: string;
+  userId?: string;
+  items: any[];
+  total: number;
+  estado: 'pendiente' | 'completado' | 'cancelado';
+  created_at: string;
 }
