@@ -4,9 +4,9 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, LayoutGrid, Settings, DollarSign, Users, LineChart, Loader2, ArrowRight } from 'lucide-react';
-import { useCollection, useFirestore, useUser } from '@/firebase';
-import { collection, query, limit, orderBy } from 'firebase/firestore';
+import { Package, LayoutGrid, Settings, DollarSign, LineChart, Loader2, ArrowRight } from 'lucide-react';
+import { useCollection, useFirestore, useUser, useDoc } from '@/firebase';
+import { collection, query, limit, orderBy, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -15,18 +15,28 @@ export default function PaginaPanelAdmin() {
   const firestore = useFirestore();
   const { user } = useUser();
 
+  // Obtenemos el perfil para verificar el rol antes de lanzar consultas restringidas
+  const userProfileRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
+  const esAdmin = userProfile && (userProfile as any).role === 'admin';
+
   const prodQuery = useMemoFirebase(() => firestore ? collection(firestore, 'products') : null, [firestore]);
   const catQuery = useMemoFirebase(() => firestore ? collection(firestore, 'categories') : null, [firestore]);
   
+  // Estas consultas solo se activan si esAdmin es true
   const ordersQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
+    if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
-  }, [firestore, user]);
+  }, [firestore, user, esAdmin]);
 
   const recentOrdersQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
+    if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'), limit(5));
-  }, [firestore, user]);
+  }, [firestore, user, esAdmin]);
 
   const { data: productos, loading: loadingProd } = useCollection(prodQuery);
   const { data: categorias, loading: loadingCat } = useCollection(catQuery);
@@ -45,7 +55,7 @@ export default function PaginaPanelAdmin() {
     { titulo: "Secciones/Categorías", valor: totalCategorias.toString(), icon: LayoutGrid, color: "text-purple-600", href: "/admin/categories" },
   ];
 
-  if (loadingProd || loadingCat || loadingOrders) {
+  if (loadingProfile || loadingProd || loadingCat || (esAdmin && loadingOrders)) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

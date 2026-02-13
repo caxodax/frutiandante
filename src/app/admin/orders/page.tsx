@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser, useDoc } from '@/firebase';
 import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -25,12 +25,22 @@ export default function PaginaAdminPedidos() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<any>(null);
 
-  const ordersQuery = useMemoFirebase(() => {
+  // Verificamos el perfil para evitar errores de permisos antes de tiempo
+  const userProfileRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
+    return doc(firestore, 'users', user.uid);
   }, [firestore, user]);
 
-  const { data: orders, loading } = useCollection(ordersQuery);
+  const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
+  const esAdmin = userProfile && (userProfile as any).role === 'admin';
+
+  const ordersQuery = useMemoFirebase(() => {
+    // Solo activamos la consulta si estamos seguros de que es admin
+    if (!firestore || !user || !esAdmin) return null;
+    return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
+  }, [firestore, user, esAdmin]);
+
+  const { data: orders, loading: loadingOrders } = useCollection(ordersQuery);
 
   const pedidosFiltrados = (orders || []).filter((o: any) => 
     o.cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,6 +76,10 @@ export default function PaginaAdminPedidos() {
     }
   };
 
+  if (loadingProfile || (esAdmin && loadingOrders)) {
+    return <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  }
+
   return (
     <div className="space-y-6">
       <Card className="shadow-lg border-none rounded-3xl overflow-hidden">
@@ -88,59 +102,55 @@ export default function PaginaAdminPedidos() {
             />
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
-          ) : (
-            <div className="overflow-x-auto rounded-2xl border border-slate-100">
-              <Table>
-                <TableHeader className="bg-slate-50/50">
-                  <TableRow>
-                    <TableHead className="font-bold">ID / Fecha</TableHead>
-                    <TableHead className="font-bold">Cliente</TableHead>
-                    <TableHead className="font-bold">Total</TableHead>
-                    <TableHead className="font-bold">Pago</TableHead>
-                    <TableHead className="font-bold">Estado</TableHead>
-                    <TableHead className="text-right font-bold">Acciones</TableHead>
+          <div className="overflow-x-auto rounded-2xl border border-slate-100">
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                <TableRow>
+                  <TableHead className="font-bold">ID / Fecha</TableHead>
+                  <TableHead className="font-bold">Cliente</TableHead>
+                  <TableHead className="font-bold">Total</TableHead>
+                  <TableHead className="font-bold">Pago</TableHead>
+                  <TableHead className="font-bold">Estado</TableHead>
+                  <TableHead className="text-right font-bold">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pedidosFiltrados.map((pedido: any) => (
+                  <TableRow key={pedido.id} className="hover:bg-slate-50/50 transition-colors">
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-mono text-xs text-slate-400">#{pedido.id.substring(0, 8)}</span>
+                        <span className="text-xs font-medium">
+                          {pedido.created_at?.seconds 
+                            ? format(new Date(pedido.created_at.seconds * 1000), "dd/MM/yy HH:mm", { locale: es })
+                            : '---'}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-bold text-slate-900">{pedido.cliente || 'Anónimo'}</TableCell>
+                    <TableCell className="font-black text-primary">${pedido.total?.toLocaleString('es-CL')}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-xs">
+                        {pedido.metodoPago === 'transferencia' ? <Landmark className="h-3 w-3" /> : <ShoppingBag className="h-3 w-3" />}
+                        <span className="capitalize">{pedido.metodoPago}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getBadgeEstado(pedido.estado)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPedidoSeleccionado(pedido)}>
+                        <Eye className="h-4 w-4 mr-2" /> Detalles
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pedidosFiltrados.map((pedido: any) => (
-                    <TableRow key={pedido.id} className="hover:bg-slate-50/50 transition-colors">
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-mono text-xs text-slate-400">#{pedido.id.substring(0, 8)}</span>
-                          <span className="text-xs font-medium">
-                            {pedido.created_at?.seconds 
-                              ? format(new Date(pedido.created_at.seconds * 1000), "dd/MM/yy HH:mm", { locale: es })
-                              : '---'}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-bold text-slate-900">{pedido.cliente || 'Anónimo'}</TableCell>
-                      <TableCell className="font-black text-primary">${pedido.total?.toLocaleString('es-CL')}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-xs">
-                          {pedido.metodoPago === 'transferencia' ? <Landmark className="h-3 w-3" /> : <ShoppingBag className="h-3 w-3" />}
-                          <span className="capitalize">{pedido.metodoPago}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{getBadgeEstado(pedido.estado)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPedidoSeleccionado(pedido)}>
-                          <Eye className="h-4 w-4 mr-2" /> Detalles
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {pedidosFiltrados.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-10 text-slate-400">No se encontraron pedidos.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                ))}
+                {pedidosFiltrados.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-10 text-slate-400">No se encontraron pedidos.</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
