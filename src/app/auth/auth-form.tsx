@@ -38,13 +38,17 @@ export default function AuthForm() {
     const userRef = doc(firestore, 'users', firebaseUser.uid);
     const userSnap = await getDoc(userRef);
     
+    // Si el perfil no existe, lo creamos con rol 'cliente' por defecto
     if (!userSnap.exists()) {
-      // Por defecto todos son clientes
-      await setDoc(userRef, {
-        email: firebaseUser.email,
-        role: 'cliente',
-        created_at: serverTimestamp()
-      });
+      try {
+        await setDoc(userRef, {
+          email: firebaseUser.email,
+          role: 'cliente',
+          created_at: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error al crear perfil de usuario:", error);
+      }
     }
   };
 
@@ -68,7 +72,7 @@ export default function AuthForm() {
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       await syncUserProfile(cred.user);
-      toast({ title: "¡Cuenta creada!", description: "Ahora puedes disfrutar de tus beneficios en Frutiandante." });
+      toast({ title: "¡Cuenta creada!", description: "Ahora eres parte de Frutiandante como cliente." });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
@@ -78,12 +82,15 @@ export default function AuthForm() {
 
   const manejarGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    setLoading(true);
     try {
       const cred = await signInWithPopup(auth, provider);
       await syncUserProfile(cred.user);
       toast({ title: "Acceso con Google", description: "Iniciaste sesión con éxito." });
     } catch (error: any) {
       toast({ title: "Error", description: "No se pudo conectar con Google.", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
   };
 
