@@ -13,7 +13,6 @@ import { useCollection, useFirestore, useDoc } from '@/firebase';
 import { collection, query, limit, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { Badge } from '@/components/ui/badge';
-import Logotipo from '@/components/logo';
 
 export default function PaginaInicio() {
   const firestore = useFirestore();
@@ -41,7 +40,7 @@ export default function PaginaInicio() {
     <div className="flex min-h-screen flex-col">
       <Encabezado />
       <main className="flex-grow">
-        {/* Hero Section - Centrado con Logo Prominente */}
+        {/* Hero Section - Centrado Total */}
         <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48">
           <div className="absolute inset-0 z-0 opacity-40">
             <Image 
@@ -59,11 +58,7 @@ export default function PaginaInicio() {
             <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
               <BadgeChile />
               
-              <div className="mt-12 mb-6 scale-125 sm:scale-150 brightness-0 invert opacity-90">
-                <Logotipo configuracion={siteConfig as any} />
-              </div>
-
-              <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
+              <h1 className="mt-12 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
                 La feria en tu puerta, <br />
                 <span className="text-primary italic font-serif">más fresca que nunca.</span>
               </h1>
