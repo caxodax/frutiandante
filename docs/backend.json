@@ -80,7 +80,7 @@
     }
   },
   "auth": {
-    "providers": ["password", "google"]
+    "providers": ["password", "google", "github"]
   },
   "firestore": {
     "/products/{productId}": {

@@ -10,9 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, useFirestore } from '@/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Loader2, Mail, Lock, Chrome, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, Lock, Chrome, Github, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -40,10 +40,6 @@ export default function AuthForm() {
     if (!firestore) return;
     const userRef = doc(firestore, 'users', firebaseUser.uid);
     
-    // Usamos setDoc con merge: true para crear o actualizar el perfil
-    // Por defecto, siempre asignamos 'cliente'. Si ya es 'admin', las reglas
-    // de seguridad deberían impedir que este llamado sobrescriba el rol si no es necesario,
-    // o simplemente lo creamos la primera vez.
     const userData = {
       email: firebaseUser.email,
       role: 'cliente',
@@ -98,6 +94,20 @@ export default function AuthForm() {
       toast({ title: "Acceso con Google", description: "Iniciaste sesión con éxito." });
     } catch (error: any) {
       toast({ title: "Error", description: "No se pudo conectar con Google.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const manejarGithub = async () => {
+    const provider = new GithubAuthProvider();
+    setLoading(true);
+    try {
+      const cred = await signInWithPopup(auth, provider);
+      await syncUserProfile(cred.user);
+      toast({ title: "Acceso con GitHub", description: "Iniciaste sesión con éxito." });
+    } catch (error: any) {
+      toast({ title: "Error", description: "No se pudo conectar con GitHub.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -176,9 +186,14 @@ export default function AuthForm() {
           <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-muted-foreground">O también</span></div>
         </div>
 
-        <Button variant="outline" className="w-full h-12 rounded-xl font-bold gap-2" onClick={manejarGoogle} disabled={loading}>
-          <Chrome className="h-5 w-5" /> Acceder con Google
-        </Button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Button variant="outline" className="w-full h-12 rounded-xl font-bold gap-2" onClick={manejarGoogle} disabled={loading}>
+            <Chrome className="h-5 w-5" /> Google
+          </Button>
+          <Button variant="outline" className="w-full h-12 rounded-xl font-bold gap-2" onClick={manejarGithub} disabled={loading}>
+            <Github className="h-5 w-5" /> GitHub
+          </Button>
+        </div>
       </CardContent>
       <CardFooter className="pb-10 pt-6 px-8 flex justify-center">
         <Link href="/" className="text-sm font-bold text-slate-400 hover:text-primary flex items-center gap-2">
