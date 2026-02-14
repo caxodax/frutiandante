@@ -30,7 +30,7 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
   };
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all hover:shadow-lg rounded-2xl relative">
+    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all hover:shadow-lg rounded-2xl relative animate-in fade-in duration-500">
       <Link href={`/product/${producto.slug}`} className="absolute inset-0 z-0">
         <span className="sr-only">Ver {producto.nombre}</span>
       </Link>
@@ -41,7 +41,9 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
             src={producto.imagenes[0]}
             alt={producto.nombre}
             fill
-            className="object-cover transition-transform group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            loading="lazy"
           />
           
           <div className="absolute left-4 top-4 flex flex-col gap-2">

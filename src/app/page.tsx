@@ -13,6 +13,7 @@ import { useCollection, useFirestore, useDoc } from '@/firebase';
 import { collection, query, limit, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function PaginaInicio() {
   const firestore = useFirestore();
@@ -50,12 +51,13 @@ export default function PaginaInicio() {
               className="object-cover"
               priority
               data-ai-hint="campo cosecha"
+              sizes="100vw"
             />
           </div>
-          <div className="absolute inset-0 bg-emerald-950/75 backdrop-blur-[1px] z-1"></div>
+          <div className="absolute inset-0 bg-emerald-950/75 backdrop-blur-[1px] z-10"></div>
           
-          <div className="container relative z-10 mx-auto px-4">
-            <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+          <div className="container relative z-20 mx-auto px-4">
+            <div className="max-w-4xl mx-auto flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
               <BadgeChile />
               
               <h1 className="mt-12 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
@@ -83,7 +85,7 @@ export default function PaginaInicio() {
         <section className="bg-white py-20 border-b">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-              <div className="flex flex-col items-center text-center gap-4 p-4">
+              <div className="flex flex-col items-center text-center gap-4 p-4 hover:scale-105 transition-transform duration-300">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
                   <MapPin className="h-8 w-8" />
                 </div>
@@ -95,7 +97,7 @@ export default function PaginaInicio() {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-4 p-4">
+              <div className="flex flex-col items-center text-center gap-4 p-4 hover:scale-105 transition-transform duration-300">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
                   <Truck className="h-8 w-8" />
                 </div>
@@ -107,7 +109,7 @@ export default function PaginaInicio() {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-4 p-4">
+              <div className="flex flex-col items-center text-center gap-4 p-4 hover:scale-105 transition-transform duration-300">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
                   <ShoppingBag className="h-8 w-8" />
                 </div>
@@ -139,15 +141,21 @@ export default function PaginaInicio() {
               </Button>
             </div>
             
-            {loadingProd ? (
-              <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
-            ) : (
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                {productos?.map((producto: any) => (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 min-h-[400px]">
+              {loadingProd ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-4">
+                    <Skeleton className="aspect-square w-full rounded-[2rem]" />
+                    <Skeleton className="h-6 w-3/4 rounded-xl" />
+                    <Skeleton className="h-10 w-full rounded-xl" />
+                  </div>
+                ))
+              ) : (
+                productos?.map((producto: any) => (
                   <TarjetaProducto key={producto.id} producto={producto} />
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
           </div>
         </section>
 
@@ -159,12 +167,14 @@ export default function PaginaInicio() {
               <p className="mt-2 text-slate-500">Todo lo que necesitas organizado por pasillos.</p>
             </div>
             
-            {loadingCat ? (
-              <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                {categorias?.map((categoria: any) => (
-                  <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 min-h-[300px]">
+              {loadingCat ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-72 w-full rounded-[2rem]" />
+                ))
+              ) : (
+                categorias?.map((categoria: any) => (
+                  <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group transition-opacity duration-500 animate-in fade-in">
                     <Card className="relative h-72 overflow-hidden border-none shadow-md rounded-[2rem]">
                       <Image 
                         src={categoria.imagen || `https://picsum.photos/seed/${categoria.slug}/600/400`}
@@ -172,6 +182,7 @@ export default function PaginaInicio() {
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                         data-ai-hint={`${categoria.nombre.toLowerCase()} alimentos`}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 20vw"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent"></div>
                       <CardContent className="absolute bottom-0 p-8 w-full text-center">
@@ -181,9 +192,9 @@ export default function PaginaInicio() {
                       </CardContent>
                     </Card>
                   </Link>
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
           </div>
         </section>
 

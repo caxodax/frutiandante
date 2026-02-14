@@ -27,6 +27,7 @@ const Logotipo = ({ className, configuracion }: LogotipoProps) => {
             fill
             className="object-contain"
             priority 
+            sizes="(max-width: 768px) 56px, 64px"
           />
         </div>
       ) : (
