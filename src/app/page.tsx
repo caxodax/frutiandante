@@ -34,7 +34,7 @@ export default function PaginaInicio() {
       <Encabezado />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-emerald-900 py-20 lg:py-32">
+        <section className="relative overflow-hidden bg-emerald-900 py-20 lg:py-40">
           <div className="absolute inset-0 z-0 opacity-40">
             <Image 
               src="https://picsum.photos/seed/harvest/1920/1080" 
@@ -45,23 +45,23 @@ export default function PaginaInicio() {
               data-ai-hint="campo cosecha"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/80 via-emerald-950/60 to-emerald-950/80 lg:bg-gradient-to-r lg:from-emerald-950 lg:via-emerald-900/80 lg:to-transparent z-1"></div>
+          <div className="absolute inset-0 bg-emerald-950/70 backdrop-blur-[2px] z-1"></div>
           
           <div className="container relative z-10 mx-auto px-4 md:px-6">
-            <div className="max-w-3xl mx-auto lg:mx-0 text-center lg:text-left flex flex-col items-center lg:items-start">
+            <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
               <BadgeChile />
-              <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight">
+              <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-8xl leading-tight">
                 La feria en tu puerta, <br />
                 <span className="text-primary italic font-serif">más fresca que nunca.</span>
               </h1>
-              <p className="mt-6 text-lg text-emerald-50/90 md:text-xl lg:text-2xl leading-relaxed max-w-xl">
+              <p className="mt-8 text-lg text-emerald-50/90 md:text-2xl lg:text-3xl leading-relaxed max-w-2xl">
                 Llevamos lo mejor de la tierra chilena directo a tu mesa. Frutas, verduras y víveres seleccionados con amor.
               </p>
-              <div className="mt-10 flex flex-wrap justify-center lg:justify-start gap-4 w-full">
-                <Button asChild size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-white font-bold rounded-xl w-full sm:w-auto">
+              <div className="mt-12 flex flex-wrap justify-center gap-6 w-full">
+                <Button asChild size="lg" className="h-16 px-10 text-xl bg-primary hover:bg-primary/90 text-white font-black rounded-2xl w-full sm:w-auto shadow-2xl shadow-primary/30 transition-transform hover:scale-105 active:scale-95">
                   <Link href="/products">Comprar Ahora</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="h-14 px-8 text-lg border-white text-white hover:bg-white hover:text-emerald-950 bg-transparent rounded-xl w-full sm:w-auto">
+                <Button asChild size="lg" variant="outline" className="h-16 px-10 text-xl border-white/30 text-white hover:bg-white hover:text-emerald-950 bg-white/5 backdrop-blur-md rounded-2xl w-full sm:w-auto font-bold transition-transform hover:scale-105 active:scale-95">
                   <Link href="#categorias">Ver Categorías</Link>
                 </Button>
               </div>
