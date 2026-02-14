@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { ChevronRight, Truck, ShoppingBasket, Leaf, Loader2 } from 'lucide-react';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection, query, limit } from 'firebase/firestore';
+import { useCollection, useFirestore, useDoc } from '@/firebase';
+import { collection, query, limit, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { Badge } from '@/components/ui/badge';
+import Logotipo from '@/components/logo';
 
 export default function PaginaInicio() {
   const firestore = useFirestore();
@@ -26,15 +28,21 @@ export default function PaginaInicio() {
     return collection(firestore, 'categories');
   }, [firestore]);
 
+  const siteConfigRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'site');
+  }, [firestore]);
+
   const { data: productos, loading: loadingProd } = useCollection(productosQuery);
   const { data: categorias, loading: loadingCat } = useCollection(categoriasQuery);
+  const { data: siteConfig } = useDoc(siteConfigRef);
 
   return (
     <div className="flex min-h-screen flex-col">
       <Encabezado />
       <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-emerald-900 py-20 lg:py-40">
+        {/* Hero Section - Totalmente Centrado */}
+        <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48">
           <div className="absolute inset-0 z-0 opacity-40">
             <Image 
               src="https://picsum.photos/seed/harvest/1920/1080" 
@@ -45,19 +53,27 @@ export default function PaginaInicio() {
               data-ai-hint="campo cosecha"
             />
           </div>
-          <div className="absolute inset-0 bg-emerald-950/70 backdrop-blur-[2px] z-1"></div>
+          <div className="absolute inset-0 bg-emerald-950/75 backdrop-blur-[1px] z-1"></div>
           
-          <div className="container relative z-10 mx-auto px-4 md:px-6">
-            <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+          <div className="container relative z-10 mx-auto px-4">
+            <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
               <BadgeChile />
-              <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-8xl leading-tight">
+              
+              {/* Logo en el Hero para reforzar marca */}
+              <div className="mt-8 mb-4 scale-150 grayscale invert brightness-0 opacity-80">
+                <Logotipo configuracion={siteConfig as any} />
+              </div>
+
+              <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
                 La feria en tu puerta, <br />
                 <span className="text-primary italic font-serif">más fresca que nunca.</span>
               </h1>
-              <p className="mt-8 text-lg text-emerald-50/90 md:text-2xl lg:text-3xl leading-relaxed max-w-2xl">
-                Llevamos lo mejor de la tierra chilena directo a tu mesa. Frutas, verduras y víveres seleccionados con amor.
+              
+              <p className="mt-8 text-lg text-emerald-50/90 md:text-2xl lg:text-3xl leading-relaxed max-w-3xl">
+                Llevamos lo mejor de la tierra chilena directo a tu mesa. Frutas, verduras y víveres seleccionados con amor por expertos del campo.
               </p>
-              <div className="mt-12 flex flex-wrap justify-center gap-6 w-full">
+
+              <div className="mt-12 flex flex-wrap justify-center gap-6 w-full max-w-lg">
                 <Button asChild size="lg" className="h-16 px-10 text-xl bg-primary hover:bg-primary/90 text-white font-black rounded-2xl w-full sm:w-auto shadow-2xl shadow-primary/30 transition-transform hover:scale-105 active:scale-95">
                   <Link href="/products">Comprar Ahora</Link>
                 </Button>
@@ -78,13 +94,13 @@ export default function PaginaInicio() {
                 { icon: Truck, title: "Envío en el Día", desc: "Recibe tu pedido hoy mismo en todo Santiago." },
                 { icon: ShoppingBasket, title: "Calidad Feria", desc: "Seleccionamos cada pieza con cuidado experto." },
               ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-4 p-4">
+                <div key={i} className="flex flex-col items-center text-center gap-4 p-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
                     <item.icon className="h-7 w-7" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 mb-1">{item.title}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
+                    <p className="text-slate-500 text-sm leading-relaxed max-w-[250px]">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -142,7 +158,7 @@ export default function PaginaInicio() {
                         data-ai-hint={`${categoria.nombre.toLowerCase()} alimentos`}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent"></div>
-                      <CardContent className="absolute bottom-0 p-8 w-full">
+                      <CardContent className="absolute bottom-0 p-8 w-full text-center">
                         <CardTitle className="text-2xl font-black text-white group-hover:text-primary transition-colors">
                           {categoria.nombre}
                         </CardTitle>
