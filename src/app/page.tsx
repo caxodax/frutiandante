@@ -8,7 +8,7 @@ import TarjetaProducto from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
-import { ChevronRight, Truck, ShoppingBasket, Leaf, Loader2 } from 'lucide-react';
+import { ChevronRight, Truck, MapPin, ShoppingBag, Loader2 } from 'lucide-react';
 import { useCollection, useFirestore, useDoc } from '@/firebase';
 import { collection, query, limit, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
@@ -85,25 +85,50 @@ export default function PaginaInicio() {
           </div>
         </section>
 
-        {/* Value Proposition */}
-        <section className="bg-white py-16 border-b">
+        {/* Información de Despacho - Basada en la imagen proporcionada */}
+        <section className="bg-white py-20 border-b">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-              {[
-                { icon: Leaf, title: "100% Orgánico", desc: "Productos sin químicos, directos del productor." },
-                { icon: Truck, title: "Envío en el Día", desc: "Recibe tu pedido hoy mismo en todo Santiago." },
-                { icon: ShoppingBasket, title: "Calidad Feria", desc: "Seleccionamos cada pieza con cuidado experto." },
-              ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center text-center gap-4 p-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
-                    <item.icon className="h-7 w-7" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-1">{item.title}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed max-w-[250px]">{item.desc}</p>
-                  </div>
+              {/* Zonas de Despacho */}
+              <div className="flex flex-col items-center text-center gap-4 p-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
+                  <MapPin className="h-8 w-8" />
                 </div>
-              ))}
+                <div>
+                  <h3 className="text-xl font-bold text-primary mb-3 uppercase tracking-tight">Zonas de Despacho</h3>
+                  <p className="text-slate-600 text-sm font-bold uppercase leading-relaxed max-w-[280px] mx-auto">
+                    LAS CONDES – LO BARNECHEA – ÑUÑOA – PROVIDENCIA – SANTIAGO Y VITACURA
+                  </p>
+                </div>
+              </div>
+
+              {/* Horarios de Despacho */}
+              <div className="flex flex-col items-center text-center gap-4 p-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
+                  <Truck className="h-8 w-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-primary mb-3 uppercase tracking-tight">Despacho de un día para otro</h3>
+                  <p className="text-slate-600 text-sm font-bold leading-relaxed">
+                    Despachos de Lunes a Sábado
+                  </p>
+                </div>
+              </div>
+
+              {/* Costos y Beneficios */}
+              <div className="flex flex-col items-center text-center gap-4 p-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
+                  <ShoppingBag className="h-8 w-8" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-slate-600 text-sm font-bold leading-relaxed">
+                    Por compras superior a <span className="text-primary text-lg">$25.000</span>, el despacho es gratuito.
+                  </p>
+                  <p className="text-slate-600 text-sm font-bold leading-relaxed bg-slate-50 p-2 rounded-xl">
+                    Para pedidos menores costo de despacho: $3.000
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
