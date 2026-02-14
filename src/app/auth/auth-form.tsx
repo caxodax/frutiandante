@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, useFirestore } from '@/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Loader2, Mail, Lock, Chrome, Github, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, Lock, Chrome, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -99,20 +98,6 @@ export default function AuthForm() {
     }
   };
 
-  const manejarGithub = async () => {
-    const provider = new GithubAuthProvider();
-    setLoading(true);
-    try {
-      const cred = await signInWithPopup(auth, provider);
-      await syncUserProfile(cred.user);
-      toast({ title: "Acceso con GitHub", description: "Iniciaste sesión con éxito." });
-    } catch (error: any) {
-      toast({ title: "Error", description: "No se pudo conectar con GitHub.", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (authLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -186,12 +171,9 @@ export default function AuthForm() {
           <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-muted-foreground">O también</span></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <Button variant="outline" className="w-full h-12 rounded-xl font-bold gap-2" onClick={manejarGoogle} disabled={loading}>
-            <Chrome className="h-5 w-5" /> Google
-          </Button>
-          <Button variant="outline" className="w-full h-12 rounded-xl font-bold gap-2" onClick={manejarGithub} disabled={loading}>
-            <Github className="h-5 w-5" /> GitHub
+            <Chrome className="h-5 w-5" /> Iniciar sesión con Google
           </Button>
         </div>
       </CardContent>
