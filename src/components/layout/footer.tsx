@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -26,10 +27,9 @@ const PieDePagina = () => {
   }, [firestore]);
 
   const { data: siteConfig } = useDoc(siteConfigRef);
-  const configuracion = (siteConfig as any) as ConfiguracionSitio;
+  const configuracion = siteConfig as any;
   const anoActual = new Date().getFullYear();
 
-  // Valores por defecto mientras carga o si no hay datos
   const nombreEmpresa = configuracion?.nombreEmpresa || 'Frutiandante';
   const redesSociales = configuracion?.enlacesRedesSociales || [];
 
@@ -37,7 +37,6 @@ const PieDePagina = () => {
     <footer className="border-t bg-card text-card-foreground">
       <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
         <div className="grid gap-10 md:grid-cols-12 lg:gap-16">
-          {/* Columna de Logo y Descripción */}
           <div className="md:col-span-6 lg:col-span-6">
             <div className="inline-block">
               <Logotipo className="mb-4" configuracion={configuracion} />
@@ -46,8 +45,8 @@ const PieDePagina = () => {
               {nombreEmpresa} es tu feria online de confianza. Llevamos la frescura del campo chileno directamente a tu hogar con la mejor selección de temporada.
             </p>
             <div className="mt-6 flex space-x-4">
-              {redesSociales.map((enlace) => {
-                const ComponenteIcono = mapaIconos[enlace.plataforma] || Send;
+              {redesSociales.map((enlace: any) => {
+                const ComponenteIcono = mapaIconos[enlace.plataforma as keyof typeof mapaIconos] || Send;
                 return (
                   <Link
                     key={enlace.id}
@@ -64,7 +63,6 @@ const PieDePagina = () => {
             </div>
           </div>
 
-          {/* Columna de Enlaces Rápidos */}
           <div className="md:col-span-3 lg:col-span-2">
             <h3 className="font-headline text-base font-bold text-foreground">Navegación</h3>
             <ul className="mt-4 space-y-2 text-sm">
@@ -74,7 +72,6 @@ const PieDePagina = () => {
             </ul>
           </div>
           
-          {/* Columna de Contacto */}
           <div className="md:col-span-3 lg:col-span-4">
             <h3 className="font-headline text-base font-bold text-foreground">Contacto</h3>
             <ul className="mt-4 space-y-3 text-sm">

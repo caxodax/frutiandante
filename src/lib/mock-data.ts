@@ -90,7 +90,7 @@ export const enlacesRedesSocialesSimulados: EnlaceRedSocial[] = [
 ];
 
 export const configuracionSitioSimulada: ConfiguracionSitio = {
-  urlLogo: '',
+  urlLogo: 'https://picsum.photos/seed/fruti-logo/300/100',
   nombreEmpresa: 'Frutiandante',
   enlacesRedesSociales: enlacesRedesSocialesSimulados,
   numeroWhatsapp: '56912345678',

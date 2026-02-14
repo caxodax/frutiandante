@@ -39,7 +39,7 @@ const Encabezado = () => {
   }, [firestore]);
 
   const { data: categorias, loading: loadingCat } = useCollection(categoriasQuery);
-  const { data: siteConfig } = useDoc(siteConfigRef);
+  const { data: siteConfig, loading: loadingConfig } = useDoc(siteConfigRef);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/70 backdrop-blur-2xl transition-all duration-300">
