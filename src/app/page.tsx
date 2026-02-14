@@ -41,7 +41,7 @@ export default function PaginaInicio() {
     <div className="flex min-h-screen flex-col">
       <Encabezado />
       <main className="flex-grow">
-        {/* Hero Section - Totalmente Centrado */}
+        {/* Hero Section - Centrado con Logo Prominente */}
         <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48">
           <div className="absolute inset-0 z-0 opacity-40">
             <Image 
@@ -59,12 +59,11 @@ export default function PaginaInicio() {
             <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
               <BadgeChile />
               
-              {/* Logo en el Hero para reforzar marca */}
-              <div className="mt-8 mb-4 scale-150 grayscale invert brightness-0 opacity-80">
+              <div className="mt-12 mb-6 scale-125 sm:scale-150 brightness-0 invert opacity-90">
                 <Logotipo configuracion={siteConfig as any} />
               </div>
 
-              <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
+              <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
                 La feria en tu puerta, <br />
                 <span className="text-primary italic font-serif">más fresca que nunca.</span>
               </h1>
@@ -85,11 +84,10 @@ export default function PaginaInicio() {
           </div>
         </section>
 
-        {/* Información de Despacho - Basada en la imagen proporcionada */}
+        {/* Información de Despacho */}
         <section className="bg-white py-20 border-b">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-              {/* Zonas de Despacho */}
               <div className="flex flex-col items-center text-center gap-4 p-4">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
                   <MapPin className="h-8 w-8" />
@@ -102,7 +100,6 @@ export default function PaginaInicio() {
                 </div>
               </div>
 
-              {/* Horarios de Despacho */}
               <div className="flex flex-col items-center text-center gap-4 p-4">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
                   <Truck className="h-8 w-8" />
@@ -115,7 +112,6 @@ export default function PaginaInicio() {
                 </div>
               </div>
 
-              {/* Costos y Beneficios */}
               <div className="flex flex-col items-center text-center gap-4 p-4">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-sm">
                   <ShoppingBag className="h-8 w-8" />
