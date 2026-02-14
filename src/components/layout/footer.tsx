@@ -42,7 +42,7 @@ const PieDePagina = () => {
               <Logotipo className="mb-4" configuracion={configuracion} />
             </div>
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-md">
-              {nombreEmpresa} es tu feria online de confianza. Llevamos la frescura del campo chileno directamente a tu hogar con la mejor selección de temporada.
+              {nombreEmpresa} es tu tienda de confianza. Llevamos la frescura del campo chileno directamente a tu hogar con la mejor selección de temporada.
             </p>
             <div className="mt-6 flex space-x-4">
               {redesSociales.map((enlace: any) => {

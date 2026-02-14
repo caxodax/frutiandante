@@ -38,9 +38,6 @@ const Logotipo = ({ className, configuracion }: LogotipoProps) => {
         <span className="font-headline text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter group-hover:text-primary transition-colors leading-none">
           {nombreDisplay}
         </span>
-        <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] leading-none mt-1.5">
-          Feria Online
-        </span>
       </div>
     </Link>
   );

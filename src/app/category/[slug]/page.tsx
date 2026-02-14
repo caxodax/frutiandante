@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -68,7 +69,7 @@ export default function PaginaCategoria() {
         <Encabezado />
         <main className="flex-grow container mx-auto px-4 py-16 text-center">
           <h1 className="font-headline text-4xl font-black text-destructive tracking-tight">Categoría No Encontrada</h1>
-          <p className="mt-4 text-lg text-slate-500">La sección que buscas ya no está disponible en nuestra feria.</p>
+          <p className="mt-4 text-lg text-slate-500">La sección que buscas ya no está disponible.</p>
           <Button asChild className="mt-8 rounded-xl h-12 px-8">
             <Link href="/">Volver al Inicio</Link>
           </Button>
@@ -87,7 +88,7 @@ export default function PaginaCategoria() {
           <div className="absolute top-0 right-0 w-1/4 h-full bg-primary/10 blur-[100px] rounded-full translate-x-1/2"></div>
           <div className="container mx-auto px-4 relative z-10">
             <nav className="flex items-center space-x-2 text-sm font-bold text-slate-400 uppercase tracking-widest">
-              <Link href="/" className="hover:text-primary transition-colors">Feria</Link>
+              <Link href="/" className="hover:text-primary transition-colors">Inicio</Link>
               <ChevronRight size={14} />
               <span className="text-white">{categoria.nombre}</span>
             </nav>

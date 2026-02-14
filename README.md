@@ -1,4 +1,5 @@
-# Frutiandante - Feria Online
+
+# Frutiandante
 
 Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despacho de víveres y productos frescos del campo chileno directamente al hogar.
 
@@ -47,6 +48,7 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow create: if true;
       allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
     }
   }
 }
