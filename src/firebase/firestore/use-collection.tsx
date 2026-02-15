@@ -17,12 +17,14 @@ export function useMemoFirebase<T>(factory: () => T, deps: any[]): T {
 
 export function useCollection<T = DocumentData>(query: Query<T> | null) {
   const [data, setData] = useState<T[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!query);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!query) {
       setLoading(false);
+      setData(null);
+      setError(null);
       return;
     }
 
@@ -38,20 +40,22 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         }));
         setData(items);
         setLoading(false);
+        setError(null);
       },
       (serverError: FirestoreError) => {
-        // Aseguramos que el estado de carga termine incluso en caso de error
         setLoading(false);
         
-        const permissionError = new FirestorePermissionError({
-          path: (query as any)._query?.path?.toString() || 'unknown',
-          operation: 'list',
-        });
-        
-        setError(permissionError);
-        
-        // Emitimos el error para el sistema de depuración central
-        errorEmitter.emit('permission-error', permissionError);
+        if (serverError.code === 'permission-denied') {
+          const permissionError = new FirestorePermissionError({
+            path: 'orders',
+            operation: 'list',
+          });
+          
+          setError(permissionError);
+          errorEmitter.emit('permission-error', permissionError);
+        } else {
+          setError(serverError);
+        }
       }
     );
 

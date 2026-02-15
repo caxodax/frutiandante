@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -25,7 +24,6 @@ export default function PaginaAdminPedidos() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<any>(null);
 
-  // Verificamos el perfil para confirmar el rol antes de lanzar la consulta global
   const userProfileRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'users', user.uid);
@@ -33,12 +31,10 @@ export default function PaginaAdminPedidos() {
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
   
-  // Condición crítica de seguridad: solo esAdmin si el perfil cargó y tiene el rol correcto
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
   const ordersQuery = useMemoFirebase(() => {
-    // Bloqueo estricto: Solo permitimos la consulta si esAdmin es TRUE confirmado
-    // Esto previene que useCollection inicie una consulta que será rechazada por Firestore
+    // Gating defensivo absoluto
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);
@@ -79,7 +75,6 @@ export default function PaginaAdminPedidos() {
     }
   };
 
-  // Mostrar cargador mientras se verifica la identidad para evitar errores de permisos flash
   if (userLoading || loadingProfile) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -89,7 +84,6 @@ export default function PaginaAdminPedidos() {
     );
   }
 
-  // Si no es admin y el perfil ya cargó, mostramos un error de acceso
   if (!esAdmin) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
@@ -99,17 +93,6 @@ export default function PaginaAdminPedidos() {
         <Button asChild className="mt-4 rounded-xl">
           <a href="/">Volver al Inicio</a>
         </Button>
-      </div>
-    );
-  }
-
-  // Si hay un error de permisos real después del gating, lo mostramos
-  if (ordersError) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-        <AlertCircle className="h-12 w-12 text-destructive" />
-        <h3 className="text-xl font-bold">Error de Conexión</h3>
-        <p className="text-slate-500">Hubo un problema al cargar los pedidos. Por favor, intenta recargar.</p>
       </div>
     );
   }
@@ -138,6 +121,10 @@ export default function PaginaAdminPedidos() {
             {loadingOrders ? (
               <div className="flex justify-center py-20">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              </div>
+            ) : ordersError ? (
+              <div className="text-center py-10 text-destructive font-bold">
+                Error al cargar pedidos. Verifica tu conexión o permisos.
               </div>
             ) : (
               <Table>
@@ -180,11 +167,6 @@ export default function PaginaAdminPedidos() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {pedidosFiltrados.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-10 text-slate-400 font-bold italic">No se encontraron pedidos.</TableCell>
-                    </TableRow>
-                  )}
                 </TableBody>
               </Table>
             )}
@@ -210,12 +192,6 @@ export default function PaginaAdminPedidos() {
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Método de Pago</p>
                   <p className="font-bold capitalize">{pedidoSeleccionado.metodoPago}</p>
                 </div>
-                {pedidoSeleccionado.referenciaBancaria && (
-                  <div className="col-span-2 mt-2 p-2 bg-primary/10 rounded-xl border border-primary/20">
-                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Referencia del Cliente</p>
-                    <p className="font-mono font-black text-lg">{pedidoSeleccionado.referenciaBancaria}</p>
-                  </div>
-                )}
               </div>
 
               <div>
@@ -235,7 +211,6 @@ export default function PaginaAdminPedidos() {
               </div>
 
               <div className="flex flex-wrap gap-2 pt-4 border-t">
-                <p className="w-full text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cambiar Estado</p>
                 <Button 
                   size="sm" 
                   variant="outline" 
@@ -250,7 +225,7 @@ export default function PaginaAdminPedidos() {
                   className="rounded-xl border-orange-200 text-orange-700 hover:bg-orange-50"
                   onClick={() => actualizarEstado(pedidoSeleccionado.id, 'pendiente')}
                 >
-                  <Clock className="h-4 w-4 mr-2" /> Devolver a Pendiente
+                  <Clock className="h-4 w-4 mr-2" /> Pendiente
                 </Button>
                 <Button 
                   size="sm" 
@@ -258,7 +233,7 @@ export default function PaginaAdminPedidos() {
                   className="rounded-xl border-destructive/20 text-destructive hover:bg-destructive/10"
                   onClick={() => actualizarEstado(pedidoSeleccionado.id, 'cancelado')}
                 >
-                  <XCircle className="h-4 w-4 mr-2" /> Cancelar Pedido
+                  <XCircle className="h-4 w-4 mr-2" /> Cancelar
                 </Button>
               </div>
             </div>

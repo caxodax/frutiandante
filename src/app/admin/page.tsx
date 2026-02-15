@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -15,7 +14,6 @@ export default function PaginaPanelAdmin() {
   const firestore = useFirestore();
   const { user, loading: userLoading } = useUser();
 
-  // Obtenemos el perfil para verificar el rol antes de lanzar consultas restringidas
   const userProfileRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'users', user.uid);
@@ -23,14 +21,11 @@ export default function PaginaPanelAdmin() {
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
   
-  // Verificación de administrador segura
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
-  // Consultas de inventario (públicas/permisivas)
   const prodQuery = useMemoFirebase(() => firestore ? collection(firestore, 'products') : null, [firestore]);
   const catQuery = useMemoFirebase(() => firestore ? collection(firestore, 'categories') : null, [firestore]);
   
-  // Estas consultas de pedidos SOLO se activan si esAdmin es TRUE confirmado
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
@@ -54,15 +49,15 @@ export default function PaginaPanelAdmin() {
   const tarjetasResumen = [
     { titulo: "Ventas Completadas", valor: `$${totalVentas.toLocaleString('es-CL')}`, icon: DollarSign, color: "text-emerald-600" },
     { titulo: "Pedidos Totales", valor: totalPedidos.toString(), icon: LineChart, color: "text-blue-600", href: "/admin/orders" },
-    { titulo: "Productos en Inventario", valor: totalProductos.toString(), icon: Package, color: "text-orange-600", href: "/admin/products" },
+    { titulo: "Inventario", valor: totalProductos.toString(), icon: Package, color: "text-orange-600", href: "/admin/products" },
     { titulo: "Secciones", valor: totalCategorias.toString(), icon: LayoutGrid, color: "text-purple-600", href: "/admin/categories" },
   ];
 
-  if (userLoading || loadingProfile || loadingProd || loadingCat || (esAdmin && (loadingOrders || loadingRecent))) {
+  if (userLoading || loadingProfile) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Sincronizando panel...</p>
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Autenticando...</p>
       </div>
     );
   }
@@ -74,16 +69,16 @@ export default function PaginaPanelAdmin() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="font-headline text-4xl font-black tracking-tight text-slate-900">Panel de Control</h1>
-          <p className="text-slate-500">Centro de mando de Frutiandante.</p>
+          <p className="text-slate-500">Gestión central de Frutiandante.</p>
         </div>
-        <Button asChild className="rounded-2xl font-bold h-12 shadow-lg shadow-primary/20">
+        <Button asChild className="rounded-2xl font-bold h-12 shadow-lg">
           <Link href="/admin/products/new">Añadir Producto</Link>
         </Button>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {tarjetasResumen.map((tarjeta) => (
-          <Card key={tarjeta.titulo} className="border-none shadow-md rounded-[2rem] overflow-hidden hover:shadow-xl transition-all group">
+          <Card key={tarjeta.titulo} className="border-none shadow-md rounded-[2rem] overflow-hidden group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-400">{tarjeta.titulo}</CardTitle>
               <div className={`p-2 rounded-xl bg-slate-50 group-hover:bg-white transition-colors ${tarjeta.color}`}>
@@ -110,64 +105,53 @@ export default function PaginaPanelAdmin() {
         <Card className="md:col-span-2 border-none shadow-lg rounded-[2.5rem] overflow-hidden">
           <CardHeader className="bg-slate-50/50 p-8 border-b">
             <CardTitle className="font-headline text-2xl font-black">Ventas Recientes</CardTitle>
-            <CardDescription>Últimos pedidos recibidos en la tienda.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50/30">
-                  <tr>
-                    <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Cliente</th>
-                    <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Fecha</th>
-                    <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Total</th>
-                    <th className="p-4 text-right font-bold text-slate-400 text-[10px] uppercase tracking-widest">Estado</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {pedidosRecientes?.map((p: any) => (
-                    <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 font-bold text-slate-900">{p.cliente || 'Anónimo'}</td>
-                      <td className="p-4 text-slate-500">
-                        {p.created_at?.seconds 
-                          ? format(new Date(p.created_at.seconds * 1000), "d 'de' MMM", { locale: es })
-                          : '---'}
-                      </td>
-                      <td className="p-4 font-black text-primary">${p.total?.toLocaleString('es-CL')}</td>
-                      <td className="p-4 text-right text-[10px] font-bold uppercase">
-                        <span className={p.estado === 'completado' ? 'text-emerald-500' : 'text-orange-500'}>
-                          {p.estado || 'pendiente'}
-                        </span>
-                      </td>
+            {loadingRecent ? (
+              <div className="flex justify-center py-10"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50/30">
+                    <tr>
+                      <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Cliente</th>
+                      <th className="p-4 text-left font-bold text-slate-400 text-[10px] uppercase tracking-widest">Total</th>
+                      <th className="p-4 text-right font-bold text-slate-400 text-[10px] uppercase tracking-widest">Estado</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {pedidosRecientes?.map((p: any) => (
+                      <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="p-4 font-bold text-slate-900">{p.cliente || 'Anónimo'}</td>
+                        <td className="p-4 font-black text-primary">${p.total?.toLocaleString('es-CL')}</td>
+                        <td className="p-4 text-right text-[10px] font-bold uppercase">
+                          <span className={p.estado === 'completado' ? 'text-emerald-500' : 'text-orange-500'}>
+                            {p.estado || 'pendiente'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </CardContent>
-          <CardFooter className="p-6 border-t bg-slate-50/30">
-            <Button asChild variant="outline" className="w-full rounded-xl font-bold">
-              <Link href="/admin/orders">Ver todos los pedidos</Link>
-            </Button>
-          </CardFooter>
         </Card>
 
-        <Card className="border-none shadow-lg rounded-[2.5rem] overflow-hidden bg-slate-900 text-white">
-          <CardHeader className="p-8">
-            <CardTitle className="font-headline text-2xl font-black">Acceso Rápido</CardTitle>
-            <CardDescription className="text-slate-400">Atajos de configuración.</CardDescription>
-          </CardHeader>
-          <CardContent className="p-8 pt-0 flex flex-col gap-4">
+        <Card className="border-none shadow-lg rounded-[2.5rem] overflow-hidden bg-slate-900 text-white p-8">
+          <h3 className="font-headline text-2xl font-black mb-4">Accesos Rápidos</h3>
+          <div className="flex flex-col gap-4">
             <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
               <Link href="/admin/settings" className="flex items-center gap-3">
-                <Settings className="h-5 w-5 text-primary" /> Configuración Sitio
+                <Settings className="h-5 w-5 text-primary" /> Ajustes Sitio
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
               <Link href="/admin/categories" className="flex items-center gap-3">
-                <LayoutGrid className="h-5 w-5 text-primary" /> Gestionar Secciones
+                <LayoutGrid className="h-5 w-5 text-primary" /> Categorías
               </Link>
             </Button>
-          </CardContent>
+          </div>
         </Card>
       </div>
     </div>
