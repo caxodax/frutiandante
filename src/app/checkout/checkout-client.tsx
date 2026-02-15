@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -10,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash, Copy, FileText } from 'lucide-react';
+import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash, Copy, FileText, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -167,11 +168,26 @@ export default function CheckoutClient() {
 
   if (completado) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
-        <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4" />
-        <h1 className="text-4xl font-bold font-headline mb-4">¡Pedido Recibido!</h1>
-        <p className="text-slate-500 mb-8">Gracias por tu compra. Te contactaremos por WhatsApp para coordinar el despacho.</p>
-        <Button asChild className="rounded-2xl h-14 px-8 font-bold"><Link href="/">Volver al Inicio</Link></Button>
+      <div className="container mx-auto px-4 py-32 text-center animate-in fade-in zoom-in duration-500">
+        <div className="max-w-xl mx-auto">
+          <div className="h-24 w-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
+            <CheckCircle2 className="h-14 w-14 text-primary" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black font-headline mb-6 tracking-tight text-slate-900">¡Pedido Recibido!</h1>
+          <p className="text-slate-500 mb-12 text-lg leading-relaxed">
+            Gracias por tu compra. Ya hemos registrado tu solicitud y te contactaremos por WhatsApp a la brevedad para coordinar el despacho a tu hogar.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button asChild className="rounded-2xl h-16 px-10 font-black text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-all">
+              <Link href="/my-orders" className="flex items-center gap-2">
+                Ver Mis Pedidos <ArrowRight className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-2xl h-16 px-10 font-bold text-lg hover:bg-slate-50 transition-all border-slate-200">
+              <Link href="/">Volver al Inicio</Link>
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -231,7 +247,7 @@ export default function CheckoutClient() {
                     <div className={`flex items-center space-x-2 border-2 p-5 rounded-2xl transition-all ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="transferencia" id="transferencia" className="h-5 w-5" />
                       <Label htmlFor="transferencia" className="font-bold flex items-center gap-2 cursor-pointer">
-                        <Landmark className="h-5 w-5 text-primary" /> Transferencia
+                        < Landmark className="h-5 w-5 text-primary" /> Transferencia
                       </Label>
                     </div>
                     <div className={`flex items-center space-x-2 border-2 p-5 rounded-2xl transition-all ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
