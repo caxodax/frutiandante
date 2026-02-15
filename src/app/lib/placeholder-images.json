@@ -1,0 +1,28 @@
+
+{
+  "hero": {
+    "url": "https://picsum.photos/seed/harvest/1920/1080",
+    "alt": "Cosecha Frutiandante",
+    "hint": "campo cosecha"
+  },
+  "about": {
+    "url": "https://picsum.photos/seed/about/1920/1080",
+    "alt": "Sobre Nosotros",
+    "hint": "frutas frescas"
+  },
+  "history": {
+    "url": "https://picsum.photos/seed/history/800/600",
+    "alt": "Nuestra Historia",
+    "hint": "agricultura familiar"
+  },
+  "placeholder": {
+    "url": "https://picsum.photos/seed/placeholder/600/600",
+    "alt": "Imagen de producto",
+    "hint": "alimento fresco"
+  },
+  "logo_placeholder": {
+    "url": "https://picsum.photos/seed/fruti-logo/300/100",
+    "alt": "Logo Frutiandante",
+    "hint": "logo manzana"
+  }
+}

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -13,6 +14,7 @@ import { collection, query, limit, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import imageData from '@/app/lib/placeholder-images.json';
 
 export default function PaginaInicio() {
   const firestore = useFirestore();
@@ -41,23 +43,23 @@ export default function PaginaInicio() {
       <Encabezado />
       <main className="flex-grow">
         {/* Hero Section - Optimizado para LCP */}
-        <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48 flex items-center justify-center">
+        <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48 flex items-center justify-center min-h-[600px]">
           <div className="absolute inset-0 z-0 opacity-40">
             <Image 
-              src="https://picsum.photos/seed/harvest/1920/1080" 
-              alt="Cosecha Frutiandante" 
+              src={imageData.hero.url} 
+              alt={imageData.hero.alt} 
               fill
               className="object-cover"
-              priority
+              priority={true}
               fetchPriority="high"
-              data-ai-hint="campo cosecha"
+              data-ai-hint={imageData.hero.hint}
               sizes="100vw"
             />
           </div>
           <div className="absolute inset-0 bg-emerald-950/80 backdrop-blur-[2px] z-10"></div>
           
           <div className="container relative z-20 mx-auto px-4 text-center">
-            <div className="max-w-4xl mx-auto flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div className="max-w-4xl mx-auto flex flex-col items-center">
               <BadgeChile />
               
               <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
@@ -70,10 +72,10 @@ export default function PaginaInicio() {
               </p>
 
               <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6 w-full max-w-lg mx-auto">
-                <Button asChild size="lg" className="h-16 px-10 text-xl bg-primary hover:bg-primary/90 text-white font-black rounded-2xl w-full sm:w-auto shadow-2xl shadow-primary/30 transition-transform hover:scale-105 active:scale-95">
+                <Button asChild size="lg" className="h-16 px-10 text-xl bg-primary hover:bg-primary/90 text-white font-black rounded-2xl w-full sm:w-auto shadow-2xl shadow-primary/30 transition-transform hover:scale-105">
                   <Link href="/products">Comprar Ahora</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="h-16 px-10 text-xl border-white/30 text-white hover:bg-white hover:text-emerald-950 bg-white/5 backdrop-blur-md rounded-2xl w-full sm:w-auto font-bold transition-transform hover:scale-105 active:scale-95">
+                <Button asChild size="lg" variant="outline" className="h-16 px-10 text-xl border-white/30 text-white hover:bg-white hover:text-emerald-950 bg-white/5 backdrop-blur-md rounded-2xl w-full sm:w-auto font-bold transition-transform hover:scale-105">
                   <Link href="#categorias">Ver Categorías</Link>
                 </Button>
               </div>
@@ -174,7 +176,7 @@ export default function PaginaInicio() {
                 ))
               ) : (
                 categorias?.map((categoria: any) => (
-                  <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group transition-opacity duration-500 animate-in fade-in">
+                  <Link key={categoria.id} href={`/category/${categoria.slug}`} className="group">
                     <Card className="relative h-72 overflow-hidden border-none shadow-md rounded-[2rem]">
                       <Image 
                         src={categoria.imagen || `https://picsum.photos/seed/${categoria.slug}/600/400`}
@@ -183,6 +185,7 @@ export default function PaginaInicio() {
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                         data-ai-hint={`${categoria.nombre.toLowerCase()} alimentos`}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 20vw"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent"></div>
                       <CardContent className="absolute bottom-0 p-8 w-full text-center">

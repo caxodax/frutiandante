@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Leaf } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
+import imageData from '@/app/lib/placeholder-images.json';
 
 interface TarjetaProductoProps {
   producto: Producto;
@@ -38,12 +39,13 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
       <CardHeader className="p-0 relative z-10 pointer-events-none">
         <div className="aspect-square relative overflow-hidden bg-slate-50">
           <Image
-            src={producto.imagenes[0]}
+            src={producto.imagenes?.[0] || imageData.placeholder.url}
             alt={producto.nombre}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             loading="lazy"
+            data-ai-hint={imageData.placeholder.hint}
           />
           
           <div className="absolute left-4 top-4 flex flex-col gap-2">
