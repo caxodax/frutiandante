@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, Mail, Lock, Chrome, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -39,21 +39,26 @@ export default function AuthForm() {
     if (!firestore) return;
     const userRef = doc(firestore, 'users', firebaseUser.uid);
     
-    const userData = {
-      email: firebaseUser.email,
-      role: 'cliente',
-      created_at: serverTimestamp()
-    };
+    // Verificamos si el usuario ya existe para NO sobrescribir su rol si ya es admin
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      const userData = {
+        email: firebaseUser.email,
+        role: 'cliente', // Solo asignamos cliente si es un usuario nuevo
+        created_at: serverTimestamp()
+      };
 
-    setDoc(userRef, userData, { merge: true })
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: userRef.path,
-          operation: 'write',
-          requestResourceData: userData,
+      setDoc(userRef, userData)
+        .catch(async (error) => {
+          const permissionError = new FirestorePermissionError({
+            path: userRef.path,
+            operation: 'create',
+            requestResourceData: userData,
+          });
+          errorEmitter.emit('permission-error', permissionError);
         });
-        errorEmitter.emit('permission-error', permissionError);
-      });
+    }
   };
 
   const manejarLogin = async (e: React.FormEvent) => {

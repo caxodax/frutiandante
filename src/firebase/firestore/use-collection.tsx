@@ -27,6 +27,8 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
     }
 
     setLoading(true);
+    setError(null);
+
     const unsubscribe = onSnapshot(
       query,
       (snapshot: QuerySnapshot<T>) => {
@@ -37,17 +39,18 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         setData(items);
         setLoading(false);
       },
-      async (serverError: FirestoreError) => {
+      (serverError: FirestoreError) => {
+        // Aseguramos que el estado de carga termine incluso en caso de error
+        setLoading(false);
+        
         const permissionError = new FirestorePermissionError({
           path: (query as any)._query?.path?.toString() || 'unknown',
           operation: 'list',
         });
         
-        // Actualizamos estados locales primero para evitar bloqueos si el emisor lanza una excepción
         setError(permissionError);
-        setLoading(false);
         
-        // Emitimos el error para el listener global (en dev esto lanzará una excepción)
+        // Emitimos el error para el sistema de depuración central
         errorEmitter.emit('permission-error', permissionError);
       }
     );

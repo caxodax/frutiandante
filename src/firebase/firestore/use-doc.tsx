@@ -23,23 +23,26 @@ export function useDoc<T = DocumentData>(docRef: DocumentReference<T> | null) {
     }
 
     setLoading(true);
+    setError(null);
+
     const unsubscribe = onSnapshot(
       docRef,
       (snapshot: DocumentSnapshot<T>) => {
         setData(snapshot.exists() ? { ...snapshot.data()!, id: snapshot.id } : null);
         setLoading(false);
       },
-      async (serverError: FirestoreError) => {
+      (serverError: FirestoreError) => {
+        // Aseguramos que el estado de carga termine incluso en caso de error
+        setLoading(false);
+        
         const permissionError = new FirestorePermissionError({
           path: docRef.path,
           operation: 'get',
         });
 
-        // Actualizamos estados locales primero
         setError(permissionError);
-        setLoading(false);
         
-        // Emitimos el error para el listener global
+        // Emitimos el error para el sistema de depuración central
         errorEmitter.emit('permission-error', permissionError);
       }
     );
