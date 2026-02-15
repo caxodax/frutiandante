@@ -25,7 +25,7 @@ export default function PaginaAdminPedidos() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<any>(null);
 
-  // Verificamos el perfil para evitar errores de permisos antes de tiempo
+  // Verificamos el perfil para confirmar el rol antes de lanzar la consulta global
   const userProfileRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'users', user.uid);
@@ -37,8 +37,9 @@ export default function PaginaAdminPedidos() {
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
   const ordersQuery = useMemoFirebase(() => {
-    // Bloqueo estricto: no creamos la consulta si no somos admin confirmado
+    // Bloqueo estricto: Solo permitimos la consulta si esAdmin es TRUE confirmado
     if (!firestore || !user || !esAdmin) return null;
+    // Esta consulta obtiene TODOS los pedidos (solo permitida para admins)
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);
 
@@ -78,28 +79,26 @@ export default function PaginaAdminPedidos() {
     }
   };
 
-  // Mostrar cargador mientras se verifica la identidad
+  // Mostrar cargador mientras se verifica la identidad para evitar errores de permisos flash
   if (userLoading || loadingProfile || (esAdmin && loadingOrders)) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">Validando permisos de acceso...</p>
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Sincronizando abasto...</p>
       </div>
     );
   }
 
-  // Si terminó de cargar y no es admin, no mostramos nada (el layout se encargará del redirect)
+  // Si no es admin, el layout general manejará el redirect, aquí simplemente protegemos el render
   if (!esAdmin) return null;
 
   return (
     <div className="space-y-6">
       <Card className="shadow-lg border-none rounded-3xl overflow-hidden">
         <CardHeader className="bg-slate-50/50 p-8 border-b">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="font-headline text-3xl font-black text-slate-900">Gestión de Pedidos</CardTitle>
-              <CardDescription>Revisa y actualiza las ventas de Frutiandante.</CardDescription>
-            </div>
+          <div>
+            <CardTitle className="font-headline text-3xl font-black text-slate-900">Gestión de Pedidos</CardTitle>
+            <CardDescription>Visualización global de ventas de Frutiandante.</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="p-8">
@@ -149,14 +148,14 @@ export default function PaginaAdminPedidos() {
                     <TableCell>{getBadgeEstado(pedido.estado)}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPedidoSeleccionado(pedido)}>
-                        <Eye className="h-4 w-4 mr-2" /> Detalles
+                        <Eye className="h-4 w-4 mr-2" /> Ver Detalles
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
                 {pedidosFiltrados.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10 text-slate-400">No se encontraron pedidos.</TableCell>
+                    <TableCell colSpan={6} className="text-center py-10 text-slate-400 font-bold italic">No se encontraron pedidos.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -169,7 +168,7 @@ export default function PaginaAdminPedidos() {
         <DialogContent className="max-w-2xl rounded-3xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black font-headline">Pedido #{pedidoSeleccionado?.id.substring(0, 8)}</DialogTitle>
-            <DialogDescription>Información detallada del cliente y productos.</DialogDescription>
+            <DialogDescription>Gestión administrativa del pedido.</DialogDescription>
           </DialogHeader>
           
           {pedidoSeleccionado && (
@@ -185,14 +184,14 @@ export default function PaginaAdminPedidos() {
                 </div>
                 {pedidoSeleccionado.referenciaBancaria && (
                   <div className="col-span-2 mt-2 p-2 bg-primary/10 rounded-xl border border-primary/20">
-                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Referencia del Cliente (Banco)</p>
+                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Referencia del Cliente</p>
                     <p className="font-mono font-black text-lg">{pedidoSeleccionado.referenciaBancaria}</p>
                   </div>
                 )}
               </div>
 
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Productos</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Detalle de Productos</p>
                 <div className="space-y-2">
                   {pedidoSeleccionado.items?.map((item: any, i: number) => (
                     <div key={i} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">

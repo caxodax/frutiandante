@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useCollection } from '@/firebase';
@@ -21,6 +22,7 @@ export default function MyOrdersClient() {
   const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
 
+  // Consulta filtrada: El cliente solo puede ver pedidos donde userId == su UID
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(
@@ -34,8 +36,9 @@ export default function MyOrdersClient() {
 
   if (userLoading || ordersLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Cargando tus pedidos...</p>
       </div>
     );
   }
@@ -45,7 +48,7 @@ export default function MyOrdersClient() {
       <div className="container mx-auto px-4 py-20 text-center">
         <ShoppingBag className="h-16 w-16 mx-auto text-slate-200 mb-6" />
         <h1 className="text-3xl font-black font-headline mb-4">Inicia sesión para ver tus pedidos</h1>
-        <Button asChild><Link href="/auth">Ir a Acceso</Link></Button>
+        <Button asChild className="rounded-2xl h-14 px-10 font-bold"><Link href="/auth">Ir a Acceso</Link></Button>
       </div>
     );
   }
@@ -54,7 +57,7 @@ export default function MyOrdersClient() {
     <div className="max-w-4xl mx-auto px-4">
       <div className="mb-10 text-center md:text-left">
         <h1 className="text-4xl font-black font-headline text-slate-900 mb-2">Mis Pedidos</h1>
-        <p className="text-slate-500">Revisa el historial de tus compras en Frutiandante.</p>
+        <p className="text-slate-500">Historial de tus compras en Frutiandante.</p>
       </div>
       
       <div className="space-y-6">
@@ -77,15 +80,11 @@ export default function MyOrdersClient() {
                             <Calendar className="h-3 w-3" />
                             {order.created_at?.seconds 
                               ? format(new Date(order.created_at.seconds * 1000), "d 'de' MMMM, yyyy", { locale: es })
-                              : 'Fecha no disponible'}
+                              : '---'}
                           </div>
                           <h3 className="text-lg font-black text-slate-900">
                             Pedido #{order.id.substring(0,8).toUpperCase()}
                           </h3>
-                          <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-                            <Package className="h-3 w-3" />
-                            {order.items?.length || 0} productos
-                          </div>
                         </div>
                         <div className="text-center md:text-right">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Total del Pedido</span>
@@ -116,46 +115,24 @@ export default function MyOrdersClient() {
                               </div>
                             ))}
                           </div>
-                          <div className="mt-4 pt-4 border-t border-dashed border-slate-200 flex justify-between items-center">
-                            <span className="text-sm font-black text-slate-900">SUBTOTAL</span>
-                            <span className="text-sm font-black text-slate-900">${(order.subtotal || order.total).toLocaleString('es-CL')}</span>
-                          </div>
-                          {order.descuento > 0 && (
-                            <div className="mt-1 flex justify-between items-center text-emerald-600 font-bold text-xs">
-                              <span>DESCUENTO CLUB</span>
-                              <span>-${order.descuento.toLocaleString('es-CL')}</span>
-                            </div>
-                          )}
                         </div>
 
                         <div className="space-y-6">
                           <div>
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                               <Landmark className="h-4 w-4" /> Información de Pago
+                               <Landmark className="h-4 w-4" /> Pago y Despacho
                             </h4>
                             <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
                               <div className="flex justify-between text-xs">
                                 <span className="text-slate-400">Método:</span>
                                 <span className="font-bold text-slate-900 capitalize">{order.metodoPago}</span>
                               </div>
-                              {order.referenciaBancaria && (
-                                <div className="flex justify-between text-xs">
-                                  <span className="text-slate-400">Referencia:</span>
-                                  <span className="font-mono font-black text-primary">{order.referenciaBancaria}</span>
-                                </div>
-                              )}
+                              <p className="text-xs text-slate-500 mt-2">
+                                {order.estado === 'completado' 
+                                  ? 'Pedido entregado. ¡Gracias por preferir Frutiandante!' 
+                                  : 'Estamos coordinando tu entrega por WhatsApp.'}
+                              </p>
                             </div>
-                          </div>
-                          
-                          <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                            <p className="text-[10px] text-primary font-black uppercase tracking-tighter mb-1">Estado del Despacho</p>
-                            <p className="text-sm text-slate-700 font-medium">
-                              {order.estado === 'completado' 
-                                ? 'Tu pedido ha sido entregado con éxito. ¡Gracias por preferir Frutiandante!' 
-                                : order.estado === 'cancelado' 
-                                ? 'Este pedido ha sido cancelado.' 
-                                : 'Estamos procesando tu pedido. Te contactaremos por WhatsApp para coordinar la entrega.'}
-                            </p>
                           </div>
                         </div>
                       </div>
@@ -169,8 +146,7 @@ export default function MyOrdersClient() {
           <div className="text-center py-24 bg-white rounded-[3rem] border border-dashed border-slate-200">
             <ShoppingBag className="h-16 w-16 mx-auto text-slate-100 mb-6" />
             <p className="text-slate-500 font-bold text-xl">Aún no tienes pedidos registrados.</p>
-            <p className="text-slate-400 mb-8">¿Qué tal si empiezas con unas frutas frescas de estación?</p>
-            <Button asChild className="rounded-2xl h-14 px-10 font-black text-lg">
+            <Button asChild className="mt-8 rounded-2xl h-14 px-10 font-black text-lg">
               <Link href="/products">¡Ir a la Feria!</Link>
             </Button>
           </div>

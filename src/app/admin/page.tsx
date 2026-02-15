@@ -26,11 +26,11 @@ export default function PaginaPanelAdmin() {
   // Verificación de administrador segura
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
-  // Consultas públicas (siempre seguras)
+  // Consultas de inventario (públicas/permisivas)
   const prodQuery = useMemoFirebase(() => firestore ? collection(firestore, 'products') : null, [firestore]);
   const catQuery = useMemoFirebase(() => firestore ? collection(firestore, 'categories') : null, [firestore]);
   
-  // Estas consultas solo se activan si esAdmin es true y el perfil ya cargó definitivamente
+  // Estas consultas de pedidos SOLO se activan si esAdmin es TRUE confirmado
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
@@ -55,7 +55,7 @@ export default function PaginaPanelAdmin() {
     { titulo: "Ventas Completadas", valor: `$${totalVentas.toLocaleString('es-CL')}`, icon: DollarSign, color: "text-emerald-600" },
     { titulo: "Pedidos Totales", valor: totalPedidos.toString(), icon: LineChart, color: "text-blue-600", href: "/admin/orders" },
     { titulo: "Productos en Inventario", valor: totalProductos.toString(), icon: Package, color: "text-orange-600", href: "/admin/products" },
-    { titulo: "Secciones/Categorías", valor: totalCategorias.toString(), icon: LayoutGrid, color: "text-purple-600", href: "/admin/categories" },
+    { titulo: "Secciones", valor: totalCategorias.toString(), icon: LayoutGrid, color: "text-purple-600", href: "/admin/categories" },
   ];
 
   if (userLoading || loadingProfile || loadingProd || loadingCat || (esAdmin && (loadingOrders || loadingRecent))) {
@@ -67,7 +67,6 @@ export default function PaginaPanelAdmin() {
     );
   }
 
-  // Si no es admin, el layout se encarga del redirect, pero evitamos renderizar contenido aquí
   if (!esAdmin) return null;
 
   return (
@@ -75,13 +74,11 @@ export default function PaginaPanelAdmin() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="font-headline text-4xl font-black tracking-tight text-slate-900">Panel de Control</h1>
-          <p className="text-slate-500">Bienvenido/a al centro de mando de Frutiandante.</p>
+          <p className="text-slate-500">Centro de mando de Frutiandante.</p>
         </div>
-        <div className="flex gap-2">
-          <Button asChild className="rounded-2xl font-bold h-12 shadow-lg shadow-primary/20">
-            <Link href="/admin/products/new">Añadir Producto</Link>
-          </Button>
-        </div>
+        <Button asChild className="rounded-2xl font-bold h-12 shadow-lg shadow-primary/20">
+          <Link href="/admin/products/new">Añadir Producto</Link>
+        </Button>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -113,7 +110,7 @@ export default function PaginaPanelAdmin() {
         <Card className="md:col-span-2 border-none shadow-lg rounded-[2.5rem] overflow-hidden">
           <CardHeader className="bg-slate-50/50 p-8 border-b">
             <CardTitle className="font-headline text-2xl font-black">Ventas Recientes</CardTitle>
-            <CardDescription>Últimos 5 pedidos recibidos en la tienda.</CardDescription>
+            <CardDescription>Últimos pedidos recibidos en la tienda.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
@@ -143,11 +140,6 @@ export default function PaginaPanelAdmin() {
                       </td>
                     </tr>
                   ))}
-                  {(!pedidosRecientes || pedidosRecientes.length === 0) && (
-                    <tr>
-                      <td colSpan={4} className="p-8 text-center text-slate-400 font-bold italic">No hay pedidos registrados aún.</td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>
@@ -167,17 +159,12 @@ export default function PaginaPanelAdmin() {
           <CardContent className="p-8 pt-0 flex flex-col gap-4">
             <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
               <Link href="/admin/settings" className="flex items-center gap-3">
-                <Settings className="h-5 w-5 text-primary" /> Configuración del Sitio
+                <Settings className="h-5 w-5 text-primary" /> Configuración Sitio
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
               <Link href="/admin/categories" className="flex items-center gap-3">
                 <LayoutGrid className="h-5 w-5 text-primary" /> Gestionar Secciones
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold justify-start px-6">
-              <Link href="/admin/products" className="flex items-center gap-3">
-                <Package className="h-5 w-5 text-primary" /> Inventario de Fruta
               </Link>
             </Button>
           </CardContent>
