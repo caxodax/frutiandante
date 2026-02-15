@@ -41,8 +41,8 @@ export default function PaginaInicio() {
     <div className="flex min-h-screen flex-col">
       <Encabezado />
       <main className="flex-grow">
-        {/* Hero Section - Centrado Total */}
-        <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48">
+        {/* Hero Section - Centrado Total y Responsivo */}
+        <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48 flex items-center justify-center">
           <div className="absolute inset-0 z-0 opacity-40">
             <Image 
               src="https://picsum.photos/seed/harvest/1920/1080" 
@@ -54,22 +54,22 @@ export default function PaginaInicio() {
               sizes="100vw"
             />
           </div>
-          <div className="absolute inset-0 bg-emerald-950/75 backdrop-blur-[1px] z-10"></div>
+          <div className="absolute inset-0 bg-emerald-950/80 backdrop-blur-[2px] z-10"></div>
           
-          <div className="container relative z-20 mx-auto px-4">
-            <div className="max-w-4xl mx-auto flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <div className="container relative z-20 mx-auto px-4 text-center">
+            <div className="max-w-4xl mx-auto flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
               <BadgeChile />
               
-              <h1 className="mt-12 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
+              <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl leading-tight">
                 La feria en tu puerta, <br />
                 <span className="text-primary italic font-serif">más fresca que nunca.</span>
               </h1>
               
-              <p className="mt-8 text-lg text-emerald-50/90 md:text-2xl lg:text-3xl leading-relaxed max-w-3xl">
+              <p className="mt-8 text-lg text-emerald-50/90 md:text-2xl lg:text-3xl leading-relaxed max-w-3xl mx-auto">
                 Llevamos lo mejor de la tierra chilena directo a tu mesa. Frutas, verduras y víveres seleccionados con amor por expertos del campo.
               </p>
 
-              <div className="mt-12 flex flex-wrap justify-center gap-6 w-full max-w-lg">
+              <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6 w-full max-w-lg mx-auto">
                 <Button asChild size="lg" className="h-16 px-10 text-xl bg-primary hover:bg-primary/90 text-white font-black rounded-2xl w-full sm:w-auto shadow-2xl shadow-primary/30 transition-transform hover:scale-105 active:scale-95">
                   <Link href="/products">Comprar Ahora</Link>
                 </Button>

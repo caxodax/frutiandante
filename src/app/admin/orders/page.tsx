@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Loader2, Eye, CheckCircle2, XCircle, Clock, Landmark, ShoppingBag } from 'lucide-react';
+import { Search, Loader2, Eye, CheckCircle2, XCircle, Clock, Landmark, ShoppingBag, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -38,12 +38,12 @@ export default function PaginaAdminPedidos() {
 
   const ordersQuery = useMemoFirebase(() => {
     // Bloqueo estricto: Solo permitimos la consulta si esAdmin es TRUE confirmado
+    // Esto previene que useCollection inicie una consulta que será rechazada por Firestore
     if (!firestore || !user || !esAdmin) return null;
-    // Esta consulta obtiene TODOS los pedidos (solo permitida para admins)
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);
 
-  const { data: orders, loading: loadingOrders } = useCollection(ordersQuery);
+  const { data: orders, loading: loadingOrders, error: ordersError } = useCollection(ordersQuery);
 
   const pedidosFiltrados = (orders || []).filter((o: any) => 
     o.cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -80,17 +80,39 @@ export default function PaginaAdminPedidos() {
   };
 
   // Mostrar cargador mientras se verifica la identidad para evitar errores de permisos flash
-  if (userLoading || loadingProfile || (esAdmin && loadingOrders)) {
+  if (userLoading || loadingProfile) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Sincronizando abasto...</p>
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Verificando Credenciales...</p>
       </div>
     );
   }
 
-  // Si no es admin, el layout general manejará el redirect, aquí simplemente protegemos el render
-  if (!esAdmin) return null;
+  // Si no es admin y el perfil ya cargó, mostramos un error de acceso
+  if (!esAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+        <AlertCircle className="h-16 w-16 text-destructive mb-2" />
+        <h2 className="text-2xl font-black font-headline">Acceso No Autorizado</h2>
+        <p className="text-slate-500 max-w-md">No tienes los permisos necesarios para gestionar los pedidos de Frutiandante.</p>
+        <Button asChild className="mt-4 rounded-xl">
+          <a href="/">Volver al Inicio</a>
+        </Button>
+      </div>
+    );
+  }
+
+  // Si hay un error de permisos real después del gating, lo mostramos
+  if (ordersError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <h3 className="text-xl font-bold">Error de Conexión</h3>
+        <p className="text-slate-500">Hubo un problema al cargar los pedidos. Por favor, intenta recargar.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -113,53 +135,59 @@ export default function PaginaAdminPedidos() {
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-slate-100">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow>
-                  <TableHead className="font-bold">ID / Fecha</TableHead>
-                  <TableHead className="font-bold">Cliente</TableHead>
-                  <TableHead className="font-bold">Total</TableHead>
-                  <TableHead className="font-bold">Pago</TableHead>
-                  <TableHead className="font-bold">Estado</TableHead>
-                  <TableHead className="text-right font-bold">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pedidosFiltrados.map((pedido: any) => (
-                  <TableRow key={pedido.id} className="hover:bg-slate-50/50 transition-colors">
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-mono text-xs text-slate-400">#{pedido.id.substring(0, 8)}</span>
-                        <span className="text-xs font-medium">
-                          {pedido.created_at?.seconds 
-                            ? format(new Date(pedido.created_at.seconds * 1000), "dd/MM/yy HH:mm", { locale: es })
-                            : '---'}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-bold text-slate-900">{pedido.cliente || 'Anónimo'}</TableCell>
-                    <TableCell className="font-black text-primary">${pedido.total?.toLocaleString('es-CL')}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-xs">
-                        {pedido.metodoPago === 'transferencia' ? <Landmark className="h-3 w-3" /> : <ShoppingBag className="h-3 w-3" />}
-                        <span className="capitalize">{pedido.metodoPago}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getBadgeEstado(pedido.estado)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPedidoSeleccionado(pedido)}>
-                        <Eye className="h-4 w-4 mr-2" /> Ver Detalles
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {pedidosFiltrados.length === 0 && (
+            {loadingOrders ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              </div>
+            ) : (
+              <Table>
+                <TableHeader className="bg-slate-50/50">
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10 text-slate-400 font-bold italic">No se encontraron pedidos.</TableCell>
+                    <TableHead className="font-bold">ID / Fecha</TableHead>
+                    <TableHead className="font-bold">Cliente</TableHead>
+                    <TableHead className="font-bold">Total</TableHead>
+                    <TableHead className="font-bold">Pago</TableHead>
+                    <TableHead className="font-bold">Estado</TableHead>
+                    <TableHead className="text-right font-bold">Acciones</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {pedidosFiltrados.map((pedido: any) => (
+                    <TableRow key={pedido.id} className="hover:bg-slate-50/50 transition-colors">
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-mono text-xs text-slate-400">#{pedido.id.substring(0, 8)}</span>
+                          <span className="text-xs font-medium">
+                            {pedido.created_at?.seconds 
+                              ? format(new Date(pedido.created_at.seconds * 1000), "dd/MM/yy HH:mm", { locale: es })
+                              : '---'}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-bold text-slate-900">{pedido.cliente || 'Anónimo'}</TableCell>
+                      <TableCell className="font-black text-primary">${pedido.total?.toLocaleString('es-CL')}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-xs">
+                          {pedido.metodoPago === 'transferencia' ? <Landmark className="h-3 w-3" /> : <ShoppingBag className="h-3 w-3" />}
+                          <span className="capitalize">{pedido.metodoPago}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{getBadgeEstado(pedido.estado)}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPedidoSeleccionado(pedido)}>
+                          <Eye className="h-4 w-4 mr-2" /> Ver Detalles
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {pedidosFiltrados.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-10 text-slate-400 font-bold italic">No se encontraron pedidos.</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </CardContent>
       </Card>
