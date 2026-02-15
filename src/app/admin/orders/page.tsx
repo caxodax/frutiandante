@@ -47,25 +47,40 @@ export default function PaginaAdminPedidos() {
   );
 
   const actualizarEstado = async (id: string, nuevoEstado: string) => {
-    if (!firestore) return;
-    const docRef = doc(firestore, 'orders', id);
-    
-    updateDoc(docRef, { estado: nuevoEstado })
-      .then(() => {
-        toast({ title: "Estado actualizado", description: `El pedido ahora está ${nuevoEstado}.` });
-        if (pedidoSeleccionado?.id === id) {
-          setPedidoSeleccionado({ ...pedidoSeleccionado, estado: nuevoEstado });
-        }
-      })
-      .catch(async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'update',
-          requestResourceData: { estado: nuevoEstado },
-        } satisfies SecurityRuleContext);
-        errorEmitter.emit('permission-error', permissionError);
-      });
-  };
+  if (!firestore) return;
+
+  const docRef = doc(firestore, 'orders', id);
+
+  try {
+    await updateDoc(docRef, { estado: nuevoEstado });
+
+    toast({
+      title: "Estado actualizado",
+      description: `El pedido ahora está ${nuevoEstado}.`,
+    });
+
+    if (pedidoSeleccionado?.id === id) {
+      setPedidoSeleccionado({ ...pedidoSeleccionado, estado: nuevoEstado });
+    }
+  } catch (err) {
+    console.error("Error update order:", err);
+
+    const permissionError = new FirestorePermissionError({
+      path: docRef.path,
+      operation: 'update',
+      requestResourceData: { estado: nuevoEstado },
+    } satisfies SecurityRuleContext);
+
+    errorEmitter.emit('permission-error', permissionError);
+
+    // Además muestra un toast al admin para que sepa qué pasó
+    toast({
+      title: "No se pudo actualizar",
+      description: String((err as any)?.message ?? err),
+      variant: "destructive",
+    });
+  }
+};
 
   const getBadgeEstado = (estado: string) => {
     switch (estado) {

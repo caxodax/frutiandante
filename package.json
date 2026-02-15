@@ -1,5 +1,5 @@
 {
-  "name": "nextn",
+  "name": "frutiandante",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -64,5 +64,12 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
-  }
+  },
+  "description": "Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despacho de víveres y productos frescos del campo chileno directamente al hogar.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "author": "",
+  "license": "ISC"
 }
