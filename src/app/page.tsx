@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -41,7 +40,7 @@ export default function PaginaInicio() {
     <div className="flex min-h-screen flex-col">
       <Encabezado />
       <main className="flex-grow">
-        {/* Hero Section - Centrado Total y Responsivo */}
+        {/* Hero Section - Optimizado para LCP */}
         <section className="relative overflow-hidden bg-emerald-900 py-24 lg:py-48 flex items-center justify-center">
           <div className="absolute inset-0 z-0 opacity-40">
             <Image 
@@ -50,6 +49,7 @@ export default function PaginaInicio() {
               fill
               className="object-cover"
               priority
+              fetchPriority="high"
               data-ai-hint="campo cosecha"
               sizes="100vw"
             />

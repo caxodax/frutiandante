@@ -4,6 +4,21 @@ import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from '@/hooks/use-cart';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+import { Poppins, PT_Sans } from 'next/font/google';
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '900'],
+  variable: '--font-poppins',
+  display: 'swap',
+});
+
+const ptSans = PT_Sans({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-pt-sans',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Frutiandante',
@@ -16,13 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="es" suppressHydrationWarning className={`${poppins.variable} ${ptSans.variable}`}>
       <body className="font-body antialiased" suppressHydrationWarning>
         <FirebaseClientProvider>
           <FirebaseErrorListener />
