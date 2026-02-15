@@ -13,7 +13,7 @@ import { es } from 'date-fns/locale';
 
 export default function PaginaPanelAdmin() {
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
 
   // Obtenemos el perfil para verificar el rol antes de lanzar consultas restringidas
   const userProfileRef = useMemoFirebase(() => {
@@ -22,12 +22,15 @@ export default function PaginaPanelAdmin() {
   }, [firestore, user]);
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
+  
+  // Verificación de administrador segura
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
+  // Consultas públicas (siempre seguras)
   const prodQuery = useMemoFirebase(() => firestore ? collection(firestore, 'products') : null, [firestore]);
   const catQuery = useMemoFirebase(() => firestore ? collection(firestore, 'categories') : null, [firestore]);
   
-  // Estas consultas solo se activan si esAdmin es true y el perfil ya cargó
+  // Estas consultas solo se activan si esAdmin es true y el perfil ya cargó definitivamente
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
@@ -55,13 +58,17 @@ export default function PaginaPanelAdmin() {
     { titulo: "Secciones/Categorías", valor: totalCategorias.toString(), icon: LayoutGrid, color: "text-purple-600", href: "/admin/categories" },
   ];
 
-  if (loadingProfile || loadingProd || loadingCat || (esAdmin && (loadingOrders || loadingRecent))) {
+  if (userLoading || loadingProfile || loadingProd || loadingCat || (esAdmin && (loadingOrders || loadingRecent))) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Sincronizando panel...</p>
       </div>
     );
   }
+
+  // Si no es admin, el layout se encarga del redirect, pero evitamos renderizar contenido aquí
+  if (!esAdmin) return null;
 
   return (
     <div className="flex flex-col gap-8">

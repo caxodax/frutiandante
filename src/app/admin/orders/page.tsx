@@ -16,11 +16,11 @@ import { es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 export default function PaginaAdminPedidos() {
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<any>(null);
@@ -32,10 +32,12 @@ export default function PaginaAdminPedidos() {
   }, [firestore, user]);
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
+  
+  // Condición crítica de seguridad: solo esAdmin si el perfil cargó y tiene el rol correcto
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
   const ordersQuery = useMemoFirebase(() => {
-    // Solo activamos la consulta si estamos seguros de que es admin y el perfil cargó
+    // Bloqueo estricto: no creamos la consulta si no somos admin confirmado
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);
@@ -63,7 +65,7 @@ export default function PaginaAdminPedidos() {
           path: docRef.path,
           operation: 'update',
           requestResourceData: { estado: nuevoEstado },
-        });
+        } satisfies SecurityRuleContext);
         errorEmitter.emit('permission-error', permissionError);
       });
   };
@@ -76,9 +78,18 @@ export default function PaginaAdminPedidos() {
     }
   };
 
-  if (loadingProfile || (esAdmin && loadingOrders)) {
-    return <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  // Mostrar cargador mientras se verifica la identidad
+  if (userLoading || loadingProfile || (esAdmin && loadingOrders)) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">Validando permisos de acceso...</p>
+      </div>
+    );
   }
+
+  // Si terminó de cargar y no es admin, no mostramos nada (el layout se encargará del redirect)
+  if (!esAdmin) return null;
 
   return (
     <div className="space-y-6">
