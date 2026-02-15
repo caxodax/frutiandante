@@ -22,12 +22,12 @@ export default function PaginaPanelAdmin() {
   }, [firestore, user]);
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
-  const esAdmin = userProfile && (userProfile as any).role === 'admin';
+  const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
   const prodQuery = useMemoFirebase(() => firestore ? collection(firestore, 'products') : null, [firestore]);
   const catQuery = useMemoFirebase(() => firestore ? collection(firestore, 'categories') : null, [firestore]);
   
-  // Estas consultas solo se activan si esAdmin es true
+  // Estas consultas solo se activan si esAdmin es true y el perfil ya cargó
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
@@ -55,7 +55,7 @@ export default function PaginaPanelAdmin() {
     { titulo: "Secciones/Categorías", valor: totalCategorias.toString(), icon: LayoutGrid, color: "text-purple-600", href: "/admin/categories" },
   ];
 
-  if (loadingProfile || loadingProd || loadingCat || (esAdmin && loadingOrders)) {
+  if (loadingProfile || loadingProd || loadingCat || (esAdmin && (loadingOrders || loadingRecent))) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

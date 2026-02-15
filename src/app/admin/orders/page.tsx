@@ -32,10 +32,10 @@ export default function PaginaAdminPedidos() {
   }, [firestore, user]);
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
-  const esAdmin = userProfile && (userProfile as any).role === 'admin';
+  const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
   const ordersQuery = useMemoFirebase(() => {
-    // Solo activamos la consulta si estamos seguros de que es admin
+    // Solo activamos la consulta si estamos seguros de que es admin y el perfil cargó
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);
