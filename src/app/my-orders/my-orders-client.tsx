@@ -1,12 +1,11 @@
-
 'use client';
 
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ShoppingBag, Calendar, ChevronDown, Package, Landmark } from 'lucide-react';
+import { Loader2, ShoppingBag, Calendar, ChevronDown, Package, Landmark, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
@@ -24,7 +23,9 @@ export default function MyOrdersClient() {
 
   // Consulta filtrada: El cliente solo puede ver pedidos donde userId == su UID
   const ordersQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
+    // Solo iniciamos la consulta si tenemos al usuario y a firestore listos
+    if (!firestore || !user?.uid) return null;
+    
     return query(
       collection(firestore, 'orders'),
       where('userId', '==', user.uid),
@@ -32,13 +33,13 @@ export default function MyOrdersClient() {
     );
   }, [firestore, user]);
 
-  const { data: orders, loading: ordersLoading } = useCollection(ordersQuery);
+  const { data: orders, loading: ordersLoading, error } = useCollection(ordersQuery);
 
-  if (userLoading || ordersLoading) {
+  if (userLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Cargando tus pedidos...</p>
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Identificando usuario...</p>
       </div>
     );
   }
@@ -49,6 +50,26 @@ export default function MyOrdersClient() {
         <ShoppingBag className="h-16 w-16 mx-auto text-slate-200 mb-6" />
         <h1 className="text-3xl font-black font-headline mb-4">Inicia sesión para ver tus pedidos</h1>
         <Button asChild className="rounded-2xl h-14 px-10 font-bold"><Link href="/auth">Ir a Acceso</Link></Button>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <h3 className="text-xl font-bold font-headline">Error de Permisos</h3>
+        <p className="text-slate-500 max-w-md">No tienes autorización para ver estos datos o hubo un problema con la conexión.</p>
+        <Button onClick={() => window.location.reload()} variant="outline" className="mt-4 rounded-xl">Reintentar</Button>
+      </div>
+    );
+  }
+
+  if (ordersLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Cargando tus pedidos...</p>
       </div>
     );
   }

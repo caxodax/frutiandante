@@ -42,9 +42,13 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
           path: (query as any)._query?.path?.toString() || 'unknown',
           operation: 'list',
         });
-        errorEmitter.emit('permission-error', permissionError);
+        
+        // Actualizamos estados locales primero para evitar bloqueos si el emisor lanza una excepción
         setError(permissionError);
         setLoading(false);
+        
+        // Emitimos el error para el listener global (en dev esto lanzará una excepción)
+        errorEmitter.emit('permission-error', permissionError);
       }
     );
 

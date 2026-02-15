@@ -34,9 +34,13 @@ export function useDoc<T = DocumentData>(docRef: DocumentReference<T> | null) {
           path: docRef.path,
           operation: 'get',
         });
-        errorEmitter.emit('permission-error', permissionError);
+
+        // Actualizamos estados locales primero
         setError(permissionError);
         setLoading(false);
+        
+        // Emitimos el error para el listener global
+        errorEmitter.emit('permission-error', permissionError);
       }
     );
 
