@@ -70,6 +70,14 @@
   "directories": {
     "doc": "docs"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Luis Montes",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caxodax/frutiandante.git#master"
+  },
+  "bugs": {
+    "url": "https://github.com/caxodax/frutiandante/issues"
+  },
+  "homepage": "https://github.com/caxodax/frutiandante/tree/master#readme"
 }
