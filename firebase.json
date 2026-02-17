@@ -1,15 +1,12 @@
 {
   "hosting": {
-    "public": "out",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "https://frutiandante--frutiandante.us-east4.hosted.app",
+        "type": 301
       }
     ]
   }
