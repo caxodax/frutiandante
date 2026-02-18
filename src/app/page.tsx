@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -104,7 +103,7 @@ export default function PaginaInicio() {
                   <Truck className="h-8 w-8" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-primary mb-3 uppercase tracking-tight">Despacho de un día para otro</h3>
+                  <h3 className="text-xl font-bold text-primary mb-3 uppercase tracking-tight">Compra hoy y recibe mañana</h3>
                   <p className="text-slate-600 text-sm font-bold leading-relaxed">
                     Despachos de Lunes a Sábado
                   </p>
