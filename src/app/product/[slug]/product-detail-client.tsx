@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart, MessageSquare, ChevronLeft, ChevronRight, Star, CheckCircle, ShieldCheck, Loader2 } from 'lucide-react';
+import { ShoppingCart, MessageSquare, ChevronLeft, ChevronRight, Star, CheckCircle, ShieldCheck, Loader2, Plus, Minus } from 'lucide-react';
 import { useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, query, where, limit, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
@@ -21,7 +21,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   const [imagenSeleccionada, setImagenSeleccionada] = useState<string | null>(null);
   const [indiceImagenActual, setIndiceImagenActual] = useState(0);
 
-  // Consulta para obtener el producto por slug
   const productQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'products'), where('slug', '==', slug), limit(1));
@@ -30,7 +29,13 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   const { data: products, loading: loadingProd } = useCollection(productQuery);
   const producto = products && products.length > 0 ? products[0] : null;
 
-  // Consulta para obtener la configuración del sitio
+  const categoriasQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'categories');
+  }, [firestore]);
+
+  const { data: categorias } = useCollection(categoriasQuery);
+
   const siteConfigRef = useMemoFirebase(() => {
     if (!firestore) return null;
     return doc(firestore, 'config', 'site');
@@ -38,11 +43,25 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   const { data: configuracion } = useDoc(siteConfigRef);
 
+  const esVentaPorPeso = useMemo(() => {
+    if (!categorias || !producto?.idCategoria) return false;
+    const cat = categorias.find((c: any) => c.id === producto.idCategoria);
+    if (!cat) return false;
+    const nombre = cat.nombre.toLowerCase();
+    return nombre.includes('fruta') || nombre.includes('verdura');
+  }, [categorias, producto?.idCategoria]);
+
+  const paso = esVentaPorPeso ? 0.5 : 1;
+  const [cantidad, setCantidad] = useState(paso);
+
   useEffect(() => {
     if (producto && producto.imagenes && producto.imagenes.length > 0) {
       setImagenSeleccionada(producto.imagenes[0]);
     }
-  }, [producto]);
+    if (producto) {
+      setCantidad(paso);
+    }
+  }, [producto, paso]);
 
   if (loadingProd) {
     return (
@@ -65,17 +84,17 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   }
 
   const manejarAnadirAlCarrito = () => {
-    addItem(producto as any);
+    addItem(producto as any, cantidad);
     toast({
       title: "Producto añadido",
-      description: `${producto.nombre} se ha añadido al carrito.`,
+      description: `${producto.nombre} (${cantidad} ${esVentaPorPeso ? 'kg' : 'un'}) se ha añadido al carrito.`,
     });
   };
 
   const manejarPedidoWhatsAppDirecto = () => {
     if (!configuracion || !producto) return;
-    const mensaje = `Hola ${(configuracion as any).nombreEmpresa}, estoy interesado/a en el producto: ${producto.nombre}. Precio: $${Number(producto.precioDetalle).toLocaleString('es-CL')}.`;
-    const urlWhatsapp = `https://wa.me/ ${(configuracion as any).numeroWhatsapp}?text=${encodeURIComponent(mensaje)}`;
+    const mensaje = `Hola ${(configuracion as any).nombreEmpresa}, estoy interesado/a en el producto: ${producto.nombre}. Cantidad: ${cantidad} ${esVentaPorPeso ? 'kg' : 'un'}. Precio total estimado: $${(Number(producto.precioDetalle) * cantidad).toLocaleString('es-CL')}.`;
+    const urlWhatsapp = `https://wa.me/${(configuracion as any).numeroWhatsapp}?text=${encodeURIComponent(mensaje)}`;
     window.open(urlWhatsapp, '_blank');
   };
 
@@ -120,38 +139,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     </>
                   )}
                 </div>
-                {producto.imagenes && producto.imagenes.length > 1 && (
-                  <div className="mt-6 flex w-full max-w-lg justify-center gap-3 overflow-x-auto p-2">
-                    {producto.imagenes.map((img: string, indice: number) => (
-                      <button
-                        key={indice}
-                        onClick={() => { setImagenSeleccionada(img); setIndiceImagenActual(indice); }}
-                        className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 transition-all duration-200 ${imagenSeleccionada === img ? 'border-primary ring-4 ring-primary/10 opacity-100 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                      >
-                        <Image
-                          src={img}
-                          alt={`Miniatura ${indice + 1}`}
-                          width={80}
-                          height={80}
-                          className="h-full w-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
 
               <div className="py-4 md:py-0 flex flex-col">
                 <div className="mb-6">
                   <h1 className="font-headline text-4xl font-black text-slate-900 md:text-5xl lg:text-6xl tracking-tight leading-tight">{producto.nombre}</h1>
-                  <div className="mt-4 flex items-center gap-3">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`h-5 w-5 ${i < 4 ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
-                      ))}
-                    </div>
-                    <span className="text-sm font-bold text-slate-400">(Recomendado por la feria)</span>
-                  </div>
                 </div>
                 
                 <Separator className="mb-8" />
@@ -162,13 +154,40 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 
                 <div className="mt-auto space-y-8">
                   <div className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100/50">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-sm font-black text-emerald-800 uppercase tracking-widest">Precio Hoy</span>
-                      <span className="font-headline text-5xl font-black text-emerald-950">${Number(producto.precioDetalle).toLocaleString('es-CL')}</span>
-                    </div>
-                    <div className="mt-4 flex items-center gap-2 text-emerald-700 font-bold">
-                      <CheckCircle className="h-5 w-5" />
-                      <span>Disponible para despacho inmediato</span>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="text-sm font-black text-emerald-800 uppercase tracking-widest">Precio por {esVentaPorPeso ? 'kg' : 'un'}</span>
+                        <span className="font-headline text-5xl font-black text-emerald-950">${Number(producto.precioDetalle).toLocaleString('es-CL')}</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between bg-white rounded-2xl p-2 border shadow-sm">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-xl" 
+                          onClick={() => setCantidad(prev => Math.max(paso, prev - paso))}
+                          disabled={cantidad <= paso}
+                        >
+                          <Minus className="h-6 w-6" />
+                        </Button>
+                        <div className="text-center">
+                          <span className="text-2xl font-black block leading-none">{cantidad}</span>
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{esVentaPorPeso ? 'Kilogramos' : 'Unidades'}</span>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-xl" 
+                          onClick={() => setCantidad(prev => prev + paso)}
+                        >
+                          <Plus className="h-6 w-6" />
+                        </Button>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t border-emerald-200">
+                        <span className="text-emerald-800 font-bold">Total estimado:</span>
+                        <span className="text-2xl font-black text-emerald-950">${(Number(producto.precioDetalle) * cantidad).toLocaleString('es-CL')}</span>
+                      </div>
                     </div>
                   </div>
                   
@@ -179,21 +198,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     <Button size="lg" variant="outline" className="w-full flex-grow h-16 rounded-2xl border-slate-200 font-bold text-lg hover:bg-slate-50 transition-all" onClick={manejarPedidoWhatsAppDirecto}>
                       <MessageSquare className="mr-2 h-6 w-6 text-primary" /> Consultar
                     </Button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                            <ShieldCheck className="h-6 w-6" />
-                          </div>
-                          <span className="text-xs font-bold text-slate-700 leading-tight">Compra Segura</span>
-                      </div>
-                      <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                          <div className="h-10 w-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
-                            <TruckIcon className="h-6 w-6" />
-                          </div>
-                          <span className="text-xs font-bold text-slate-700 leading-tight">Despacho Veloz</span>
-                      </div>
                   </div>
                 </div>
               </div>

@@ -9,7 +9,7 @@ export interface CartItem extends Producto {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Producto, quantity?: number) => void;
+  addItem: (product: Producto, quantity: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -24,7 +24,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Cargar desde localStorage al montar (solo en el cliente)
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -37,14 +36,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsLoaded(true);
   }, []);
 
-  // Guardar en localStorage cuando cambien los items
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('cart', JSON.stringify(items));
     }
   }, [items, isLoaded]);
 
-  const addItem = (product: Producto, quantity: number = 1) => {
+  const addItem = (product: Producto, quantity: number) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
@@ -61,7 +59,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity < 1) return;
+    if (quantity <= 0) return;
     setItems((prevItems) =>
       prevItems.map((item) =>
         item.id === productId ? { ...item, quantity } : item
@@ -73,7 +71,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   };
 
-  const totalItems = useMemo(() => items.reduce((acc, item) => acc + item.quantity, 0), [items]);
+  const totalItems = useMemo(() => items.reduce((acc, item) => acc + (item.quantity >= 1 ? Math.floor(item.quantity) : 1), 0), [items]);
   const totalPrice = useMemo(() => items.reduce((acc, item) => acc + item.precioDetalle * item.quantity, 0), [items]);
 
   const value = {
