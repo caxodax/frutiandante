@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -14,6 +13,9 @@ const Logotipo = ({ className, configuracion }: LogotipoProps) => {
   const nombreDisplay = configuracion?.nombreEmpresa || 'Frutiandante';
   const logoUrl = configuracion?.urlLogo;
   
+  // Verificamos si es el nombre por defecto para aplicar el estilo bi-tono
+  const esFrutiandante = nombreDisplay.toLowerCase() === 'frutiandante';
+
   return (
     <Link 
       href="/" 
@@ -36,9 +38,16 @@ const Logotipo = ({ className, configuracion }: LogotipoProps) => {
         </div>
       )}
       <div className="flex flex-col justify-center">
-        <span className="font-headline text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter group-hover:text-primary transition-colors leading-none">
-          {nombreDisplay}
-        </span>
+        {esFrutiandante ? (
+          <span className="font-headline text-2xl sm:text-4xl font-black tracking-tighter leading-none flex items-baseline">
+            <span className="text-primary">FRUTI</span>
+            <span className="text-secondary">ANDANTE</span>
+          </span>
+        ) : (
+          <span className="font-headline text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter group-hover:text-primary transition-colors leading-none">
+            {nombreDisplay}
+          </span>
+        )}
       </div>
     </Link>
   );
