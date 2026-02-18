@@ -103,7 +103,7 @@ export default function PaginaInicio() {
                   <Truck className="h-8 w-8" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-primary mb-3 uppercase tracking-tight">Compra hoy y recibe mañana</h3>
+                  <h3 className="text-xl font-bold text-primary mb-3 uppercase tracking-tight">COMPRA HOY Y RECIBE MAÑANA</h3>
                   <p className="text-slate-600 text-sm font-bold leading-relaxed">
                     Despachos de Lunes a Sábado
                   </p>
@@ -115,11 +115,11 @@ export default function PaginaInicio() {
                   <ShoppingBag className="h-8 w-8" />
                 </div>
                 <div className="space-y-2">
+                  <p className="text-slate-600 text-sm font-bold leading-relaxed bg-slate-50 p-2 rounded-xl">
+                    Costo de despacho: $3.000
+                  </p>
                   <p className="text-slate-600 text-sm font-bold leading-relaxed">
                     Por compras superior a <span className="text-primary text-lg">$25.000</span>, el despacho es gratuito.
-                  </p>
-                  <p className="text-slate-600 text-sm font-bold leading-relaxed bg-slate-50 p-2 rounded-xl">
-                    Para pedidos menores costo de despacho: $3.000
                   </p>
                 </div>
               </div>
