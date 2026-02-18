@@ -47,7 +47,7 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         
         if (serverError.code === 'permission-denied') {
           const permissionError = new FirestorePermissionError({
-            path: 'orders',
+            path: (query as any)?._query?.path?.toString() || 'unknown',
             operation: 'list',
           });
           

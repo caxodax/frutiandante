@@ -4,19 +4,24 @@ Este es el proyecto de **Frutiandante**, un ecommerce especializado en el despac
 
 ## 🚀 Cómo subir este proyecto a GitHub
 
-Si quieres subir tus cambios a un nuevo repositorio, sigue estos pasos:
+Si quieres conectar este código con un nuevo repositorio en GitHub, sigue estos pasos desde tu terminal:
 
-1. **Crea un repositorio en GitHub** (vacío).
-2. **Inicializa git** en la carpeta local:
+1. **Inicializa git y guarda tus cambios locales**:
    ```bash
    git init
    git add .
-   git commit -m "Subida inicial"
+   git commit -m "Subida inicial Frutiandante"
    ```
-3. **Vincula y sube**:
+
+2. **Conecta con tu repositorio en la nube**:
+   *(Copia la URL de tu repositorio de GitHub, ej: https://github.com/usuario/proyecto.git)*
    ```bash
    git branch -M main
    git remote add origin <URL_DE_TU_REPOSITORIO>
+   ```
+
+3. **Sube los cambios**:
+   ```bash
    git push -u origin main
    ```
 
