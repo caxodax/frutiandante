@@ -7,7 +7,7 @@ import TarjetaProducto from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
-import { ChevronRight, Truck, MapPin, ShoppingBag, Star, ShieldCheck, ArrowRight } from 'lucide-react';
+import { ChevronRight, Truck, MapPin, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCollection, useFirestore } from '@/firebase';
 import { collection, query, limit } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
@@ -76,29 +76,43 @@ export default function PaginaInicio() {
           </div>
         </section>
 
-        {/* Info Section */}
+        {/* Info Section Restaurada según imagen */}
         <section className="bg-white py-16 border-b">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-                <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Zonas de Despacho</h2>
-                <p className="text-lg font-bold text-slate-900">LAS CONDES – LO BARNECHEA – ÑUÑOA – PROVIDENCIA – SANTIAGO Y MÁS</p>
-            </div>
+            <div className="grid grid-cols-1 gap-12 md:grid-cols-3 items-start">
+              {/* Zonas de Despacho */}
+              <div className="flex flex-col items-center text-center">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-primary border border-emerald-100 shadow-sm">
+                  <MapPin className="h-8 w-8" />
+                </div>
+                <h3 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-tight">ZONAS DE DESPACHO</h3>
+                <p className="text-slate-500 font-bold text-[11px] leading-relaxed uppercase tracking-widest max-w-[250px]">
+                  SANTIAGO – PROVIDENCIA – ÑUÑOA – LA REINA – LAS CONDES – VITACURA
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-              <ValueCard icon={MapPin} title="Logística de Élite" desc="Entregas personalizadas en las comunas más importantes de la capital." />
-              <ValueCard icon={Truck} title="COMPRA HOY Y RECIBE MAÑANA" desc="Despacho de Lunes a Sábado para pedidos antes de las 20:00." />
-              <ValueCard icon={ShieldCheck} title="Garantía de Frescura" desc="Calidad artesanal garantizada o te devolvemos el dinero." />
-            </div>
-            
-            <div className="mt-16 bg-slate-50 rounded-3xl p-8 border border-slate-100 max-w-4xl mx-auto">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
-                <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center text-white">
+              {/* Compra Hoy y Recibe Mañana */}
+              <div className="flex flex-col items-center text-center">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-primary border border-emerald-100 shadow-sm">
+                  <Truck className="h-8 w-8" />
+                </div>
+                <h3 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-tight">COMPRA HOY Y RECIBE MAÑANA</h3>
+                <p className="text-slate-500 font-bold text-[11px] leading-relaxed uppercase tracking-widest">
+                  Despachos de Lunes a Sábado
+                </p>
+              </div>
+
+              {/* Costo de Despacho */}
+              <div className="flex flex-col items-center text-center">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-primary border border-emerald-100 shadow-sm">
                   <ShoppingBag className="h-8 w-8" />
                 </div>
-                <div>
-                  <h4 className="text-2xl font-black text-slate-900">Costo del despacho: $3.000</h4>
-                  <p className="text-slate-500 font-medium text-lg">Por compras superiores a <span className="text-primary font-bold">$25.000</span> el despacho es gratuito.</p>
+                <div className="w-full max-w-[280px] bg-slate-50 rounded-xl py-3 mb-4 border border-slate-100">
+                  <p className="text-sm font-bold text-slate-700">Costo de despacho: $3.000</p>
                 </div>
+                <p className="text-[11px] font-medium text-slate-600">
+                  Por compras superior a <span className="text-primary font-black text-sm">$25.000</span>, el despacho es gratuito.
+                </p>
               </div>
             </div>
           </div>
@@ -165,18 +179,6 @@ export default function PaginaInicio() {
         </section>
       </main>
       <PieDePagina />
-    </div>
-  );
-}
-
-function ValueCard({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
-  return (
-    <div className="flex flex-col items-center text-center px-4">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 text-primary border shadow-sm">
-        <Icon className="h-8 w-8" />
-      </div>
-      <h3 className="text-lg font-black text-slate-900 mb-2 uppercase tracking-tight">{title}</h3>
-      <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xs">{desc}</p>
     </div>
   );
 }
