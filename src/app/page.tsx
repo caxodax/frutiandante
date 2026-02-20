@@ -34,7 +34,7 @@ export default function PaginaInicio() {
     <div className="flex min-h-screen flex-col">
       <Encabezado />
       <main className="flex-grow">
-        {/* Hero Section - Elegancia Editorial */}
+        {/* Hero Section */}
         <section className="relative h-[85vh] min-h-[600px] overflow-hidden bg-slate-900 flex items-center">
           <div className="absolute inset-0 z-0">
             <Image 
@@ -43,7 +43,6 @@ export default function PaginaInicio() {
               fill
               className="object-cover opacity-60 scale-105"
               priority={true}
-              data-ai-hint="luxury organic farm"
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10"></div>
@@ -76,7 +75,7 @@ export default function PaginaInicio() {
           </div>
         </section>
 
-        {/* Value Proposition - Look Corporativo Moderno */}
+        {/* Value Proposition */}
         <section className="bg-white py-20 border-b relative">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 gap-16 md:grid-cols-3 items-start">
@@ -86,7 +85,7 @@ export default function PaginaInicio() {
                 </div>
                 <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Zonas de Despacho</h3>
                 <p className="text-slate-500 font-bold text-xs leading-relaxed uppercase tracking-widest max-w-[280px]">
-                  Santiago – Providencia – Ñuñoa – La Reina – Las Condes – Vitacura
+                  SANTIAGO – PROVIDENCIA – ÑUÑOA – LA REINA – LAS CONDES – VITACURA
                 </p>
               </div>
 
@@ -94,7 +93,7 @@ export default function PaginaInicio() {
                 <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-slate-50 text-primary border border-slate-100 shadow-sm transition-transform group-hover:scale-110">
                   <Truck className="h-10 w-10" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Compra hoy, recibe mañana</h3>
+                <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tighter">COMPRA HOY Y RECIBE MAÑANA</h3>
                 <p className="text-slate-500 font-bold text-xs leading-relaxed uppercase tracking-widest">
                   Logística activa de Lunes a Sábado
                 </p>
@@ -115,7 +114,7 @@ export default function PaginaInicio() {
           </div>
         </section>
 
-        {/* Featured Products - Grid de Lujo */}
+        {/* Featured Products */}
         <section className="py-24 bg-slate-50/50">
           <div className="container mx-auto px-4">
             <div className="mb-16 flex flex-col md:flex-row items-end justify-between gap-6 text-center md:text-left">
@@ -142,7 +141,7 @@ export default function PaginaInicio() {
           </div>
         </section>
 
-        {/* Categorías Editorial */}
+        {/* Categorías */}
         <section id="categorias" className="py-24 bg-white">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">

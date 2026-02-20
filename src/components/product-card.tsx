@@ -68,9 +68,6 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
               {esVentaPorPeso ? 'COSECHA FRESCA' : 'SELECCIÓN PREMIUM'}
             </Badge>
           </div>
-          <div className="absolute bottom-4 right-4 h-10 w-10 bg-secondary rounded-full flex items-center justify-center text-white shadow-xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-             <Star className="h-5 w-5 fill-white" />
-          </div>
         </Link>
       </CardHeader>
       

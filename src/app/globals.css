@@ -4,15 +4,15 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%; /* Crema Orgánico */
+    --background: 40 33% 98%;
     --foreground: 20 14% 4%;
     --card: 0 0% 100%;
     --card-foreground: 20 14% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 20 14% 4%;
-    --primary: 104 36% 22%; /* Verde Bosque Premium */
+    --primary: 104 36% 22%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 25 80% 54%; /* Naranja Andante */
+    --secondary: 25 80% 54%;
     --secondary-foreground: 0 0% 100%;
     --muted: 40 10% 94%;
     --muted-foreground: 25 5% 45%;
@@ -23,7 +23,7 @@
     --border: 20 10% 90%;
     --input: 20 10% 90%;
     --ring: 104 36% 27%;
-    --radius: 1.5rem; /* Bordes redondeados modernos */
+    --radius: 1.5rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;

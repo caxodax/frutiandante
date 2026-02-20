@@ -31,11 +31,9 @@ export default function PaginaAdminPedidos() {
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
   
-  // GATING CRÍTICO: Verificamos explícitamente el rol de administrador
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
   const ordersQuery = useMemoFirebase(() => {
-    // PROTECCIÓN: Solo activamos la consulta si el usuario es administrador confirmado
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);

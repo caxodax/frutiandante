@@ -93,7 +93,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   const manejarPedidoWhatsAppDirecto = () => {
     if (!configuracion || !producto) return;
-    const mensaje = `Hola ${(configuracion as any).nombreEmpresa}, estoy interesado/a en el producto gourmet: ${producto.nombre}. Cantidad: ${cantidad} ${esVentaPorPeso ? 'kg' : 'un'}.`;
+    const mensaje = `Hola ${(configuracion as any).nombreEmpresa}, estoy interesado/a en el producto: ${producto.nombre}. Cantidad: ${cantidad} ${esVentaPorPeso ? 'kg' : 'un'}.`;
     const urlWhatsapp = `https://wa.me/${(configuracion as any).numeroWhatsapp}?text=${encodeURIComponent(mensaje)}`;
     window.open(urlWhatsapp, '_blank');
   };
@@ -114,7 +114,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     <main className="flex-grow bg-slate-50/50 py-12 md:py-20">
       <div className="container mx-auto px-4">
         <div className="grid gap-12 lg:grid-cols-12">
-          {/* Galería Premium */}
+          {/* Galería */}
           <div className="lg:col-span-7">
             <div className="sticky top-28 space-y-6">
               <div className="relative aspect-square w-full overflow-hidden rounded-[3rem] bg-white shadow-2xl border-none">
@@ -139,21 +139,10 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                   </div>
                 )}
               </div>
-              <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
-                {producto.imagenes?.map((img: string, i: number) => (
-                  <button 
-                    key={i} 
-                    onClick={() => { setIndiceImagenActual(i); setImagenSeleccionada(img); }}
-                    className={`relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-2 transition-all ${indiceImagenActual === i ? 'border-primary shadow-lg scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                  >
-                    <Image src={img} alt={`Miniatura ${i}`} fill className="object-cover" />
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 
-          {/* Info Boutique */}
+          {/* Info */}
           <div className="lg:col-span-5">
             <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white sticky top-28">
               <CardContent className="p-8 md:p-12 space-y-10">
@@ -162,14 +151,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     Disponible hoy
                   </Badge>
                   <h1 className="font-headline text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">{producto.nombre}</h1>
-                  <div className="flex items-center gap-2 text-secondary">
-                    <Star className="h-4 w-4 fill-secondary" />
-                    <Star className="h-4 w-4 fill-secondary" />
-                    <Star className="h-4 w-4 fill-secondary" />
-                    <Star className="h-4 w-4 fill-secondary" />
-                    <Star className="h-4 w-4 fill-secondary" />
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Calidad Garantizada</span>
-                  </div>
                 </div>
 
                 <div className="prose prose-slate max-w-none">
@@ -211,17 +192,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                   <Button variant="outline" size="lg" className="h-16 rounded-2xl font-black text-sm uppercase tracking-widest border-slate-200 hover:bg-slate-50" onClick={manejarPedidoWhatsAppDirecto}>
                     <MessageSquare className="mr-3 h-5 w-5 text-primary" /> Consultar vía WhatsApp
                   </Button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                   <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
-                      <Utensils className="h-5 w-5 text-primary" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Alta Nutrición</span>
-                   </div>
-                   <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
-                      <Info className="h-5 w-5 text-primary" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Sello Orgánico</span>
-                   </div>
                 </div>
               </CardContent>
             </Card>

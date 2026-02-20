@@ -9,14 +9,10 @@ interface LogotipoProps {
   configuracion?: ConfiguracionSitio | null;
 }
 
-// ✅ Logo local ultra-rápido (se sirve desde tu propio dominio/CDN)
-const FALLBACK_LOGO = '/logo.webp';
-
 const Logotipo = ({ className, configuracion }: LogotipoProps) => {
   const nombreDisplay = configuracion?.nombreEmpresa || 'Frutiandante';
   const logoUrl = configuracion?.urlLogo;
   
-  // Verificamos si es el nombre por defecto para aplicar el estilo bi-tono
   const esFrutiandante = nombreDisplay.toLowerCase() === 'frutiandante';
 
   return (
@@ -26,12 +22,11 @@ const Logotipo = ({ className, configuracion }: LogotipoProps) => {
     >
       <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-2xl bg-white shadow-md border border-slate-100 p-1.5 transition-transform group-hover:scale-105">
         <Image
-          src={logoUrl}
+          src={logoUrl || 'https://picsum.photos/seed/fruti-logo/300/100'}
           alt={`Logotipo de ${nombreDisplay}`}
           fill
           className="object-contain"
           priority
-          fetchPriority="high"
           sizes="(max-width: 768px) 56px, 64px"
         />
       </div>
