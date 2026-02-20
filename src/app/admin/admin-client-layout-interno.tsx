@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect } from "react";
@@ -90,11 +89,6 @@ export default function AdminClientLayoutInterno({
     }
   }, [user, userLoading, userProfile, profileLoading, profileError, router, pathname]);
 
-  const manejarCerrarSesion = async () => {
-    await signOut(auth);
-    router.push('/admin/login');
-  };
-
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
@@ -114,6 +108,11 @@ export default function AdminClientLayoutInterno({
     return null;
   }
 
+  const manejarCerrarSesion = async () => {
+    await signOut(auth);
+    router.push('/admin/login');
+  };
+
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -130,7 +129,6 @@ export default function AdminClientLayoutInterno({
                   asChild 
                   isActive={pathname === item.href} 
                   disabled={item.disabled}
-                  className="font-headline"
                 >
                   <Link href={item.href}>
                     <item.icon className="h-5 w-5" />
@@ -141,15 +139,15 @@ export default function AdminClientLayoutInterno({
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-4">
-          <Button variant="outline" className="w-full font-headline border-destructive/20 text-destructive hover:bg-destructive/10" onClick={manejarCerrarSesion}>
+        <SidebarFooter className="p-4 border-t">
+          <Button variant="outline" className="w-full text-destructive hover:bg-destructive/5 border-destructive/20" onClick={manejarCerrarSesion}>
             <LogOut className="mr-2 h-4 w-4" />
             Cerrar Sesión
           </Button>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 shadow-sm sm:px-6 md:justify-end">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 sm:px-6 md:justify-end">
           <div className="md:hidden">
             {logotipoCabeceraMovil}
           </div>
@@ -164,13 +162,13 @@ export default function AdminClientLayoutInterno({
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem disabled>Perfil</DropdownMenuItem>
                 <DropdownMenuItem disabled>Configuración</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={manejarCerrarSesion} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                <DropdownMenuItem onClick={manejarCerrarSesion} className="text-destructive focus:bg-destructive/5">
                   <LogOut className="mr-2 h-4 w-4" />
                   Cerrar Sesión
                 </DropdownMenuItem>
@@ -178,7 +176,7 @@ export default function AdminClientLayoutInterno({
             </DropdownMenu>
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="flex-1 p-4 sm:p-6 bg-slate-50/30">
           {children}
         </main>
       </SidebarInset>
