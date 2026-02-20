@@ -1,9 +1,8 @@
-
 {
   "hero": {
-    "url": "https://picsum.photos/seed/harvest/1920/1080",
+    "url": "https://picsum.photos/seed/desk/1920/1080",
     "alt": "Cosecha Frutiandante",
-    "hint": "campo cosecha"
+    "hint": "dark wood desk"
   },
   "about": {
     "url": "https://picsum.photos/seed/about/1920/1080",

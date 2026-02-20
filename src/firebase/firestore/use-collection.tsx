@@ -42,16 +42,18 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         setLoading(false);
         setError(null);
       },
-      (serverError: FirestoreError) => {
+      async (serverError: FirestoreError) => {
+        // MUY IMPORTANTE: Primero detenemos el estado de carga
         setLoading(false);
         
         if (serverError.code === 'permission-denied') {
           const permissionError = new FirestorePermissionError({
-            path: (query as any)?._query?.path?.toString() || 'unknown',
+            path: (query as any)?._query?.path?.toString() || 'orders',
             operation: 'list',
           });
           
           setError(permissionError);
+          // Emitimos el error para el listener central que dispara el overlay de NextJS en desarrollo
           errorEmitter.emit('permission-error', permissionError);
         } else {
           setError(serverError);

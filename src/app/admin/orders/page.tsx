@@ -31,10 +31,11 @@ export default function PaginaAdminPedidos() {
 
   const { data: userProfile, loading: loadingProfile } = useDoc(userProfileRef);
   
+  // GATING CRÍTICO: Verificamos explícitamente el rol de administrador
   const esAdmin = !loadingProfile && userProfile && (userProfile as any).role === 'admin';
 
   const ordersQuery = useMemoFirebase(() => {
-    // Gating defensivo absoluto
+    // PROTECCIÓN: Solo activamos la consulta si el usuario es administrador confirmado
     if (!firestore || !user || !esAdmin) return null;
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);
@@ -47,40 +48,25 @@ export default function PaginaAdminPedidos() {
   );
 
   const actualizarEstado = async (id: string, nuevoEstado: string) => {
-  if (!firestore) return;
+    if (!firestore) return;
+    const docRef = doc(firestore, 'orders', id);
 
-  const docRef = doc(firestore, 'orders', id);
-
-  try {
-    await updateDoc(docRef, { estado: nuevoEstado });
-
-    toast({
-      title: "Estado actualizado",
-      description: `El pedido ahora está ${nuevoEstado}.`,
-    });
-
-    if (pedidoSeleccionado?.id === id) {
-      setPedidoSeleccionado({ ...pedidoSeleccionado, estado: nuevoEstado });
-    }
-  } catch (err) {
-    console.error("Error update order:", err);
-
-    const permissionError = new FirestorePermissionError({
-      path: docRef.path,
-      operation: 'update',
-      requestResourceData: { estado: nuevoEstado },
-    } satisfies SecurityRuleContext);
-
-    errorEmitter.emit('permission-error', permissionError);
-
-    // Además muestra un toast al admin para que sepa qué pasó
-    toast({
-      title: "No se pudo actualizar",
-      description: String((err as any)?.message ?? err),
-      variant: "destructive",
-    });
-  }
-};
+    updateDoc(docRef, { estado: nuevoEstado })
+      .then(() => {
+        toast({ title: "Estado actualizado", description: `El pedido ahora está ${nuevoEstado}.` });
+        if (pedidoSeleccionado?.id === id) {
+          setPedidoSeleccionado({ ...pedidoSeleccionado, estado: nuevoEstado });
+        }
+      })
+      .catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'update',
+          requestResourceData: { estado: nuevoEstado },
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
+  };
 
   const getBadgeEstado = (estado: string) => {
     switch (estado) {
@@ -103,11 +89,9 @@ export default function PaginaAdminPedidos() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
         <AlertCircle className="h-16 w-16 text-destructive mb-2" />
-        <h2 className="text-2xl font-black font-headline">Acceso No Autorizado</h2>
-        <p className="text-slate-500 max-w-md">No tienes los permisos necesarios para gestionar los pedidos de Frutiandante.</p>
-        <Button asChild className="mt-4 rounded-xl">
-          <a href="/">Volver al Inicio</a>
-        </Button>
+        <h2 className="text-2xl font-black font-headline uppercase">Acceso No Autorizado</h2>
+        <p className="text-slate-500 max-w-md">No tienes los permisos necesarios para gestionar los pedidos.</p>
+        <Button asChild className="mt-4 rounded-xl"><a href="/">Volver al Inicio</a></Button>
       </div>
     );
   }
@@ -117,7 +101,7 @@ export default function PaginaAdminPedidos() {
       <Card className="shadow-lg border-none rounded-3xl overflow-hidden">
         <CardHeader className="bg-slate-50/50 p-8 border-b">
           <div>
-            <CardTitle className="font-headline text-3xl font-black text-slate-900">Gestión de Pedidos</CardTitle>
+            <CardTitle className="font-headline text-3xl font-black text-slate-900 uppercase">Gestión de Pedidos</CardTitle>
             <CardDescription>Visualización global de ventas de Frutiandante.</CardDescription>
           </div>
         </CardHeader>
@@ -125,7 +109,7 @@ export default function PaginaAdminPedidos() {
           <div className="mb-8 relative w-full sm:w-1/2">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
             <Input 
-              placeholder="Buscar por cliente o ID de pedido..." 
+              placeholder="Buscar por cliente o ID..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-12 h-12 rounded-xl bg-slate-50 border-slate-100" 
@@ -136,10 +120,6 @@ export default function PaginaAdminPedidos() {
             {loadingOrders ? (
               <div className="flex justify-center py-20">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              </div>
-            ) : ordersError ? (
-              <div className="text-center py-10 text-destructive font-bold">
-                Error al cargar pedidos. Verifica tu conexión o permisos.
               </div>
             ) : (
               <Table>
@@ -177,7 +157,7 @@ export default function PaginaAdminPedidos() {
                       <TableCell>{getBadgeEstado(pedido.estado)}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPedidoSeleccionado(pedido)}>
-                          <Eye className="h-4 w-4 mr-2" /> Ver Detalles
+                          <Eye className="h-4 w-4 mr-2" /> Detalles
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -192,7 +172,7 @@ export default function PaginaAdminPedidos() {
       <Dialog open={!!pedidoSeleccionado} onOpenChange={() => setPedidoSeleccionado(null)}>
         <DialogContent className="max-w-2xl rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black font-headline">Pedido #{pedidoSeleccionado?.id.substring(0, 8)}</DialogTitle>
+            <DialogTitle className="text-2xl font-black font-headline uppercase">Pedido #{pedidoSeleccionado?.id.substring(0, 8)}</DialogTitle>
             <DialogDescription>Gestión administrativa del pedido.</DialogDescription>
           </DialogHeader>
           
@@ -210,7 +190,7 @@ export default function PaginaAdminPedidos() {
               </div>
 
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Detalle de Productos</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Detalle</p>
                 <div className="space-y-2">
                   {pedidoSeleccionado.items?.map((item: any, i: number) => (
                     <div key={i} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
@@ -220,7 +200,7 @@ export default function PaginaAdminPedidos() {
                   ))}
                 </div>
                 <div className="flex justify-between items-center mt-4 pt-4 border-t-2 border-slate-900">
-                  <span className="text-lg font-black">TOTAL</span>
+                  <span className="text-lg font-black uppercase">TOTAL</span>
                   <span className="text-2xl font-black text-primary">${pedidoSeleccionado.total?.toLocaleString('es-CL')}</span>
                 </div>
               </div>
@@ -232,7 +212,7 @@ export default function PaginaAdminPedidos() {
                   className="rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                   onClick={() => actualizarEstado(pedidoSeleccionado.id, 'completado')}
                 >
-                  <CheckCircle2 className="h-4 w-4 mr-2" /> Marcar Completado
+                  <CheckCircle2 className="h-4 w-4 mr-2" /> Completado
                 </Button>
                 <Button 
                   size="sm" 
