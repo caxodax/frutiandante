@@ -7,7 +7,7 @@ import type { Producto } from '@/tipos';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Leaf, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, Leaf, Plus, Minus, ArrowUpRight } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore } from '@/firebase';
@@ -48,7 +48,7 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
     addItem(producto, cantidad);
     toast({
       title: "¡Al canasto!",
-      description: `${producto.nombre} (${cantidad} ${esVentaPorPeso ? 'kg' : 'un'}) añadido.`,
+      description: `${producto.nombre} añadido exitosamente.`,
     });
   };
 
@@ -65,76 +65,73 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
   };
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-sm transition-all hover:shadow-lg rounded-2xl relative animate-in fade-in duration-500">
-      <Link href={`/product/${producto.slug}`} className="absolute inset-0 z-0">
-        <span className="sr-only">Ver {producto.nombre}</span>
+    <Card className="group flex h-full flex-col overflow-hidden border border-slate-100 bg-white shadow-sm transition-all hover:shadow-2xl hover:shadow-primary/5 rounded-[2.5rem] relative animate-in fade-in duration-700">
+      <Link href={`/product/${producto.slug}`} className="absolute top-6 right-6 z-20 h-12 w-12 rounded-full bg-white/80 backdrop-blur-md border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-white group-hover:rotate-45 transition-all shadow-sm">
+        <ArrowUpRight className="h-6 w-6" />
       </Link>
 
-      <CardHeader className="p-0 relative z-10 pointer-events-none">
-        <div className="aspect-square relative overflow-hidden bg-slate-50">
+      <CardHeader className="p-0 relative z-10">
+        <Link href={`/product/${producto.slug}`} className="block aspect-[4/5] relative overflow-hidden bg-slate-50">
           <Image
             src={producto.imagenes?.[0] || imageData.placeholder.url}
             alt={producto.nombre}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, 25vw"
             loading="lazy"
             data-ai-hint={imageData.placeholder.hint}
           />
-          
-          <div className="absolute left-4 top-4 flex flex-col gap-2">
-            <Badge className="bg-secondary text-white font-bold px-3 py-1 rounded-lg border-2 border-white shadow-sm">
-              Fresco
+          <div className="absolute bottom-4 left-6">
+            <Badge className="bg-primary/90 backdrop-blur-md text-white font-black px-4 py-1.5 rounded-2xl border-none shadow-xl uppercase tracking-tighter text-[10px]">
+              {esVentaPorPeso ? 'COSECHA FRESCA' : 'PREMIUM'}
             </Badge>
           </div>
-          
-          <div className="absolute right-4 top-4 bg-white/90 backdrop-blur-md p-2 rounded-full shadow-sm text-primary">
-            <Leaf className="h-4 w-4" />
-          </div>
-        </div>
+        </Link>
       </CardHeader>
       
-      <CardContent className="flex flex-1 flex-col p-6 pb-2 relative z-10">
-        <h3 className="font-headline text-xl font-bold leading-tight text-slate-900 group-hover:text-primary transition-colors line-clamp-2">
-          {producto.nombre}
-        </h3>
+      <CardContent className="flex flex-1 flex-col p-8 relative z-10">
+        <div className="mb-4">
+          <Link href={`/product/${producto.slug}`} className="font-headline text-2xl font-black leading-tight text-slate-900 group-hover:text-primary transition-colors line-clamp-2 uppercase tracking-tighter">
+            {producto.nombre}
+          </Link>
+        </div>
         
-        <div className="mt-4 flex flex-col">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Precio {esVentaPorPeso ? 'por kg' : 'por unidad'}</span>
-          <span className="text-2xl font-black text-slate-900">${producto.precioDetalle.toLocaleString('es-CL')}</span>
+        <div className="mt-auto flex flex-col">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Precio por {esVentaPorPeso ? 'kg' : 'un'}</span>
+          <span className="text-3xl font-black text-slate-900">${producto.precioDetalle.toLocaleString('es-CL')}</span>
         </div>
       </CardContent>
       
-      <CardFooter className="p-6 pt-2 relative z-20 flex flex-col gap-3">
-        <div className="flex items-center justify-between w-full bg-slate-50 rounded-xl p-1 border">
+      <CardFooter className="px-8 pb-8 pt-0 relative z-20 flex flex-col gap-4">
+        <div className="flex items-center justify-between w-full bg-slate-50 rounded-2xl p-2 border border-slate-100">
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 rounded-lg" 
+            className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-sm text-slate-400" 
             onClick={decrementar}
             disabled={cantidad <= paso}
           >
-            <Minus className="h-4 w-4" />
+            <Minus className="h-5 w-5" />
           </Button>
-          <span className="text-sm font-black">
-            {cantidad} {esVentaPorPeso ? 'kg' : 'un'}
+          <span className="text-sm font-black text-slate-900 px-4">
+            {cantidad} <span className="text-[10px] uppercase text-slate-400">{esVentaPorPeso ? 'kg' : 'un'}</span>
           </span>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 rounded-lg" 
+            className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-sm text-slate-400" 
             onClick={incrementar}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-5 w-5" />
           </Button>
         </div>
 
         <Button 
           onClick={manejarAnadirAlCarrito} 
-          className="w-full h-12 rounded-xl bg-emerald-950 text-white font-bold hover:bg-primary transition-all active:scale-95"
+          className="w-full h-14 rounded-2xl bg-slate-950 text-white font-black text-lg hover:bg-primary transition-all active:scale-95 shadow-xl shadow-slate-950/10"
         >
           <ShoppingCart className="mr-2 h-5 w-5" />
-          Añadir
+          Añadir al Pedido
         </Button>
       </CardFooter>
     </Card>
