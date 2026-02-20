@@ -79,6 +79,7 @@ export default function PaginaInicio() {
         <section className="bg-white py-20 border-b relative">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 gap-16 md:grid-cols-3 items-start">
+              {/* Columna 1: Zonas */}
               <div className="flex flex-col items-center text-center group">
                 <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-slate-50 text-primary border border-slate-100 shadow-sm transition-transform group-hover:scale-110">
                   <MapPin className="h-10 w-10" />
@@ -89,6 +90,7 @@ export default function PaginaInicio() {
                 </p>
               </div>
 
+              {/* Columna 2: Horario */}
               <div className="flex flex-col items-center text-center group">
                 <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-slate-50 text-primary border border-slate-100 shadow-sm transition-transform group-hover:scale-110">
                   <Truck className="h-10 w-10" />
@@ -99,6 +101,7 @@ export default function PaginaInicio() {
                 </p>
               </div>
 
+              {/* Columna 3: Precios */}
               <div className="flex flex-col items-center text-center group">
                 <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-emerald-950 text-primary border border-emerald-900 shadow-xl transition-transform group-hover:scale-110">
                   <ShoppingBag className="h-10 w-10" />

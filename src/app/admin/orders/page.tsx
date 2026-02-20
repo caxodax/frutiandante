@@ -38,7 +38,7 @@ export default function PaginaAdminPedidos() {
     return query(collection(firestore, 'orders'), orderBy('created_at', 'desc'));
   }, [firestore, user, esAdmin]);
 
-  const { data: orders, loading: loadingOrders, error: ordersError } = useCollection(ordersQuery);
+  const { data: orders, loading: loadingOrders } = useCollection(ordersQuery);
 
   const pedidosFiltrados = (orders || []).filter((o: any) => 
     o.cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
