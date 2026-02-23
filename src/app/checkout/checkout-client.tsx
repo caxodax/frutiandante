@@ -246,23 +246,23 @@ export default function CheckoutClient() {
                 <Separator />
 
                 <div className="space-y-6">
-                  <Label className="font-black text-xl font-headline text-slate-900 block mb-4 uppercase tracking-tighter">Método de Pago</Label>
-                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className={`flex items-center gap-2 border-2 p-3 sm:p-4 rounded-2xl transition-all cursor-pointer min-w-0 ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                  <Label className="font-black text-2xl font-headline text-slate-900 block mb-6 uppercase tracking-tight">MÉTODO DE PAGO</Label>
+                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className={`group flex items-center gap-2 border-2 p-3 rounded-2xl transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="transferencia" id="transferencia" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-xs sm:text-sm lg:text-[13px] xl:text-sm truncate">
+                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm whitespace-nowrap overflow-hidden">
                         <Landmark className="h-4 w-4 text-primary shrink-0" /> Transferencia
                       </Label>
                     </div>
-                    <div className={`flex items-center gap-2 border-2 p-3 sm:p-4 rounded-2xl transition-all cursor-pointer min-w-0 ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                    <div className={`group flex items-center gap-2 border-2 p-3 rounded-2xl transition-all cursor-pointer ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="mercadopago" id="mercadopago" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-xs sm:text-sm lg:text-[13px] xl:text-sm truncate">
+                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm whitespace-nowrap overflow-hidden">
                         <CreditCard className="h-4 w-4 text-primary shrink-0" /> MercadoPago
                       </Label>
                     </div>
-                    <div className={`flex items-center gap-2 border-2 p-3 sm:p-4 rounded-2xl transition-all cursor-pointer min-w-0 ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                    <div className={`group flex items-center gap-2 border-2 p-3 rounded-2xl transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="efectivo" id="efectivo" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-xs sm:text-sm lg:text-[13px] xl:text-sm truncate">
+                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm whitespace-nowrap overflow-hidden">
                         <ShoppingBag className="h-4 w-4 text-primary shrink-0" /> Efectivo
                       </Label>
                     </div>
@@ -306,7 +306,6 @@ export default function CheckoutClient() {
                              <p className="font-bold text-sm">{config.emailCuenta || 'ARTUROJGUTIERREZ95@GMAIL.COM'}</p>
                            </div>
                         </div>
-                        <p className="mt-6 text-[9px] text-center text-slate-500 font-black uppercase tracking-[0.2em] italic">Haz clic sobre los datos para copiarlos rápidamente.</p>
                       </div>
 
                       <div className="mt-6 bg-primary/5 border-2 border-dashed border-primary/20 rounded-2xl p-6">
@@ -409,4 +408,3 @@ export default function CheckoutClient() {
     </div>
   );
 }
-
