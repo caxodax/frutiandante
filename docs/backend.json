@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Product": {
@@ -34,6 +35,9 @@
         "nombreEmpresa": { "type": "string" },
         "numeroWhatsapp": { "type": "string" },
         "urlLogo": { "type": "string" },
+        "tituloHero": { "type": "string" },
+        "subtituloHero": { "type": "string" },
+        "urlImagenHero": { "type": "string" },
         "tituloAbout": { "type": "string" },
         "subtituloAbout": { "type": "string" },
         "historiaAbout": { "type": "string" },

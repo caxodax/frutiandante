@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,14 +9,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { ChevronRight, Truck, MapPin, ShoppingBag, ArrowRight, ShieldCheck, Leaf, Sparkles } from 'lucide-react';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection, query, limit } from 'firebase/firestore';
+import { useCollection, useFirestore, useDoc } from '@/firebase';
+import { collection, query, limit, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
 import imageData from '@/app/lib/placeholder-images.json';
 
 export default function PaginaInicio() {
   const firestore = useFirestore();
+
+  const siteConfigRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'site');
+  }, [firestore]);
+
+  const { data: siteConfig } = useDoc(siteConfigRef);
 
   const productosQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -30,16 +38,22 @@ export default function PaginaInicio() {
   const { data: productos, loading: loadingProd } = useCollection(productosQuery);
   const { data: categorias, loading: loadingCat } = useCollection(categoriasQuery);
 
+  const heroData = {
+    titulo: siteConfig?.tituloHero || 'LA REVOLUCIÓN DEL FRESCOR.',
+    subtitulo: siteConfig?.subtituloHero || 'Selección artesanal y logística de frescura premium directa a tu hogar en tiempo récord.',
+    imagen: siteConfig?.urlImagenHero || imageData.hero.url
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Encabezado />
       <main className="flex-grow">
-        {/* Hero Section Editorial */}
+        {/* Hero Section Editorial - DINÁMICO */}
         <section className="relative h-[85vh] min-h-[700px] overflow-hidden flex items-center">
           <div className="absolute inset-0 z-0">
             <Image 
-              src={imageData.hero.url} 
-              alt={imageData.hero.alt} 
+              src={heroData.imagen} 
+              alt="Cosecha Frutiandante" 
               fill
               className="object-cover scale-105"
               priority={true}
@@ -56,12 +70,15 @@ export default function PaginaInicio() {
               </div>
               
               <h1 className="text-6xl sm:text-8xl lg:text-[120px] font-black tracking-tight text-white leading-[0.85] uppercase">
-                LA REVOLUCIÓN <br />
-                <span className="text-secondary italic font-serif lowercase tracking-normal font-medium">del frescor.</span>
+                {heroData.titulo.split(' ').map((word, i, arr) => (
+                  <span key={i}>
+                    {word}{i === Math.floor(arr.length / 2) ? <br /> : ' '}
+                  </span>
+                ))}
               </h1>
               
               <p className="text-xl text-slate-100 md:text-2xl font-medium max-w-2xl leading-relaxed opacity-90">
-                Selección artesanal y logística de frescura premium directa a tu hogar en tiempo récord.
+                {heroData.subtitulo}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-5 pt-4">
@@ -158,7 +175,7 @@ export default function PaginaInicio() {
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {loadingCat ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-[400px] w-full rounded-[3rem]" />
+                  <Skeleton key={i} className="h-[450px] w-full rounded-[3rem]" />
                 ))
               ) : (
                 categorias?.map((categoria: any) => (

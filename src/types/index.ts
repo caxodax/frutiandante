@@ -31,6 +31,11 @@ export interface ConfiguracionSitio {
   nombreEmpresa: string;
   enlacesRedesSociales: EnlaceRedSocial[];
   numeroWhatsapp: string;
+  // Hero / Portada
+  tituloHero?: string;
+  subtituloHero?: string;
+  urlImagenHero?: string;
+  // About / Nosotros
   tituloAbout?: string;
   subtituloAbout?: string;
   historiaAbout?: string;
