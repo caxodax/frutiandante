@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -45,7 +44,6 @@ export default function CheckoutClient() {
     telefono: '',
     direccion: '',
     notas: '',
-    referenciaBancaria: ''
   });
   
   const [metodoPago, setMetodoPago] = useState<string>('transferencia');
@@ -113,15 +111,6 @@ export default function CheckoutClient() {
   const manejarFinalizarPedido = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (metodoPago === 'transferencia' && !formData.referenciaBancaria) {
-      toast({ 
-        title: "Referencia obligatoria", 
-        description: "Por favor, ingresa el número de referencia de tu transferencia para continuar.", 
-        variant: "destructive" 
-      });
-      return;
-    }
-
     setEnviando(true);
 
     try {
@@ -133,7 +122,6 @@ export default function CheckoutClient() {
       if (metodoPago === 'efectivo') textoMetodoPago = '💵 Efectivo al recibir';
 
       const infoDescuento = aplicaDescuento ? `\n🎁 *Descuento 2do Pedido (${descuentoPorcentaje}%):* -$${montoDescuento.toLocaleString('es-CL')}` : '';
-      const infoReferencia = metodoPago === 'transferencia' ? `\n🔢 *Referencia de Pago:* ${formData.referenciaBancaria}` : '';
       const infoMP = metodoPago === 'mercadopago' ? `\n🔔 *Solicito enlace de pago por MercadoPago*` : '';
 
       const mensajeFinal = `🚀 *NUEVO PEDIDO - FRUTIANDANTE*\n\n` +
@@ -142,7 +130,7 @@ export default function CheckoutClient() {
         `• Teléfono: ${formData.telefono}\n` +
         `• Dirección: ${formData.direccion}\n\n` +
         `💳 *Método de Pago:*\n` +
-        `• ${textoMetodoPago}${infoReferencia}${infoMP}\n\n` +
+        `• ${textoMetodoPago}${infoMP}\n\n` +
         `📦 *Detalle del Pedido:*\n` +
         `${mensajeItems}\n\n` +
         `💰 *SUBTOTAL: $${totalPrice.toLocaleString('es-CL')}*` +
@@ -160,7 +148,6 @@ export default function CheckoutClient() {
           total: totalFinal,
           cliente: formData.nombre,
           metodoPago: metodoPago,
-          referenciaBancaria: formData.referenciaBancaria || null,
           estado: 'pendiente',
           created_at: serverTimestamp()
         });
@@ -307,20 +294,6 @@ export default function CheckoutClient() {
                            </div>
                            <Copy className="h-4 w-4 text-slate-600 opacity-0 group-hover/item:opacity-100 shrink-0" />
                         </div>
-                      </div>
-
-                      <div className="mt-6 bg-primary/5 border-2 border-dashed border-primary/20 rounded-2xl p-6">
-                        <Label htmlFor="referenciaBancaria" className="font-bold text-primary flex items-center gap-2 mb-3 text-sm">
-                          <FileText className="h-5 w-5" /> Número de Referencia / Operación <span className="text-destructive">*</span>
-                        </Label>
-                        <Input 
-                          id="referenciaBancaria" 
-                          required={metodoPago === 'transferencia'}
-                          value={formData.referenciaBancaria} 
-                          onChange={manejarInputChange}
-                          placeholder="Pega aquí el código de tu comprobante"
-                          className="h-12 rounded-xl bg-white border-primary/20 text-lg font-bold"
-                        />
                       </div>
                     </div>
                   )}
