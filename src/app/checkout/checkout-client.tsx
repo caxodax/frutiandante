@@ -200,10 +200,10 @@ export default function CheckoutClient() {
 
   return (
     <div className="container mx-auto px-4 pb-20">
-      <div className="mb-12">
+      <div className="mb-12 text-center lg:text-left">
         <h1 className="text-4xl font-black text-slate-900 font-headline">Finalizar Pedido</h1>
         {!user && (
-          <div className="mt-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
+          <div className="mt-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 inline-flex items-center gap-3">
             <Percent className="h-5 w-5 text-primary" />
             <p className="text-sm text-emerald-800">
               ¿Sabías que si te <Link href="/auth" className="font-bold underline">registras</Link>, tu segundo pedido tiene un <strong>{descuentoPorcentaje}% de descuento</strong>?
@@ -216,7 +216,7 @@ export default function CheckoutClient() {
         <div className="lg:col-span-7 space-y-8">
           <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
             <CardHeader className="bg-slate-50/50 border-b p-8">
-              <CardTitle className="text-2xl font-bold flex items-center gap-3 font-headline">
+              <CardTitle className="text-2xl font-bold flex items-center gap-3 font-headline uppercase tracking-tight text-slate-900">
                 <Truck className="h-6 w-6 text-primary" /> Datos de Despacho
               </CardTitle>
             </CardHeader>
@@ -246,24 +246,24 @@ export default function CheckoutClient() {
                 <Separator />
 
                 <div className="space-y-6">
-                  <Label className="font-black text-xl font-headline text-slate-900 block mb-4">Método de Pago</Label>
-                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className={`flex items-center space-x-2 border-2 p-5 rounded-2xl transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
-                      <RadioGroupItem value="transferencia" id="transferencia" className="h-5 w-5" />
-                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900">
-                        <Landmark className="h-5 w-5 text-primary" /> Transferencia
+                  <Label className="font-black text-xl font-headline text-slate-900 block mb-4 uppercase tracking-tighter">Método de Pago</Label>
+                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className={`flex items-center gap-2 border-2 p-3 sm:p-4 rounded-2xl transition-all cursor-pointer min-w-0 ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="transferencia" id="transferencia" className="h-5 w-5 shrink-0" />
+                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-xs sm:text-sm lg:text-[13px] xl:text-sm truncate">
+                        <Landmark className="h-4 w-4 text-primary shrink-0" /> Transferencia
                       </Label>
                     </div>
-                    <div className={`flex items-center space-x-2 border-2 p-5 rounded-2xl transition-all cursor-pointer ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
-                      <RadioGroupItem value="mercadopago" id="mercadopago" className="h-5 w-5" />
-                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900">
-                        <CreditCard className="h-5 w-5 text-primary" /> MercadoPago
+                    <div className={`flex items-center gap-2 border-2 p-3 sm:p-4 rounded-2xl transition-all cursor-pointer min-w-0 ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="mercadopago" id="mercadopago" className="h-5 w-5 shrink-0" />
+                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-xs sm:text-sm lg:text-[13px] xl:text-sm truncate">
+                        <CreditCard className="h-4 w-4 text-primary shrink-0" /> MercadoPago
                       </Label>
                     </div>
-                    <div className={`flex items-center space-x-2 border-2 p-5 rounded-2xl transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
-                      <RadioGroupItem value="efectivo" id="efectivo" className="h-5 w-5" />
-                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900">
-                        <ShoppingBag className="h-5 w-5 text-primary" /> Efectivo
+                    <div className={`flex items-center gap-2 border-2 p-3 sm:p-4 rounded-2xl transition-all cursor-pointer min-w-0 ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="efectivo" id="efectivo" className="h-5 w-5 shrink-0" />
+                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-xs sm:text-sm lg:text-[13px] xl:text-sm truncate">
+                        <ShoppingBag className="h-4 w-4 text-primary shrink-0" /> Efectivo
                       </Label>
                     </div>
                   </RadioGroup>
@@ -275,7 +275,7 @@ export default function CheckoutClient() {
                            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
                             <Landmark className="h-5 w-5 text-primary" />
                           </div>
-                          <h4 className="font-headline font-bold text-xl">Datos para Transferencia</h4>
+                          <h4 className="font-headline font-bold text-xl uppercase tracking-tight">Datos para Transferencia</h4>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
@@ -332,7 +332,7 @@ export default function CheckoutClient() {
                           <CreditCard className="h-6 w-6 text-primary" />
                         </div>
                         <div className="space-y-2">
-                          <h4 className="font-headline font-bold text-lg text-slate-900">Pago Seguro con MercadoPago</h4>
+                          <h4 className="font-headline font-bold text-lg text-slate-900 uppercase tracking-tight">Pago Seguro con MercadoPago</h4>
                           <p className="text-slate-600 leading-relaxed text-sm">
                             Al confirmar tu pedido, **te enviaremos un enlace de MercadoPago directamente a tu WhatsApp** para que puedas pagar de forma segura con tarjetas de crédito, débito o dinero en cuenta.
                           </p>
@@ -409,3 +409,4 @@ export default function CheckoutClient() {
     </div>
   );
 }
+
