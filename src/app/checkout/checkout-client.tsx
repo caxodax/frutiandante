@@ -238,22 +238,22 @@ export default function CheckoutClient() {
 
                 <div className="space-y-6">
                   <Label className="font-black text-2xl font-headline text-slate-900 block mb-6 uppercase tracking-tight">MÉTODO DE PAGO</Label>
-                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className={`group flex items-center gap-3 border-2 p-4 rounded-2xl transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
-                      <RadioGroupItem value="transferencia" id="transferencia" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm leading-tight">
+                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className={`group flex items-center gap-2 border-2 px-3 py-4 rounded-3xl transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="transferencia" id="transferencia" className="h-4 w-4 shrink-0" />
+                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none whitespace-nowrap overflow-hidden">
                         <Landmark className="h-4 w-4 text-primary shrink-0" /> Transferencia
                       </Label>
                     </div>
-                    <div className={`group flex items-center gap-3 border-2 p-4 rounded-2xl transition-all cursor-pointer ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
-                      <RadioGroupItem value="mercadopago" id="mercadopago" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm leading-tight">
+                    <div className={`group flex items-center gap-2 border-2 px-3 py-4 rounded-3xl transition-all cursor-pointer ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="mercadopago" id="mercadopago" className="h-4 w-4 shrink-0" />
+                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none whitespace-nowrap overflow-hidden">
                         <CreditCard className="h-4 w-4 text-primary shrink-0" /> MercadoPago
                       </Label>
                     </div>
-                    <div className={`group flex items-center gap-3 border-2 p-4 rounded-2xl transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
-                      <RadioGroupItem value="efectivo" id="efectivo" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm leading-tight">
+                    <div className={`group flex items-center gap-2 border-2 px-3 py-4 rounded-3xl transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <RadioGroupItem value="efectivo" id="efectivo" className="h-4 w-4 shrink-0" />
+                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none whitespace-nowrap overflow-hidden">
                         <ShoppingBag className="h-4 w-4 text-primary shrink-0" /> Efectivo
                       </Label>
                     </div>
