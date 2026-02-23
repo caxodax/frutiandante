@@ -137,14 +137,14 @@ export default function PaginaInicio() {
         {/* Featured Products: Boutique Grid */}
         <section className="py-32 bg-slate-50/50">
           <div className="container mx-auto px-4">
-            <div className="mb-20 flex flex-col md:flex-row items-end justify-between gap-8">
-              <div className="space-y-4">
+            <div className="mb-20 flex flex-col md:flex-row items-center justify-between gap-12">
+              <div className="space-y-4 text-center md:text-left">
                 <span className="text-secondary font-black uppercase tracking-[0.3em] text-xs">Colección de Temporada</span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 uppercase leading-[0.9]">
+                <h2 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 uppercase leading-[1.1]">
                   LA COSECHA <br /> DEL DÍA.
                 </h2>
               </div>
-              <Button asChild variant="outline" className="rounded-2xl font-black h-14 px-10 border-slate-200 hover:bg-white">
+              <Button asChild variant="outline" className="rounded-2xl font-black h-14 px-10 border-slate-200 hover:bg-white shadow-sm transition-all hover:shadow-md">
                 <Link href="/products" className="flex items-center gap-2 uppercase text-xs tracking-widest">
                   Ver Todo el Catálogo <ChevronRight className="h-4 w-4" />
                 </Link>
