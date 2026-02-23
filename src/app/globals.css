@@ -4,16 +4,17 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%;
+    /* Paleta Premium: Verde Bosque, Naranja Vibrante y Fondos Crema */
+    --background: 40 30% 98%;
     --foreground: 20 14% 4%;
     --card: 0 0% 100%;
     --card-foreground: 20 14% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 20 14% 4%;
-    --primary: 104 36% 22%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 25 80% 54%;
-    --secondary-foreground: 0 0% 100%;
+    --primary: 158 29% 20%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 25 85% 60%;
+    --secondary-foreground: 0 0% 98%;
     --muted: 40 10% 94%;
     --muted-foreground: 25 5% 45%;
     --accent: 45 93% 47%;
@@ -22,16 +23,8 @@
     --destructive-foreground: 0 0% 98%;
     --border: 20 10% 90%;
     --input: 20 10% 90%;
-    --ring: 104 36% 27%;
+    --ring: 158 29% 25%;
     --radius: 1.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -43,7 +36,7 @@
     @apply bg-background text-foreground font-body antialiased selection:bg-primary/10 selection:text-primary;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline tracking-tight;
+    @apply font-headline tracking-tight font-black;
   }
 }
 
@@ -55,4 +48,20 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
   @apply bg-slate-200 rounded-full hover:bg-slate-300;
+}
+
+/* Animaciones suaves de entrada */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
 }
