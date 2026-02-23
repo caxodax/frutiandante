@@ -5,10 +5,10 @@ import { Facebook, Instagram, Twitter, Linkedin, Youtube, Send, Mail, Phone, Map
 import { useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
-import type { EnlaceRedSocial, ConfiguracionSitio } from '@/tipos';
+import type { EnlaceRedSocial } from '@/tipos';
 import Logotipo from '@/components/logo';
 
-const mapaIconos: Record<EnlaceRedSocial['plataforma'], React.ElementType> = {
+const mapaIconos: Record<string, React.ElementType> = {
   Facebook: Facebook,
   Instagram: Instagram,
   Twitter: Twitter,
@@ -33,29 +33,25 @@ const PieDePagina = () => {
   const redesSociales = configuracion?.enlacesRedesSociales || [];
 
   return (
-    <footer className="bg-primary text-white overflow-hidden relative pt-24 pb-12">
-      <div className="absolute top-0 right-0 w-1/3 h-full bg-secondary/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
-      
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
+    <footer className="bg-white border-t overflow-hidden relative pt-24">
+      <div className="container mx-auto px-4 md:px-6 relative z-10 pb-20">
         <div className="grid gap-16 md:grid-cols-12 lg:gap-24">
           {/* Brand Column */}
           <div className="md:col-span-12 lg:col-span-5 space-y-10">
-            <div className="inline-block p-2 bg-white rounded-3xl">
-              <Logotipo configuracion={configuracion} />
-            </div>
-            <p className="text-lg text-slate-400 leading-relaxed max-w-md">
-              Elevando la calidad de tu alimentación diaria con la mejor selección del campo chileno. Logística propia, frescura garantizada y compromiso real con el productor.
+            <Logotipo configuracion={configuracion} />
+            <p className="text-lg text-slate-500 leading-relaxed max-w-md">
+              Elevando la calidad de tu alimentación diaria con la mejor selección del campo chileno directamente a tu hogar.
             </p>
             <div className="flex gap-4">
               {redesSociales.map((enlace: any) => {
-                const ComponenteIcono = mapaIconos[enlace.plataforma as keyof typeof mapaIconos] || Send;
+                const ComponenteIcono = mapaIconos[enlace.plataforma] || Send;
                 return (
                   <Link
                     key={enlace.id}
                     href={enlace.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 transition-all hover:bg-secondary hover:border-secondary hover:scale-110"
+                    className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 transition-all hover:bg-primary hover:text-white hover:scale-110 text-slate-400"
                     aria-label={enlace.plataforma}
                   >
                     <ComponenteIcono className="h-5 w-5" />
@@ -67,11 +63,11 @@ const PieDePagina = () => {
 
           {/* Links Column */}
           <div className="md:col-span-6 lg:col-span-3 space-y-8">
-            <h3 className="font-headline text-xs font-black uppercase tracking-[0.3em] text-secondary">Navegación Premium</h3>
+            <h3 className="font-headline text-xs font-black uppercase tracking-[0.3em] text-primary">Navegación</h3>
             <ul className="space-y-4">
-              {['Sobre Nosotros', 'Nuestros Productos', 'Mi Perfil', 'Zonas de Despacho', 'Trabaja con Nosotros'].map((item) => (
+              {['Sobre Nosotros', 'Nuestros Productos', 'Mi Perfil', 'Zonas de Despacho'].map((item) => (
                 <li key={item}>
-                  <Link href="#" className="group flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-lg font-medium">
+                  <Link href="#" className="group flex items-center gap-2 text-slate-500 hover:text-primary transition-colors text-lg font-medium">
                     {item} <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-all" />
                   </Link>
                 </li>
@@ -81,38 +77,40 @@ const PieDePagina = () => {
           
           {/* Contact Column */}
           <div className="md:col-span-6 lg:col-span-4 space-y-8">
-            <h3 className="font-headline text-xs font-black uppercase tracking-[0.3em] text-secondary">Contacto Directo</h3>
+            <h3 className="font-headline text-xs font-black uppercase tracking-[0.3em] text-primary">Contacto</h3>
             <div className="space-y-6">
                 <a href="mailto:hola@frutiandante.cl" className="flex items-center gap-4 group">
-                    <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
-                      <Mail className="h-5 w-5 text-secondary" />
+                    <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-primary/5 transition-colors">
+                      <Mail className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-lg text-slate-300 group-hover:text-white transition-colors truncate">hola@frutiandante.cl</span>
+                    <span className="text-lg text-slate-600 group-hover:text-primary transition-colors">hola@frutiandante.cl</span>
                 </a>
                 <div className="flex items-center gap-4 group">
-                    <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                      <Phone className="h-5 w-5 text-secondary" />
+                    <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100">
+                      <Phone className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-lg text-slate-300">+{configuracion?.numeroWhatsapp || '56912345678'}</span>
+                    <span className="text-lg text-slate-600">+{configuracion?.numeroWhatsapp || '56912345678'}</span>
                 </div>
                 <div className="flex items-center gap-4 group">
-                    <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                      <MapPin className="h-5 w-5 text-secondary" />
+                    <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100">
+                      <MapPin className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-lg text-slate-300">Región Metropolitana, Chile</span>
+                    <span className="text-lg text-slate-600">Región Metropolitana, Chile</span>
                 </div>
             </div>
           </div>
         </div>
-        
-        {/* Copyright Line */}
-        <div className="mt-24 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-sm text-slate-500 font-bold uppercase tracking-widest">
-            &copy; {anoActual} {nombreEmpresa}. LOGÍSTICA DE FRESCURA PREMIUM.
+      </div>
+
+      {/* Copyright Line - Darker Accent */}
+      <div className="bg-slate-950 py-10">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
+            &copy; {anoActual} {nombreEmpresa}. CALIDAD PREMIUM DEL CAMPO A TU HOGAR.
           </p>
-          <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-600">
-            <Link href="#" className="hover:text-white transition-colors">Términos y Condiciones</Link>
-            <Link href="#" className="hover:text-white transition-colors">Políticas de Privacidad</Link>
+          <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
+            <Link href="#" className="hover:text-white transition-colors">Términos</Link>
+            <Link href="#" className="hover:text-white transition-colors">Privacidad</Link>
           </div>
         </div>
       </div>

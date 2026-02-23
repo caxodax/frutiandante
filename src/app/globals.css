@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    /* Paleta Premium: Verde Bosque, Naranja Vibrante y Fondos Crema */
+    /* Paleta Premium Vibrante: Verde Bosque Intenso y Naranja Mandarina */
     --background: 40 30% 98%;
     --foreground: 20 14% 4%;
     --card: 0 0% 100%;
     --card-foreground: 20 14% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 20 14% 4%;
-    --primary: 158 29% 20%;
+    --primary: 160 84% 12%; /* Verde Bosque más profundo y vivo */
     --primary-foreground: 0 0% 98%;
-    --secondary: 25 85% 60%;
+    --secondary: 25 95% 53%; /* Naranja Mandarina vibrante */
     --secondary-foreground: 0 0% 98%;
     --muted: 40 10% 94%;
     --muted-foreground: 25 5% 45%;
-    --accent: 45 93% 47%;
+    --accent: 48 96% 53%; /* Amarillo ámbar vivo */
     --accent-foreground: 20 14% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     --border: 20 10% 90%;
     --input: 20 10% 90%;
-    --ring: 158 29% 25%;
+    --ring: 160 84% 15%;
     --radius: 1.5rem;
   }
 }
@@ -50,7 +50,6 @@
   @apply bg-slate-200 rounded-full hover:bg-slate-300;
 }
 
-/* Animaciones suaves de entrada */
 @keyframes fade-in-up {
   from {
     opacity: 0;

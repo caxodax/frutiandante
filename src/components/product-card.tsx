@@ -52,9 +52,9 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
   };
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-2xl shadow-slate-200/50 transition-all hover:shadow-primary/5 hover:-translate-y-3 rounded-[3rem]">
+    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-2xl shadow-slate-200/50 transition-all hover:shadow-primary/5 hover:-translate-y-3 rounded-[3.5rem]">
       <CardHeader className="p-0 relative">
-        <Link href={`/product/${producto.slug}`} className="block aspect-[4/5] relative overflow-hidden bg-slate-100">
+        <Link href={`/product/${producto.slug}`} className="block aspect-[4/4.5] relative overflow-hidden bg-slate-50">
           <Image
             src={producto.imagenes?.[0] || imageData.placeholder.url}
             alt={producto.nombre}
@@ -67,23 +67,23 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
             <Badge className="bg-white/95 text-primary backdrop-blur-md font-black border-none shadow-xl uppercase text-[9px] py-1.5 px-4 rounded-full">
               {esVentaPorPeso ? 'POR PESO' : 'PREMIUM'}
             </Badge>
-            <div className="flex items-center gap-1 bg-secondary text-white px-2 py-1 rounded-full text-[9px] font-black w-fit shadow-lg">
-              <Star className="h-2 w-2 fill-white" /> 4.9
+            <div className="flex items-center gap-1 bg-secondary text-white px-2.5 py-1 rounded-full text-[9px] font-black w-fit shadow-lg">
+              <Star className="h-2.5 w-2.5 fill-white" /> 4.9
             </div>
           </div>
         </Link>
       </CardHeader>
       
-      <CardContent className="flex flex-1 flex-col p-8 pb-4">
-        <Link href={`/product/${producto.slug}`} className="font-headline text-xl font-black leading-none text-slate-900 group-hover:text-primary transition-colors line-clamp-2 uppercase tracking-tighter mb-6">
+      <CardContent className="flex flex-1 flex-col p-8 pb-4 text-center">
+        <Link href={`/product/${producto.slug}`} className="font-headline text-2xl font-black leading-tight text-slate-900 group-hover:text-primary transition-colors line-clamp-2 uppercase tracking-tighter mb-4">
           {producto.nombre}
         </Link>
         
         <div className="mt-auto">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Valor de Mercado</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-black text-slate-900">${producto.precioDetalle.toLocaleString('es-CL')}</span>
-            <span className="text-xs font-bold text-slate-400">/ {esVentaPorPeso ? 'kg' : 'un'}</span>
+          <div className="flex items-center justify-center gap-1">
+            <span className="text-4xl font-black text-slate-900">${producto.precioDetalle.toLocaleString('es-CL')}</span>
+            <span className="text-sm font-bold text-slate-400 italic">/ {esVentaPorPeso ? 'kg' : 'un'}</span>
           </div>
         </div>
       </CardContent>
@@ -99,9 +99,9 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
           >
             <Minus className="h-4 w-4" />
           </Button>
-          <div className="text-center min-w-[70px]">
-            <span className="text-lg font-black text-slate-900">{cantidad}</span>
-            <span className="text-[10px] uppercase font-black text-slate-400 ml-1">{esVentaPorPeso ? 'kg' : 'un'}</span>
+          <div className="text-center min-w-[70px] flex items-baseline justify-center gap-1">
+            <span className="text-xl font-black text-slate-900">{cantidad}</span>
+            <span className="text-[10px] uppercase font-black text-slate-400">{esVentaPorPeso ? 'kg' : 'un'}</span>
           </div>
           <Button 
             variant="ghost" 
@@ -115,7 +115,7 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
 
         <Button 
           onClick={manejarAnadirAlCarrito} 
-          className="w-full h-16 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+          className="w-full h-16 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all bg-primary"
         >
           <ShoppingCart className="mr-3 h-5 w-5" />
           Añadir al Pedido
