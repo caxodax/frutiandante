@@ -11,7 +11,21 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash, FileText, ArrowRight, CreditCard } from 'lucide-react';
+import { 
+  MessageSquare, 
+  CheckCircle2, 
+  ShoppingBag, 
+  Truck, 
+  Percent, 
+  Landmark, 
+  Mail, 
+  User, 
+  FileText, 
+  ArrowRight, 
+  CreditCard,
+  Copy,
+  Check
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -37,6 +51,7 @@ export default function CheckoutClient() {
   const [metodoPago, setMetodoPago] = useState<string>('transferencia');
   const [enviando, setEnviando] = useState(false);
   const [completado, setCompletado] = useState(false);
+  const [copiadoId, setCopiadoId] = useState<string | null>(null);
 
   const siteConfigRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -67,6 +82,17 @@ export default function CheckoutClient() {
   const descuentoPorcentaje = (siteConfig as any)?.porcentajeDescuentoSegundoPedido || 10;
   const montoDescuento = aplicaDescuento ? (totalPrice * (descuentoPorcentaje / 100)) : 0;
   const totalFinal = totalPrice - montoDescuento;
+
+  const copiarAlPortapapeles = (texto: string, id: string) => {
+    if (!texto) return;
+    navigator.clipboard.writeText(texto);
+    setCopiadoId(id);
+    toast({
+      title: "¡Copiado!",
+      description: "Dato guardado en el portapapeles.",
+    });
+    setTimeout(() => setCopiadoId(null), 2000);
+  };
 
   if (!mounted || !isLoaded) {
     return (
@@ -152,47 +178,12 @@ export default function CheckoutClient() {
     }
   };
 
-  if (items.length === 0 && !completado) {
-    return (
-      <div className="container mx-auto px-4 py-24 text-center">
-        <h1 className="text-3xl font-bold font-headline mb-4">Tu canasto está vacío</h1>
-        <Button asChild><Link href="/products">Ver Feria</Link></Button>
-      </div>
-    );
-  }
-
-  if (completado) {
-    return (
-      <div className="container mx-auto px-4 py-32 text-center animate-in fade-in zoom-in duration-500">
-        <div className="max-w-xl mx-auto">
-          <div className="h-24 w-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
-            <CheckCircle2 className="h-14 w-14 text-primary" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black font-headline mb-6 tracking-tight text-slate-900">¡Pedido Recibido!</h1>
-          <p className="text-slate-500 mb-12 text-lg leading-relaxed">
-            Gracias por tu compra. Ya hemos registrado tu solicitud y te contactaremos por WhatsApp a la brevedad para coordinar el despacho a tu hogar.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button asChild className="rounded-2xl h-16 px-10 font-black text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-all">
-              <Link href="/my-orders" className="flex items-center gap-2">
-                Ver Mis Pedidos <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-2xl h-16 px-10 font-bold text-lg hover:bg-slate-50 transition-all border-slate-200">
-              <Link href="/">Volver al Inicio</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const config = siteConfig as any;
 
   return (
     <div className="container mx-auto px-4 pb-20">
       <div className="mb-12 text-center lg:text-left">
-        <h1 className="text-4xl font-black text-slate-900 font-headline">Finalizar Pedido</h1>
+        <h1 className="text-4xl font-black text-slate-900 font-headline uppercase tracking-tighter">Finalizar Pedido</h1>
         {!user && (
           <div className="mt-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 inline-flex items-center gap-3">
             <Percent className="h-5 w-5 text-primary" />
@@ -205,9 +196,9 @@ export default function CheckoutClient() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-7 space-y-8">
-          <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
+          <Card className="border-none shadow-sm rounded-[2.5rem] overflow-hidden bg-white">
             <CardHeader className="bg-slate-50/50 border-b p-8">
-              <CardTitle className="text-2xl font-bold flex items-center gap-3 font-headline uppercase tracking-tight text-slate-900">
+              <CardTitle className="text-2xl font-black flex items-center gap-3 font-headline uppercase tracking-tight text-slate-900">
                 <Truck className="h-6 w-6 text-primary" /> Datos de Despacho
               </CardTitle>
             </CardHeader>
@@ -241,19 +232,19 @@ export default function CheckoutClient() {
                   <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className={`group flex items-center gap-2 border-2 px-3 py-4 rounded-3xl transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="transferencia" id="transferencia" className="h-4 w-4 shrink-0" />
-                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none whitespace-nowrap overflow-hidden">
+                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none">
                         <Landmark className="h-4 w-4 text-primary shrink-0" /> Transferencia
                       </Label>
                     </div>
                     <div className={`group flex items-center gap-2 border-2 px-3 py-4 rounded-3xl transition-all cursor-pointer ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="mercadopago" id="mercadopago" className="h-4 w-4 shrink-0" />
-                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none whitespace-nowrap overflow-hidden">
+                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none">
                         <CreditCard className="h-4 w-4 text-primary shrink-0" /> MercadoPago
                       </Label>
                     </div>
                     <div className={`group flex items-center gap-2 border-2 px-3 py-4 rounded-3xl transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="efectivo" id="efectivo" className="h-4 w-4 shrink-0" />
-                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none whitespace-nowrap overflow-hidden">
+                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-1.5 cursor-pointer text-slate-900 text-[13px] leading-none">
                         <ShoppingBag className="h-4 w-4 text-primary shrink-0" /> Efectivo
                       </Label>
                     </div>
@@ -278,24 +269,43 @@ export default function CheckoutClient() {
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Tipo de Cuenta</span>
                             <p className="text-lg font-bold">{config.tipoCuenta || 'Cuenta Corriente'}</p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Número de Cuenta</span>
+                          <div 
+                            className="space-y-1 group/item cursor-pointer hover:bg-white/5 p-2 -m-2 rounded-xl transition-colors"
+                            onClick={() => copiarAlPortapapeles(config.numeroCuenta || '73-86729-0', 'cuenta')}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Número de Cuenta</span>
+                              {copiadoId === 'cuenta' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3 text-slate-600 opacity-0 group-hover/item:opacity-100" />}
+                            </div>
                             <p className="text-xl font-bold font-mono tracking-tight">{config.numeroCuenta || '73-86729-0'}</p>
+                            <span className="text-[9px] text-primary font-black uppercase tracking-tighter opacity-0 group-hover/item:opacity-100 transition-opacity">Toca para copiar</span>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">RUT</span>
-                            <p className="text-lg font-bold uppercase">{config.rutCuenta || 'Arturo Jose Gutierrez Alvarez'}</p>
+                          <div 
+                            className="space-y-1 group/item cursor-pointer hover:bg-white/5 p-2 -m-2 rounded-xl transition-colors"
+                            onClick={() => copiarAlPortapapeles(config.rutCuenta || '19.283.475-0', 'rut')}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">RUT del Titular</span>
+                              {copiadoId === 'rut' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3 text-slate-600 opacity-0 group-hover/item:opacity-100" />}
+                            </div>
+                            <p className="text-lg font-bold uppercase">{config.rutCuenta || '19.283.475-0'}</p>
+                            <span className="text-[9px] text-primary font-black uppercase tracking-tighter opacity-0 group-hover/item:opacity-100 transition-opacity">Toca para copiar</span>
                           </div>
                         </div>
 
-                        <div className="mt-10 p-5 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-4">
+                        <div 
+                          className="mt-10 p-5 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-4 cursor-pointer hover:bg-white/10 transition-colors group/item"
+                          onClick={() => copiarAlPortapapeles(config.emailCuenta || 'ARTUROJGUTIERREZ95@GMAIL.COM', 'email')}
+                        >
                            <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                             <Mail className="h-5 w-5 text-primary" />
+                             {copiadoId === 'email' ? <Check className="h-5 w-5 text-emerald-400" /> : <Mail className="h-5 w-5 text-primary" />}
                            </div>
                            <div className="flex-1">
                              <span className="text-slate-400 block text-[9px] font-black uppercase tracking-[0.2em]">Enviar comprobante a:</span>
-                             <p className="font-bold text-sm">{config.emailCuenta || 'ARTUROJGUTIERREZ95@GMAIL.COM'}</p>
+                             <p className="font-bold text-sm truncate">{config.emailCuenta || 'ARTUROJGUTIERREZ95@GMAIL.COM'}</p>
+                             <span className="text-[9px] text-primary font-black uppercase tracking-tighter opacity-0 group-hover/item:opacity-100 transition-opacity">Toca para copiar</span>
                            </div>
+                           <Copy className="h-4 w-4 text-slate-600 opacity-0 group-hover/item:opacity-100 shrink-0" />
                         </div>
                       </div>
 
@@ -358,7 +368,7 @@ export default function CheckoutClient() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-base font-bold text-slate-900 leading-tight">{item.nombre}</span>
-                        <span className="text-xs font-medium text-slate-400">Cantidad: {item.quantity}</span>
+                        <span className="text-xs font-medium text-slate-400">Cant: {item.quantity} {item.idCategoria && (item.idCategoria === '1' || item.idCategoria === '2') ? 'kg' : 'un'}</span>
                       </div>
                     </div>
                     <span className="text-base font-black text-slate-800 shrink-0">${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}</span>
