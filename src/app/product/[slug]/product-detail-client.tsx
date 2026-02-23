@@ -239,8 +239,9 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 </div>
 
                 <div className="flex flex-col gap-5 pt-4">
-                  <Button size="lg" className="h-24 rounded-[2rem] bg-secondary text-white font-black text-xl uppercase tracking-[0.2em] shadow-2xl shadow-secondary/40 hover:scale-[1.02] transition-all" onClick={manejarAnadirAlCarrito}>
-                    <ShoppingCart className="mr-4 h-8 w-8" /> Añadir al Pedido
+                  <Button size="lg" className="h-20 rounded-full bg-secondary text-white font-black text-lg uppercase tracking-[0.1em] shadow-2xl shadow-secondary/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-4 px-8" onClick={manejarAnadirAlCarrito}>
+                    <ShoppingCart className="h-6 w-6 shrink-0" /> 
+                    <span>Añadir al Pedido</span>
                   </Button>
                   <Button variant="outline" size="lg" className="h-16 rounded-2xl font-black text-xs uppercase tracking-widest border-slate-200 hover:bg-slate-50 transition-all" onClick={manejarPedidoWhatsAppDirecto}>
                     <MessageSquare className="mr-3 h-5 w-5 text-primary" /> Consultar Disponibilidad
