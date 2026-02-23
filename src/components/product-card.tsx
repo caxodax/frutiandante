@@ -52,9 +52,9 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
   };
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] transition-all hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.12)] hover:-translate-y-2 rounded-[3.5rem]">
+    <Card className="group flex h-full flex-col overflow-hidden border-none bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] transition-all hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.12)] hover:-translate-y-2 rounded-[3rem]">
       <CardHeader className="p-0 relative">
-        <Link href={`/product/${producto.slug}`} className="block aspect-[4/4.2] relative overflow-hidden bg-slate-50">
+        <Link href={`/product/${producto.slug}`} className="block aspect-[4/4] relative overflow-hidden bg-slate-50">
           <Image
             src={producto.imagenes?.[0] || imageData.placeholder.url}
             alt={producto.nombre}
@@ -63,62 +63,61 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
             sizes="(max-width: 640px) 100vw, 25vw"
             loading="lazy"
           />
-          <div className="absolute top-6 left-6 flex flex-col gap-2">
-            <Badge className="bg-white/95 text-primary backdrop-blur-md font-black border-none shadow-sm uppercase text-[9px] py-1.5 px-4 rounded-full">
-              {esVentaPorPeso ? 'POR PESO' : 'PREMIUM'}
+          <div className="absolute top-4 left-4 flex flex-col gap-2">
+            <Badge className="bg-white/95 text-primary backdrop-blur-md font-black border-none shadow-sm uppercase text-[9px] py-1 px-3 rounded-full">
+              {esVentaPorPeso ? 'COSECHA DEL DÍA' : 'PREMIUM'}
             </Badge>
-            <div className="flex items-center gap-1 bg-secondary text-white px-2.5 py-1 rounded-full text-[9px] font-black w-fit shadow-md">
-              <Star className="h-2.5 w-2.5 fill-white" /> 4.9
-            </div>
           </div>
         </Link>
       </CardHeader>
       
-      <CardContent className="flex flex-1 flex-col p-8 pb-4 text-center">
-        <Link href={`/product/${producto.slug}`} className="font-headline text-2xl font-black leading-tight text-slate-900 group-hover:text-primary transition-colors line-clamp-2 uppercase tracking-tight mb-6 h-12 flex items-center justify-center">
+      <CardContent className="flex flex-1 flex-col p-6 pb-2 text-left">
+        <Link href={`/product/${producto.slug}`} className="font-headline text-2xl font-black leading-tight text-slate-900 group-hover:text-primary transition-colors line-clamp-2 uppercase tracking-tight mb-4 min-h-[3rem] flex items-center">
           {producto.nombre}
         </Link>
         
-        <div className="mt-auto space-y-1">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block">Valor de Mercado</span>
-          <div className="flex items-center justify-center gap-1">
-            <span className="text-4xl font-black text-slate-900 tracking-tighter">${producto.precioDetalle.toLocaleString('es-CL')}</span>
-            <span className="text-sm font-bold text-slate-400 italic">/ {esVentaPorPeso ? 'kg' : 'un'}</span>
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+            {esVentaPorPeso ? 'PRECIO POR KG' : 'PRECIO POR UNIDAD'}
+          </span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-3xl font-black text-slate-900 tracking-tighter">
+              ${producto.precioDetalle.toLocaleString('es-CL')}
+            </span>
           </div>
         </div>
       </CardContent>
       
-      <CardFooter className="px-8 pb-10 pt-4 flex flex-col gap-5">
-        <div className="flex items-center justify-between w-full bg-[#f8f9fa] rounded-2xl p-1.5 border border-slate-100/50">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-10 w-10 rounded-xl hover:bg-white text-slate-600" 
+      <CardFooter className="px-6 pb-8 pt-2 flex flex-col gap-4">
+        {/* Selector de Cantidad Estilizado */}
+        <div className="flex items-center justify-between w-full bg-white rounded-xl border border-slate-200 p-1 shadow-sm">
+          <button 
+            type="button"
+            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 transition-colors"
             onClick={() => setCantidad(prev => Math.max(paso, prev - paso))}
             disabled={cantidad <= paso}
           >
             <Minus className="h-4 w-4" />
-          </Button>
-          <div className="text-center min-w-[70px] flex items-baseline justify-center gap-1">
-            <span className="text-xl font-black text-slate-900">{cantidad}</span>
-            <span className="text-[10px] uppercase font-bold text-slate-400">{esVentaPorPeso ? 'kg' : 'un'}</span>
+          </button>
+          <div className="flex-1 text-center font-black text-slate-900">
+            {cantidad} <span className="text-xs uppercase ml-0.5">{esVentaPorPeso ? 'kg' : 'un'}</span>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-10 w-10 rounded-xl hover:bg-white text-slate-600" 
+          <button 
+            type="button"
+            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 transition-colors"
             onClick={() => setCantidad(prev => prev + paso)}
           >
             <Plus className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
 
+        {/* Botón Añadir Estilizado */}
         <Button 
           onClick={manejarAnadirAlCarrito} 
-          className="w-full h-14 rounded-full font-black text-[10px] sm:text-xs uppercase tracking-[0.1em] shadow-xl shadow-primary/10 hover:shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all bg-[#0d3b2e] hover:bg-[#0a2e24] text-white flex items-center justify-center gap-3 px-6"
+          className="w-full h-12 rounded-xl font-bold text-sm uppercase tracking-wide bg-[#0d3b2e] hover:bg-[#0a2e24] text-white flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10"
         >
-          <ShoppingCart className="h-4 w-4 shrink-0" />
-          <span className="truncate">Añadir</span>
+          <ShoppingCart className="h-4 w-4" />
+          <span>Añadir</span>
         </Button>
       </CardFooter>
     </Card>
