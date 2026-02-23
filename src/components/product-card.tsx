@@ -118,7 +118,7 @@ const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
           className="w-full h-14 rounded-full font-black text-[10px] sm:text-xs uppercase tracking-[0.1em] shadow-xl shadow-primary/10 hover:shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all bg-[#0d3b2e] hover:bg-[#0a2e24] text-white flex items-center justify-center gap-3 px-6"
         >
           <ShoppingCart className="h-4 w-4 shrink-0" />
-          <span className="truncate">Añadir al Pedido</span>
+          <span className="truncate">Añadir</span>
         </Button>
       </CardFooter>
     </Card>
