@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash, Copy, FileText, ArrowRight, CreditCard, MessageCircle } from 'lucide-react';
+import { MessageSquare, CheckCircle2, ShoppingBag, Truck, Percent, Landmark, Mail, User, Hash, FileText, ArrowRight, CreditCard } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -68,15 +68,6 @@ export default function CheckoutClient() {
   const montoDescuento = aplicaDescuento ? (totalPrice * (descuentoPorcentaje / 100)) : 0;
   const totalFinal = totalPrice - montoDescuento;
 
-  const copiarAlPortapapeles = (texto: string, etiqueta: string) => {
-    if (!texto) return;
-    navigator.clipboard.writeText(texto);
-    toast({
-      title: "Copiado",
-      description: `${etiqueta} copiado al portapapeles.`,
-    });
-  };
-
   if (!mounted || !isLoaded) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
@@ -111,9 +102,9 @@ export default function CheckoutClient() {
       const config = siteConfig as any;
       const mensajeItems = items.map(item => `• ${item.nombre} (x${item.quantity}) - $${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}`).join('\n');
       
-      let textoMetodoPago = '💵 Efectivo al recibir';
-      if (metodoPago === 'transferencia') textoMetodoPago = '🏦 Transferencia Bancaria';
+      let textoMetodoPago = '🏦 Transferencia Bancaria';
       if (metodoPago === 'mercadopago') textoMetodoPago = '💳 MercadoPago (Enlace de pago)';
+      if (metodoPago === 'efectivo') textoMetodoPago = '💵 Efectivo al recibir';
 
       const infoDescuento = aplicaDescuento ? `\n🎁 *Descuento 2do Pedido (${descuentoPorcentaje}%):* -$${montoDescuento.toLocaleString('es-CL')}` : '';
       const infoReferencia = metodoPago === 'transferencia' ? `\n🔢 *Referencia de Pago:* ${formData.referenciaBancaria}` : '';
@@ -247,22 +238,22 @@ export default function CheckoutClient() {
 
                 <div className="space-y-6">
                   <Label className="font-black text-2xl font-headline text-slate-900 block mb-6 uppercase tracking-tight">MÉTODO DE PAGO</Label>
-                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className={`group flex items-center gap-2 border-2 p-3 rounded-2xl transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
+                  <RadioGroup value={metodoPago} onValueChange={setMetodoPago} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className={`group flex items-center gap-3 border-2 p-4 rounded-2xl transition-all cursor-pointer ${metodoPago === 'transferencia' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="transferencia" id="transferencia" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm whitespace-nowrap overflow-hidden">
+                      <Label htmlFor="transferencia" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm leading-tight">
                         <Landmark className="h-4 w-4 text-primary shrink-0" /> Transferencia
                       </Label>
                     </div>
-                    <div className={`group flex items-center gap-2 border-2 p-3 rounded-2xl transition-all cursor-pointer ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
+                    <div className={`group flex items-center gap-3 border-2 p-4 rounded-2xl transition-all cursor-pointer ${metodoPago === 'mercadopago' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="mercadopago" id="mercadopago" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm whitespace-nowrap overflow-hidden">
+                      <Label htmlFor="mercadopago" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm leading-tight">
                         <CreditCard className="h-4 w-4 text-primary shrink-0" /> MercadoPago
                       </Label>
                     </div>
-                    <div className={`group flex items-center gap-2 border-2 p-3 rounded-2xl transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
+                    <div className={`group flex items-center gap-3 border-2 p-4 rounded-2xl transition-all cursor-pointer ${metodoPago === 'efectivo' ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}>
                       <RadioGroupItem value="efectivo" id="efectivo" className="h-5 w-5 shrink-0" />
-                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm whitespace-nowrap overflow-hidden">
+                      <Label htmlFor="efectivo" className="font-bold flex items-center gap-2 cursor-pointer text-slate-900 text-sm leading-tight">
                         <ShoppingBag className="h-4 w-4 text-primary shrink-0" /> Efectivo
                       </Label>
                     </div>
