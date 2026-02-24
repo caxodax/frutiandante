@@ -27,6 +27,7 @@ export default function PaginaEditarProducto({ params }: { params: Promise<{ id:
   const firestore = useFirestore();
   const storage = useStorage();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const initializedRef = useRef(false);
 
   const productRef = useMemoFirebase(() => {
     if (!firestore || !id) return null;
@@ -54,8 +55,9 @@ export default function PaginaEditarProducto({ params }: { params: Promise<{ id:
   const [guardando, setGuardando] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
 
+  // Sincronizar datos del producto con el formulario
   useEffect(() => {
-    if (producto) {
+    if (producto && !initializedRef.current) {
       setForm({
         nombre: producto.nombre || '',
         descripcion: producto.descripcion || '',
@@ -64,6 +66,7 @@ export default function PaginaEditarProducto({ params }: { params: Promise<{ id:
         slug: producto.slug || '',
         imagenes: producto.imagenes || []
       });
+      initializedRef.current = true;
     }
   }, [producto]);
 
