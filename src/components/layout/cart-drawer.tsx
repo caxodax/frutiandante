@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -15,28 +16,9 @@ import { ShoppingCart, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
 export function CartDrawer() {
   const { items, removeItem, updateQuantity, totalPrice, totalItems, isLoaded } = useCart();
-  const firestore = useFirestore();
-
-  const categoriasQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'categories');
-  }, [firestore]);
-
-  const { data: categorias } = useCollection(categoriasQuery);
-
-  const checkEsVentaPorPeso = (idCategoria: string) => {
-    if (!categorias) return false;
-    const cat = categorias.find((c: any) => c.id === idCategoria);
-    if (!cat) return false;
-    const nombre = cat.nombre.toLowerCase();
-    return nombre.includes('fruta') || nombre.includes('verdura');
-  };
 
   if (!isLoaded) return null;
 
@@ -72,7 +54,7 @@ export function CartDrawer() {
           ) : (
             <div className="space-y-6">
               {items.map((item) => {
-                const esPeso = checkEsVentaPorPeso(item.idCategoria);
+                const esPeso = !!item.esVentaPorPeso;
                 const paso = esPeso ? 0.5 : 1;
                 
                 return (

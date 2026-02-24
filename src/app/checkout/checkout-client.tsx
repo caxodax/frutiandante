@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -115,7 +116,10 @@ export default function CheckoutClient() {
 
     try {
       const config = siteConfig as any;
-      const mensajeItems = items.map(item => `• ${item.nombre} (x${item.quantity}) - $${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}`).join('\n');
+      const mensajeItems = items.map(item => {
+        const unidad = item.esVentaPorPeso ? 'kg' : 'un';
+        return `• ${item.nombre} (x${item.quantity} ${unidad}) - $${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}`;
+      }).join('\n');
       
       let textoMetodoPago = '🏦 Transferencia Bancaria';
       if (metodoPago === 'mercadopago') textoMetodoPago = '💳 MercadoPago (Enlace de pago)';
@@ -142,7 +146,7 @@ export default function CheckoutClient() {
       if (firestore) {
         addDoc(collection(firestore, 'orders'), {
           userId: user?.uid || null,
-          items: items.map(i => ({ id: i.id, nombre: i.nombre, cant: i.quantity, precio: i.precioDetalle })),
+          items: items.map(i => ({ id: i.id, nombre: i.nombre, cant: i.quantity, precio: i.precioDetalle, esVentaPorPeso: !!i.esVentaPorPeso })),
           subtotal: totalPrice,
           descuento: montoDescuento,
           total: totalFinal,
@@ -333,20 +337,23 @@ export default function CheckoutClient() {
             </CardHeader>
             <CardContent className="p-10 space-y-8">
               <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center gap-6">
-                    <div className="flex gap-4 items-center">
-                      <div className="h-16 w-16 rounded-2xl bg-slate-50 overflow-hidden relative border border-slate-100 shrink-0">
-                         <Image src={item.imagenes[0]} alt={item.nombre} fill className="object-cover" />
+                {items.map((item) => {
+                  const unidad = item.esVentaPorPeso ? 'kg' : 'un';
+                  return (
+                    <div key={item.id} className="flex justify-between items-center gap-6">
+                      <div className="flex gap-4 items-center">
+                        <div className="h-16 w-16 rounded-2xl bg-slate-50 overflow-hidden relative border border-slate-100 shrink-0">
+                          <Image src={item.imagenes[0]} alt={item.nombre} fill className="object-cover" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-base font-bold text-slate-900 leading-tight">{item.nombre}</span>
+                          <span className="text-xs font-medium text-slate-400">Cant: {item.quantity} {unidad}</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-base font-bold text-slate-900 leading-tight">{item.nombre}</span>
-                        <span className="text-xs font-medium text-slate-400">Cant: {item.quantity} {item.idCategoria && (item.idCategoria === '1' || item.idCategoria === '2') ? 'kg' : 'un'}</span>
-                      </div>
+                      <span className="text-base font-black text-slate-800 shrink-0">${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}</span>
                     </div>
-                    <span className="text-base font-black text-slate-800 shrink-0">${(item.precioDetalle * item.quantity).toLocaleString('es-CL')}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <Separator />

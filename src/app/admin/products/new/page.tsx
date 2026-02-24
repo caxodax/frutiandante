@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ArrowLeft, Loader2, Plus, Trash2, Upload, Scale } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useStorage } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -39,6 +40,7 @@ export default function PaginaAnadirProducto() {
     precioDetalle: '',
     idCategoria: '',
     slug: '',
+    esVentaPorPeso: false,
     imagenes: [] as string[]
   });
   const [guardando, setGuardando] = useState(false);
@@ -134,15 +136,35 @@ export default function PaginaAnadirProducto() {
                   onChange={(e) => setForm({ ...form, descripcion: e.target.value })} 
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="precioDetalle" className="font-bold">Precio ($)</Label>
-                <Input 
-                  id="precioDetalle" 
-                  type="number" 
-                  required 
-                  value={form.precioDetalle} 
-                  onChange={(e) => setForm({ ...form, precioDetalle: e.target.value })} 
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="precioDetalle" className="font-bold">Precio ($)</Label>
+                  <Input 
+                    id="precioDetalle" 
+                    type="number" 
+                    required 
+                    value={form.precioDetalle} 
+                    onChange={(e) => setForm({ ...form, precioDetalle: e.target.value })} 
+                  />
+                </div>
+                <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-all hover:bg-slate-100/80">
+                  <Checkbox 
+                    id="esVentaPorPeso" 
+                    checked={form.esVentaPorPeso}
+                    onCheckedChange={(checked) => setForm({ ...form, esVentaPorPeso: checked === true })}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label 
+                      htmlFor="esVentaPorPeso" 
+                      className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                    >
+                      <Scale className="h-4 w-4 text-primary" /> Venta por Kilo
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Si se activa, el producto se venderá en pasos de 0.5 kg.
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

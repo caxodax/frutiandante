@@ -12,6 +12,7 @@
         "imagenes": { "type": "array", "items": { "type": "string" } },
         "idCategoria": { "type": "string" },
         "slug": { "type": "string" },
+        "esVentaPorPeso": { "type": "boolean", "description": "Indica si el producto se vende por kilo (pasos de 0.5) o por unidad" },
         "created_at": { "type": "string", "format": "date-time" }
       },
       "required": ["nombre", "precioDetalle", "idCategoria", "slug"]

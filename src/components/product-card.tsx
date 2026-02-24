@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -10,9 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Plus, Minus, Star } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import imageData from '@/app/lib/placeholder-images.json';
 
 interface TarjetaProductoProps {
@@ -22,23 +20,8 @@ interface TarjetaProductoProps {
 const TarjetaProducto = ({ producto }: TarjetaProductoProps) => {
   const { addItem } = useCart();
   const { toast } = useToast();
-  const firestore = useFirestore();
 
-  const categoriasQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'categories');
-  }, [firestore]);
-
-  const { data: categorias } = useCollection(categoriasQuery);
-
-  const esVentaPorPeso = useMemo(() => {
-    if (!categorias || !producto.idCategoria) return false;
-    const cat = categorias.find((c: any) => c.id === producto.idCategoria);
-    if (!cat) return false;
-    const nombre = cat.nombre.toLowerCase();
-    return nombre.includes('fruta') || nombre.includes('verdura');
-  }, [categorias, producto.idCategoria]);
-
+  const esVentaPorPeso = !!producto.esVentaPorPeso;
   const paso = esVentaPorPeso ? 0.5 : 1;
   const [cantidad, setCantidad] = useState(paso);
 

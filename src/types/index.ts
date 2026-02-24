@@ -7,6 +7,7 @@ export interface Producto {
   imagenes: string[];
   idCategoria: string;
   slug: string;
+  esVentaPorPeso?: boolean;
   created_at?: string;
 }
 

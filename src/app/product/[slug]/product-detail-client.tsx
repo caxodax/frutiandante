@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -44,13 +45,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   const { data: products, loading: loadingProd } = useCollection(productQuery);
   const producto = products && products.length > 0 ? products[0] : null;
 
-  const categoriasQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'categories');
-  }, [firestore]);
-
-  const { data: categorias } = useCollection(categoriasQuery);
-
   const siteConfigRef = useMemoFirebase(() => {
     if (!firestore) return null;
     return doc(firestore, 'config', 'site');
@@ -58,14 +52,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   const { data: configuracion } = useDoc(siteConfigRef);
 
-  const esVentaPorPeso = useMemo(() => {
-    if (!categorias || !producto?.idCategoria) return false;
-    const cat = categorias.find((c: any) => c.id === producto.idCategoria);
-    if (!cat) return false;
-    const nombre = cat.nombre.toLowerCase();
-    return nombre.includes('fruta') || nombre.includes('verdura');
-  }, [categorias, producto?.idCategoria]);
-
+  const esVentaPorPeso = !!producto?.esVentaPorPeso;
   const paso = esVentaPorPeso ? 0.5 : 1;
   const [cantidad, setCantidad] = useState(paso);
 
