@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -19,10 +19,10 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
-export default function PaginaEditarProducto() {
+export default function PaginaEditarProducto({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
   const router = useRouter();
-  const params = useParams();
-  const id = params?.id as string;
   const { toast } = useToast();
   const firestore = useFirestore();
   const storage = useStorage();
@@ -54,7 +54,6 @@ export default function PaginaEditarProducto() {
   const [guardando, setGuardando] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
 
-  // Sincronizar el formulario con los datos del producto cuando carguen
   useEffect(() => {
     if (producto) {
       setForm({

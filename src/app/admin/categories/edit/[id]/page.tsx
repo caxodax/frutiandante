@@ -2,9 +2,9 @@
 'use client';
 
 import type React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -19,9 +19,10 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import Image from 'next/image';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
-export default function PaginaEditarCategoria() {
+export default function PaginaEditarCategoria({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
   const router = useRouter();
-  const { id } = useParams();
   const { toast } = useToast();
   const firestore = useFirestore();
   const storage = useStorage();
@@ -29,7 +30,7 @@ export default function PaginaEditarCategoria() {
 
   const categoryRef = useMemoFirebase(() => {
     if (!firestore || !id) return null;
-    return doc(firestore, 'categories', id as string);
+    return doc(firestore, 'categories', id);
   }, [firestore, id]);
 
   const { data: categoria, loading: cargandoDoc } = useDoc(categoryRef);

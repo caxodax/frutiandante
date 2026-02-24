@@ -1,6 +1,7 @@
 
 'use client';
 
+import { use } from 'react';
 import Encabezado from '@/components/layout/header';
 import PieDePagina from '@/components/layout/footer';
 import TarjetaProducto from '@/components/product-card';
@@ -8,15 +9,14 @@ import { Search, ShoppingBag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useCollection, useFirestore } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
-export default function PaginaProductos() {
-  const searchParams = useSearchParams();
-  const q = searchParams.get('q') || '';
-  const category = searchParams.get('category') || '';
+export default function PaginaProductos({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
+  const resolvedSearchParams = use(searchParams);
+  const q = resolvedSearchParams.q || '';
+  const categoryId = resolvedSearchParams.category || '';
   const queryText = q.toLowerCase();
   
   const firestore = useFirestore();
@@ -24,11 +24,11 @@ export default function PaginaProductos() {
   const productosQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     let baseQuery = query(collection(firestore, 'products'));
-    if (category) {
-      baseQuery = query(baseQuery, where('idCategoria', '==', category));
+    if (categoryId) {
+      baseQuery = query(baseQuery, where('idCategoria', '==', categoryId));
     }
     return baseQuery;
-  }, [firestore, category]);
+  }, [firestore, categoryId]);
 
   const categoriasQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -36,7 +36,7 @@ export default function PaginaProductos() {
   }, [firestore]);
 
   const { data: todosLosProductos, loading: loadingProd } = useCollection(productosQuery);
-  const { data: categorias, loading: loadingCat } = useCollection(categoriasQuery);
+  const { data: categorias } = useCollection(categoriasQuery);
 
   const productosFiltrados = (todosLosProductos || []).filter((p: any) => {
     return p.nombre.toLowerCase().includes(queryText) || p.descripcion.toLowerCase().includes(queryText);
@@ -70,20 +70,20 @@ export default function PaginaProductos() {
                     placeholder="¿Buscas algo específico? Ej: Manzanas, Paltas..." 
                     className="pl-12 h-14 rounded-2xl border-slate-100 bg-slate-50 text-lg focus-visible:ring-primary/20"
                   />
-                  {category && <input type="hidden" name="category" value={category} />}
+                  {categoryId && <input type="hidden" name="category" value={categoryId} />}
                 </form>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mr-2">Categorías:</span>
-                <Button asChild variant={!category ? "default" : "outline"} className="rounded-xl font-bold h-10">
+                <Button asChild variant={!categoryId ? "default" : "outline"} className="rounded-xl font-bold h-10">
                   <Link href="/products">Todas</Link>
                 </Button>
                 {categorias?.map((cat: any) => (
                   <Button 
                     key={cat.id} 
                     asChild 
-                    variant={category === cat.id ? "default" : "outline"}
+                    variant={categoryId === cat.id ? "default" : "outline"}
                     className="rounded-xl font-bold h-10"
                   >
                     <Link href={`/products?category=${cat.id}${q ? `&q=${q}` : ''}`}>

@@ -1,14 +1,13 @@
 
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { use } from 'react';
 import Encabezado from '@/components/layout/header';
 import PieDePagina from '@/components/layout/footer';
 import TarjetaProducto from '@/components/product-card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ListFilter, LayoutGrid, Search, Loader2 } from 'lucide-react';
+import { ChevronRight, LayoutGrid, Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -21,14 +20,14 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
-export default function PaginaCategoria() {
-  const params = useParams();
-  const slug = params.slug as string;
+export default function PaginaCategoria({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = use(params);
+  const slug = resolvedParams.slug;
   const firestore = useFirestore();
 
   // Consulta para obtener la categoría por slug
   const categoryQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !slug) return null;
     return query(collection(firestore, 'categories'), where('slug', '==', slug), limit(1));
   }, [firestore, slug]);
 
