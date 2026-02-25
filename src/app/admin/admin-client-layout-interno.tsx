@@ -46,7 +46,7 @@ const elementosNavegacionAdmin = [
   { href: "/admin/products", label: "Productos", icon: Package },
   { href: "/admin/categories", label: "Categorías", icon: LayoutGrid },
   { href: "/admin/orders", label: "Pedidos", icon: LineChart },
-  { href: "/admin/customers", label: "Clientes", icon: Users, disabled: true },
+  { href: "/admin/customers", label: "Clientes", icon: Users },
   { href: "/admin/settings", label: "Config. Sitio", icon: Settings },
   { href: "/", label: "Ver Tienda", icon: Store }, 
 ];
@@ -128,7 +128,6 @@ export default function AdminClientLayoutInterno({
                 <SidebarMenuButton 
                   asChild 
                   isActive={pathname === item.href} 
-                  disabled={item.disabled}
                 >
                   <Link href={item.href}>
                     <item.icon className="h-5 w-5" />
