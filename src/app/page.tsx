@@ -93,7 +93,7 @@ export default function PaginaInicio() {
                 <div>
                   <h3 className="text-xl font-bold text-primary mb-3 uppercase tracking-tight">Zonas de Despacho</h3>
                   <p className="text-slate-600 text-sm font-bold uppercase leading-relaxed max-w-[280px] mx-auto">
-                    LAS CONDES – LO BARNECHEA – ÑUÑOA – PROVIDENCIA – SANTIAGO Y VITACURA
+                    SANTIAGO, PROVIDENCIA, ÑUÑOA, LAS CONDES Y VITACURA
                   </p>
                 </div>
               </div>
