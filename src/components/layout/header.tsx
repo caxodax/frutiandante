@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Menu, Search, ChevronDown, Loader2 } from 'lucide-react';
 import Logotipo from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { useCollection, useFirestore, useDoc, useUser } from '@/firebase';
+import { useCollection, useFirestore, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 import { CartDrawer } from './cart-drawer';
@@ -27,7 +27,6 @@ import { Input } from '@/components/ui/input';
 
 const Encabezado = () => {
   const firestore = useFirestore();
-  const { user } = useUser();
 
   const categoriasQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -41,14 +40,6 @@ const Encabezado = () => {
 
   const { data: categorias, loading: loadingCat } = useCollection(categoriasQuery);
   const { data: siteConfig } = useDoc(siteConfigRef);
-
-  // Verificamos si el usuario es admin para el enlace del menú móvil
-  const userProfileRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'users', user.uid);
-  }, [firestore, user]);
-  const { data: userProfile } = useDoc(userProfileRef);
-  const esAdmin = userProfile && (userProfile as any).role === 'admin';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-sm">
@@ -121,9 +112,7 @@ const Encabezado = () => {
                     <Button asChild className="w-full h-12 rounded-xl font-bold">
                       <Link href="/auth">Mi Cuenta</Link>
                     </Button>
-                    <Link href="/admin" className="block text-center text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-primary">
-                      {esAdmin ? 'Panel de Control' : 'Panel Admin'}
-                    </Link>
+                    <Link href="/admin" className="block text-center text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-primary">Panel Admin</Link>
                   </div>
                 </nav>
               </SheetContent>
