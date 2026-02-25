@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,8 +12,7 @@ import {
   LayoutGrid,
   Store,
   LogOut,
-  Loader2,
-  ShieldCheck
+  Loader2
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -76,45 +75,56 @@ export default function AdminClientLayoutInterno({
 
   const { data: userProfile, loading: profileLoading, error: profileError } = useDoc(userProfileRef);
 
-  const esAdmin = userProfile && (userProfile as any).role === 'admin';
+  const esAdmin = useMemo(() => {
+    return userProfile && (userProfile as any).role === 'admin';
+  }, [userProfile]);
 
   useEffect(() => {
-    if (userLoading || profileLoading) return;
+    // 1. Esperar siempre a que la sesión de Auth esté definida
+    if (userLoading) return;
+
+    // 2. Si hay un usuario, debemos esperar OBLIGATORIAMENTE a que el perfil cargue
+    // para saber si tiene el rol de admin antes de redirigir.
+    if (user && profileLoading) return;
 
     if (pathname === '/admin/login') {
-      // Si ya está logueado como admin y entra a login, lo mandamos al panel directamente
       if (user && esAdmin) {
         router.replace('/admin');
       }
+      return;
+    }
+
+    // 3. Protección de rutas: si después de cargar todo no hay usuario, a login
+    if (!user) {
+      router.replace('/admin/login');
     } else {
-      // Protección de rutas: si no hay usuario, a login
-      if (!user) {
-        router.replace('/admin/login');
-      } else if (profileError || !esAdmin) {
-        // Si hay error o no es admin, fuera al sitio público
+      // Si hay usuario pero ya cargó el perfil y no es admin, fuera al sitio público
+      if (!profileLoading && !esAdmin) {
+        console.warn("Acceso denegado: El usuario no tiene rol de administrador.");
         router.replace('/');
       }
     }
   }, [user, userLoading, userProfile, profileLoading, profileError, router, pathname, esAdmin]);
 
-  // Si estamos en la página de login, mostramos solo el contenido (el formulario)
+  // Si estamos en la página de login, mostramos solo el contenido
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
-  // Pantalla de carga mientras se verifica el estado de la sesión y el rol
-  if (userLoading || profileLoading) {
+  // Pantalla de carga persistente mientras se verifica la identidad
+  // Añadimos una condición extra para no mostrar el panel si aún no confirmamos que es admin
+  if (userLoading || (user && profileLoading) || (user && !esAdmin)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">Verificando credenciales...</p>
+          <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Verificando Credenciales...</p>
         </div>
       </div>
     );
   }
 
-  // Si después de cargar no hay usuario o no es admin, no renderizamos el panel (el useEffect redirigirá)
+  // Si no hay usuario en este punto, el useEffect se encargará de la redirección
   if (!user || !esAdmin) {
     return null;
   }
