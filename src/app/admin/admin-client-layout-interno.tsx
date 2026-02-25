@@ -12,7 +12,8 @@ import {
   LayoutGrid,
   Store,
   LogOut,
-  Loader2
+  Loader2,
+  ShieldCheck
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -75,24 +76,33 @@ export default function AdminClientLayoutInterno({
 
   const { data: userProfile, loading: profileLoading, error: profileError } = useDoc(userProfileRef);
 
+  const esAdmin = userProfile && (userProfile as any).role === 'admin';
+
   useEffect(() => {
     if (userLoading || profileLoading) return;
 
-    if (pathname !== '/admin/login') {
+    if (pathname === '/admin/login') {
+      // Si ya está logueado como admin y entra a login, lo mandamos al panel directamente
+      if (user && esAdmin) {
+        router.replace('/admin');
+      }
+    } else {
+      // Protección de rutas: si no hay usuario, a login
       if (!user) {
         router.replace('/admin/login');
-      } else if (profileError) {
-        router.replace('/');
-      } else if (!userProfile || (userProfile as any).role !== 'admin') {
+      } else if (profileError || !esAdmin) {
+        // Si hay error o no es admin, fuera al sitio público
         router.replace('/');
       }
     }
-  }, [user, userLoading, userProfile, profileLoading, profileError, router, pathname]);
+  }, [user, userLoading, userProfile, profileLoading, profileError, router, pathname, esAdmin]);
 
+  // Si estamos en la página de login, mostramos solo el contenido (el formulario)
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
+  // Pantalla de carga mientras se verifica el estado de la sesión y el rol
   if (userLoading || profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -104,7 +114,8 @@ export default function AdminClientLayoutInterno({
     );
   }
 
-  if (!user || profileError || !userProfile || (userProfile as any).role !== 'admin') {
+  // Si después de cargar no hay usuario o no es admin, no renderizamos el panel (el useEffect redirigirá)
+  if (!user || !esAdmin) {
     return null;
   }
 
