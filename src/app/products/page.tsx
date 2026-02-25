@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use } from 'react';
@@ -14,9 +13,7 @@ import { collection, query, where } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
 export default function PaginaProductos({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
-  const resolvedSearchParams = use(searchParams);
-  const q = resolvedSearchParams.q || '';
-  const categoryId = resolvedSearchParams.category || '';
+  const { q = '', category: categoryId = '' } = use(searchParams);
   const queryText = q.toLowerCase();
   
   const firestore = useFirestore();

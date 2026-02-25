@@ -1,4 +1,3 @@
-
 'use client';
 
 import type React from 'react';
@@ -20,8 +19,7 @@ import Image from 'next/image';
 import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
 export default function PaginaEditarCategoria({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const id = resolvedParams.id;
+  const { id } = use(params);
   const router = useRouter();
   const { toast } = useToast();
   const firestore = useFirestore();

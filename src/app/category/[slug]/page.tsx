@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { use, useState, useMemo } from 'react';
@@ -25,8 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import imageData from '@/app/lib/placeholder-images.json';
 
 export default function PaginaCategoria({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = use(params);
-  const slug = resolvedParams.slug;
+  const { slug } = use(params);
   const firestore = useFirestore();
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -149,11 +147,11 @@ export default function PaginaCategoria({ params }: { params: Promise<{ slug: st
             <div className="mb-12 flex flex-col items-center justify-between gap-6 rounded-[2rem] border bg-white p-6 shadow-xl shadow-slate-200/50 md:flex-row">
               <div className="relative w-full md:w-1/3">
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <Input 
+                <input 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder={`Buscar en ${categoria.nombre.toLowerCase()}...`} 
-                  className="pl-12 h-12 rounded-xl bg-slate-50 border-none" 
+                  className="w-full pl-12 h-12 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 outline-none text-sm font-medium" 
                 />
               </div>
               <div className="flex items-center gap-3 w-full md:w-auto">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState, use } from 'react';
@@ -44,8 +43,7 @@ type Categoria = {
 type ProductoDB = Record<string, any>;
 
 export default function PaginaEditarProducto({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const id = resolvedParams.id;
+  const { id } = use(params);
 
   const router = useRouter();
   const { toast } = useToast();
