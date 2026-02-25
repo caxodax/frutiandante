@@ -1,21 +1,17 @@
 // Este archivo es un Componente de Servidor
 import type React from "react";
-import { obtenerConfiguracionSitio } from '@/lib/mock-data';
-import Logotipo from "@/components/logo"; // Ahora espera 'configuracion' prop
-import AdminClientLayoutInterno from './admin-client-layout-interno'; // Nuevo Componente de Cliente
+import Logotipo from "@/components/logo";
+import AdminClientLayoutInterno from './admin-client-layout-interno';
 
-export default async function DisposicionAdmin({ // Puede seguir llamándose DisposicionAdmin o cambiar a AdminLayout
+export default async function DisposicionAdmin({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const configuracion = await obtenerConfiguracionSitio();
-
-  // Renderizamos Logotipo aquí, en el servidor
-  const logotipoPrincipalRenderizado = <Logotipo configuracion={configuracion} />;
-  // Si necesitas una instancia diferente para móvil con props diferentes, la crearías aquí también
-  const logotipoCabeceraMovilRenderizado = <Logotipo configuracion={configuracion} />;
-
+  // Renderizamos Logotipo sin pasar configuración inicial, 
+  // ya que el componente ahora es inteligente y la obtiene de Firestore
+  const logotipoPrincipalRenderizado = <Logotipo />;
+  const logotipoCabeceraMovilRenderizado = <Logotipo />;
 
   return (
     <AdminClientLayoutInterno 

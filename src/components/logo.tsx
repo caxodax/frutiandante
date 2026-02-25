@@ -3,13 +3,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ConfiguracionSitio } from '@/tipos';
+import { useFirestore, useDoc } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/firestore/use-collection';
 
 interface LogotipoProps {
   className?: string;
   configuracion?: ConfiguracionSitio | null;
 }
 
-const Logotipo = ({ className, configuracion }: LogotipoProps) => {
+const Logotipo = ({ className, configuracion: propsConfig }: LogotipoProps) => {
+  const firestore = useFirestore();
+
+  const siteConfigRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'site');
+  }, [firestore]);
+
+  const { data: dbConfig } = useDoc(siteConfigRef);
+  
+  // Priorizamos la configuración pasada por props, de lo contrario usamos la de la base de datos
+  const configuracion = propsConfig || (dbConfig as any);
+
   const nombreDisplay = configuracion?.nombreEmpresa || 'Frutiandante';
   const logoUrl = configuracion?.urlLogo;
   
