@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,8 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
 import Logotipo from '@/components/logo';
-import { obtenerConfiguracionSitio } from '@/lib/mock-data';
-import type { ConfiguracionSitio } from '@/tipos';
 import { ShieldAlert, LogIn, Mail, Loader2 } from 'lucide-react';
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
@@ -19,22 +17,13 @@ import { doc, getDoc } from 'firebase/firestore';
 export default function PaginaLoginAdmin() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useUser();
+  const { loading: authLoading } = useUser();
   const auth = useAuth();
   const firestore = useFirestore();
   
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [cargando, setCargando] = useState(false);
-  const [configuracionSitio, setConfiguracionSitio] = useState<ConfiguracionSitio | null>(null);
-
-  useEffect(() => {
-    const cargarConfig = async () => {
-      const config = await obtenerConfiguracionSitio();
-      setConfiguracionSitio(config);
-    };
-    cargarConfig();
-  }, []);
 
   const manejarLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +56,7 @@ export default function PaginaLoginAdmin() {
     }
   };
 
-  if (authLoading || !configuracionSitio) {
+  if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -79,7 +68,8 @@ export default function PaginaLoginAdmin() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-orange-50/30 p-4">
       <Card className="w-full max-w-md shadow-2xl border-none rounded-[2.5rem] overflow-hidden bg-white/80 backdrop-blur-sm">
         <CardHeader className="items-center text-center space-y-4 pt-12">
-          <Logotipo configuracion={configuracionSitio} />
+          {/* El componente Logotipo ahora es inteligente y obtiene la config de Firestore automáticamente */}
+          <Logotipo />
           <div className="space-y-1">
             <CardTitle className="font-headline text-3xl font-black text-slate-900">Panel de Control</CardTitle>
             <CardDescription className="text-slate-500 font-medium">
