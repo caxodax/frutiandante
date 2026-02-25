@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Loader2, User, Mail, Calendar, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Search, Loader2, User, Mail, Calendar, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -29,7 +29,8 @@ export default function PaginaAdminClientes() {
   const { data: users, loading, error } = useCollection(usersQuery);
 
   const clientesFiltrados = (users || []).filter((u: any) => 
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.id?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const cambiarRol = async (userId: string, nuevoRol: 'cliente' | 'admin') => {
@@ -67,17 +68,28 @@ export default function PaginaAdminClientes() {
           <div className="mb-8 relative w-full sm:w-1/2">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
             <Input 
-              placeholder="Buscar por email..." 
+              placeholder="Buscar por email o ID..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-12 h-12 rounded-xl bg-slate-50 border-slate-100" 
             />
           </div>
 
+          {error && (
+            <div className="mb-6 p-6 bg-destructive/10 border border-destructive/20 rounded-2xl flex items-start gap-4">
+              <AlertTriangle className="h-6 w-6 text-destructive shrink-0 mt-1" />
+              <div className="space-y-1">
+                <p className="font-black text-destructive uppercase text-sm">Error de Acceso</p>
+                <p className="text-slate-600 text-sm">No tienes permisos para ver la lista completa de usuarios o hubo un problema con la base de datos.</p>
+              </div>
+            </div>
+          )}
+
           <div className="overflow-x-auto rounded-2xl border border-slate-100">
             {loading ? (
-              <div className="flex justify-center py-20">
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Sincronizando Usuarios...</p>
               </div>
             ) : (
               <Table>
@@ -112,7 +124,7 @@ export default function PaginaAdminClientes() {
                       <TableCell>
                         <div className="flex items-center gap-2 text-slate-500">
                           <Calendar className="h-4 w-4" />
-                          <span className="text-xs">
+                          <span className="text-xs font-bold">
                             {cliente.created_at?.seconds 
                               ? format(new Date(cliente.created_at.seconds * 1000), "dd MMM yyyy", { locale: es })
                               : '---'}
@@ -122,8 +134,8 @@ export default function PaginaAdminClientes() {
                       <TableCell>
                         <Badge 
                           className={cliente.role === 'admin' 
-                            ? "bg-primary text-white border-none" 
-                            : "bg-emerald-50 text-emerald-700 border-none hover:bg-emerald-100"
+                            ? "bg-primary text-white border-none px-3 py-1" 
+                            : "bg-emerald-50 text-emerald-700 border-none hover:bg-emerald-100 px-3 py-1"
                           }
                         >
                           {cliente.role === 'admin' ? 'Administrador' : 'Cliente'}
@@ -134,7 +146,7 @@ export default function PaginaAdminClientes() {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="rounded-xl text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                            className="rounded-xl text-orange-600 hover:text-orange-700 hover:bg-orange-50 font-bold"
                             onClick={() => cambiarRol(cliente.id, 'cliente')}
                           >
                             <ShieldAlert className="h-4 w-4 mr-2" /> Quitar Admin
@@ -143,7 +155,7 @@ export default function PaginaAdminClientes() {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="rounded-xl text-primary hover:bg-primary/5"
+                            className="rounded-xl text-primary hover:bg-primary/5 font-bold"
                             onClick={() => cambiarRol(cliente.id, 'admin')}
                           >
                             <ShieldCheck className="h-4 w-4 mr-2" /> Hacer Admin
@@ -152,9 +164,9 @@ export default function PaginaAdminClientes() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {clientesFiltrados.length === 0 && (
+                  {clientesFiltrados.length === 0 && !loading && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-20 text-slate-400 font-bold">
+                      <TableCell colSpan={5} className="text-center py-24 text-slate-400 font-black uppercase tracking-widest text-xs">
                         No se encontraron usuarios registrados.
                       </TableCell>
                     </TableRow>

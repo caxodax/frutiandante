@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Función auxiliar para verificar si el usuario tiene rol de administrador
+    function isAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Reglas para la colección de usuarios (Perfiles)
+    match /users/{userId} {
+      // Un usuario puede leer su propio perfil, o un admin puede leer cualquiera
+      allow get: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      // CRÍTICO: Solo los administradores pueden listar (ver todos) los usuarios
+      allow list: if isAdmin();
+      // Registro inicial de usuario
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Actualización de perfil (dueño o admin)
+      allow update: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Reglas para Productos y Categorías (Lectura para todos, edición solo admin)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Configuración del sitio (Logo, Portada, etc)
+    match /config/site {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Reglas para Pedidos
+    match /orders/{orderId} {
+      // Permite creación (incluye invitados)
+      allow create: if true;
+      // Lectura: el dueño del pedido o el admin
+      allow get: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+      // Listado: solo para el panel de administración
+      allow list: if isAdmin();
+      // Actualización de estado: solo admin
+      allow update: if isAdmin();
+    }
+  }
+}
