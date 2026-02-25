@@ -112,7 +112,7 @@ const Encabezado = () => {
                     <Button asChild className="w-full h-12 rounded-xl font-bold">
                       <Link href="/auth">Mi Cuenta</Link>
                     </Button>
-                    <Link href="/admin" className="block text-center text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-primary">Panel Admin</Link>
+                    <Link href="/admin/login" className="block text-center text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-primary">Panel Admin</Link>
                   </div>
                 </nav>
               </SheetContent>
